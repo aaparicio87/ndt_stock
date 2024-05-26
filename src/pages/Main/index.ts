@@ -1,2 +1,3 @@
-export { default as Profile } from './Profile/Profile';
-export { default as Stock } from './Stock/Stock';
+export * from './Profile/Profile';
+export * from './Stock/Stock';
+export * from './Users/Users';

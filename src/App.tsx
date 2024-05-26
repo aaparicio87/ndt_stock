@@ -6,7 +6,6 @@ import { ChakraProvider } from '@chakra-ui/react'
 
 function App() {
 
-
   return (
     <Provider store={store}>
       <ChakraProvider>

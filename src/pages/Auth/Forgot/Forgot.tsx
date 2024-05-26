@@ -30,11 +30,9 @@ export const Forgot = () => {
             </FormControl>
             <Stack spacing={6}>
                 <Button
-                    bg={'blue.400'}
-                    color={'white'}
-                    _hover={{
-                        bg: 'blue.500',
-                    }}>
+                    colorScheme='teal'
+                    variant='solid'
+                >
                     Request Reset
                 </Button>
             </Stack>

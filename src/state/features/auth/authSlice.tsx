@@ -1,31 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../../store'
-import { User } from '../../../utils'
+import { AUTH_SLICE_NAME } from '../../../utils/constants'
 
 
-type AuthState = {
-    user: User | null
-    token: string | null
+const INITIAL_STATE: UserResponse = {
+    user: undefined,
+    token: null,
 }
 
 const slice = createSlice({
-    name: 'auth',
-    initialState: { user: null, token: null } as AuthState,
+    name: AUTH_SLICE_NAME,
+    initialState: INITIAL_STATE,
     reducers: {
-        setCredentials: (
-            state,
-            {
-                payload: { user, token },
-            }: PayloadAction<{ user: User; token: string }>,
-        ) => {
+        setCredentials: (state, action: PayloadAction<UserResponse>) => {
+            const { token, user } = action.payload
             state.user = user
             state.token = token
         },
+        clearAuth: () => INITIAL_STATE
     },
 })
 
-export const { setCredentials } = slice.actions
+export const { setCredentials, clearAuth } = slice.actions
 
 export default slice.reducer
 

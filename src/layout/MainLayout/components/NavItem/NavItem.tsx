@@ -6,15 +6,16 @@ import { Link as ReactRouterLink } from "react-router-dom";
 
 type NavItemProps = FlexProps & {
     icon: IconType;
+    route: string
     children: React.ReactNode;
 }
-export const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
+export const NavItem = ({ icon, route, children, ...rest }: NavItemProps) => {
     return (
         <ChakraLink
             as={ReactRouterLink}
-            to='/'
             style={{ textDecoration: 'none' }}
             _focus={{ boxShadow: 'none' }}
+            to={route}
         >
             <Flex
                 align="center"

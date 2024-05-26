@@ -1,8 +1,9 @@
 import { Routes, Route } from 'react-router-dom'
 import { PrivateOutlet } from '../utils/PrivateOutlet'
 import { Forgot, Login } from '../pages/Auth'
-import { Profile, Stock } from '../pages/Main'
+
 import { AuthLayout, MainLayout } from '../layout'
+import { Profile, Stock, Users } from '../pages/Main'
 
 
 const MainRoutes = () => {
@@ -16,6 +17,7 @@ const MainRoutes = () => {
                 <Route element={<MainLayout />}>
                     <Route index element={<Stock />} />
                     <Route path="profile" element={<Profile />} />
+                    <Route path="users" element={<Users />} />
                 </Route>
             </Route>
         </Routes>

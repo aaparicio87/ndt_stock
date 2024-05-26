@@ -5,58 +5,46 @@ import { Button, Heading, Stack, useDisclosure } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import ModalAdd from "./components/ModalAdd/ModalAdd"
 
+type TStaffTable = {
+    fullName: string
+    email: string
+    degree: string
+    roles: string
+}
 
-export const Stock = () => {
+
+
+export const Users = () => {
 
     const { isOpen, onOpen, onClose } = useDisclosure()
 
-    const columns = React.useMemo<ColumnDef<TStock>[]>(
+    const columns = React.useMemo<ColumnDef<TStaffTable>[]>(
         () => [
             {
-                accessorKey: 'typeEquipment',
-                header: () => 'Type of Equipment',
+                accessorKey: 'fullName',
+                header: () => 'Full name',
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'tradeMark',
-                header: () => <span>Trademark</span>,
+                accessorKey: 'email',
+                header: () => 'Email',
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'model',
-                header: 'Model',
+                accessorKey: 'degree',
+                header: 'Degree',
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'serialNumber',
-                header: 'Serial Number',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'store',
-                header: 'Store',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'calibrationDate',
-                header: 'Calibration',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'qualityOfService',
-                header: 'QoS',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'remarks',
-                header: 'Remarks',
+                accessorKey: 'roles',
+                header: 'Roles',
                 footer: props => props.column.id,
             },
         ],
         []
     )
 
-    const [data, setData] = React.useState<TStock[]>([])
+    const [data, setData] = React.useState<TStaffTable[]>([])
 
     return (
         <>
@@ -67,12 +55,8 @@ export const Stock = () => {
                 marginBottom={5}
                 marginX={5}
             >
-                <Heading
-                    as='h3'
-                    size='lg'
-                    noOfLines={1}
-                >
-                    Stock
+                <Heading as='h3' size='lg' noOfLines={1}>
+                    Users
                 </Heading>
                 <Button
                     leftIcon={<FiPlus />}

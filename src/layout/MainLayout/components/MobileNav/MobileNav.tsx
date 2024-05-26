@@ -20,11 +20,18 @@ import {
     FiMenu
 } from "react-icons/fi";
 import { LogoCompany } from "../../../../components";
+import { useAuth } from "../../../../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 
 type MobileProps = FlexProps & {
     onOpen: () => void;
 }
 export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
+
+    const { name, lastName } = useSelector(selectCurrentUser) as TStaff
+    const { logout } = useAuth()
+
     return (
         <Flex
             ml={{ base: 0, md: 60 }}
@@ -71,10 +78,7 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">Justina Clark</Text>
-                                    <Text fontSize="xs" color="gray.600">
-                                        Admin
-                                    </Text>
+                                    <Text fontSize="sm">{`${name} ${lastName}`}</Text>
                                 </VStack>
                                 <Box display={{ base: 'none', md: 'flex' }}>
                                     <FiChevronDown />
@@ -85,10 +89,8 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                             bg={useColorModeValue('white', 'gray.900')}
                             borderColor={useColorModeValue('gray.200', 'gray.700')}>
                             <MenuItem>Profile</MenuItem>
-                            <MenuItem>Settings</MenuItem>
-                            <MenuItem>Billing</MenuItem>
                             <MenuDivider />
-                            <MenuItem>Sign out</MenuItem>
+                            <MenuItem onClick={logout}>Sign out</MenuItem>
                         </MenuList>
                     </Menu>
                 </Flex>

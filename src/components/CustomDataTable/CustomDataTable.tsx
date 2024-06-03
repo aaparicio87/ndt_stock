@@ -82,7 +82,10 @@ export const CustomDataTable = <T extends object>({ data, columns }: TProps<T>) 
                     }
                     {table.getRowModel().rows.map(row => {
                         return (
-                            <Tr key={row.id}>
+                            <Tr
+                                key={row.id}
+                                textAlign={'center'}
+                            >
                                 {row.getVisibleCells().map(cell => {
                                     return (
                                         <td key={cell.id}>

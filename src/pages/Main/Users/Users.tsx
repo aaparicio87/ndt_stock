@@ -4,6 +4,10 @@ import { CustomDataTable } from "../../../components"
 import { Button, Heading, Stack, useDisclosure } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import ModalAdd from "./components/ModalAdd/ModalAdd"
+import { collection, onSnapshot } from "firebase/firestore"
+import { FB_DB } from "../../../config/firebase.conf"
+import { STAFF } from "../../../utils/constants"
+import { getAllStaff } from "../../../services"
 
 type TStaffTable = {
     fullName: string
@@ -45,6 +49,33 @@ export const Users = () => {
     )
 
     const [data, setData] = React.useState<TStaffTable[]>([])
+
+    React.useEffect(() => {
+        const unsubscribe = onSnapshot(collection(FB_DB, STAFF), (_) => {
+            getAllElements()
+        })
+        return () => unsubscribe();
+    }, [])
+
+    const getAllElements = async () => {
+        try {
+            const staffData = await getAllStaff();
+            if (staffData) {
+                const staffDataTable = staffData.map((staff) => {
+                    const staffTableData: TStaffTable = {
+                        degree: staff.degree ?? '',
+                        email: staff.email,
+                        fullName: `${staff.name} ${staff.lastName}`,
+                        roles: staff.roles.join(',')
+                    }
+                    return staffTableData
+                })
+                setData(staffDataTable)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
     return (
         <>

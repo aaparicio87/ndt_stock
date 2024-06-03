@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LOGIN_VALIDATION_SCHEMA } from "../../../utils/validationSchemas";
 import { useAuth } from "../../../hooks/useAuth";
+import { useNotification } from "../../../hooks/useNotification";
 
 const INITIAL_STATE: TSignIn = {
     email: "",
@@ -20,6 +21,7 @@ const INITIAL_STATE: TSignIn = {
 export const Login = () => {
 
     const { login } = useAuth()
+    const { openToast } = useNotification()
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<TSignIn>({
         defaultValues: {
@@ -32,7 +34,7 @@ export const Login = () => {
         try {
             await login(data)
         } catch (error) {
-            console.error(error)
+            openToast('error', JSON.stringify(error), "Error")
         }
     }
 

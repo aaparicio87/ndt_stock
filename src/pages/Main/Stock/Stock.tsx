@@ -4,6 +4,10 @@ import { CustomDataTable } from "../../../components"
 import { Button, Heading, Stack, useDisclosure } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import ModalAdd from "./components/ModalAdd/ModalAdd"
+import { getAllStcokElements } from "../../../services"
+import { collection, onSnapshot } from "firebase/firestore"
+import { FB_DB } from "../../../config/firebase.conf"
+import { STOCK } from "../../../utils/constants"
 
 
 export const Stock = () => {
@@ -57,6 +61,25 @@ export const Stock = () => {
     )
 
     const [data, setData] = React.useState<TStock[]>([])
+
+    React.useEffect(() => {
+        const unsubscribe = onSnapshot(collection(FB_DB, STOCK), (_) => {
+            getAllElements()
+        })
+        return () => unsubscribe();
+    }, [])
+
+    const getAllElements = async () => {
+        try {
+            const stockData = await getAllStcokElements();
+            if (stockData) {
+                setData(stockData)
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
 
     return (
         <>

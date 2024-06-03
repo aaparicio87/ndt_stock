@@ -7,20 +7,20 @@ import {
 import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore"
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
+import { generateRandomPassword } from "../utils/functions"
+
 
 
 const registerUser = async (userData:TStaff):Promise<void> => {
     try {
 
-        const {email, lastName, name, password, roles} = userData
-        const response = await createUserWithEmailAndPassword(FB_AUTH, email, password)
+        const {email} = userData
+        const randomPassword = generateRandomPassword()
+        const response = await createUserWithEmailAndPassword(FB_AUTH, email, randomPassword)
 
         if(response){
             await setDoc(doc(FB_DB, STAFF, response.user.uid), {
-                name,
-                lastName,
-                email,
-                roles
+               ...userData
             });
         }
 

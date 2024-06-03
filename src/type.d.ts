@@ -4,15 +4,18 @@ type TSignIn = {
     password:string,
 }
 
-type TSignUp = TSignIn & {
+type TSignUp = {
     name: string,
     lastName: string,
+    email: string,
+    password?:string,
 }
 
 type TRole = 'ADMINISTRATOR' | 'DATA_MANAGER' | 'USER'
 type TToastStatus = 'success' | 'error' | 'warning' | 'info'
 
 type TStock = {
+    uid?:string
     typeEquipment: string
     tradeMark: string
     model: string
@@ -24,6 +27,7 @@ type TStock = {
 }
 
 type TStaff = TSignUp & {
+    uid?:string
     degree?:string
     greenCard?:boolean
     blueCard?:boolean

@@ -10,12 +10,11 @@ import { STAFF } from "../utils/constants"
 import { generateRandomPassword } from "../utils/functions"
 
 
-
 const registerUser = async (userData:TStaff):Promise<void> => {
     try {
 
-        const {email} = userData
-        const randomPassword = generateRandomPassword()
+        const {email, name, lastName} = userData
+        const randomPassword = generateRandomPassword(name, lastName)
         const response = await createUserWithEmailAndPassword(FB_AUTH, email, randomPassword)
 
         if(response){

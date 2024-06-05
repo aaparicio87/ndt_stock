@@ -22,6 +22,7 @@ import { useNotification } from '../../../../../hooks/useNotification'
 import { registerUser } from '../../../../../services'
 import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
 import { MultiSeleect } from '../../../../../components'
+import { Option, SelectOnChange } from 'chakra-multiselect'
 
 
 type TProps = {
@@ -49,39 +50,80 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
     const finalRef = React.useRef(null)
     const { openToast } = useNotification()
 
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
+    const { register, handleSubmit, reset, setValue, getValues, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
         defaultValues: {
             ...INITIAL_STATE
         },
         resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
     });
-    const [itemsCertificates, setItemsCertificates] = React.useState<any>([])
+    const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>([])
     const [itemsRoles, setItemsRoles] = React.useState<any>([])
+
+    const onChangeItemCertificates = (data: Option | Option[]) => {
+        setItemsCertificates(data)
+        const dataArray = data as Option[]
+        const certificates = dataArray
+
+        console.log(data)
+        /* let cert: TCertificates[] = getValues().cerificates ?? []
+
+        if (typeof data === 'object') {
+            let tempData = data as Option
+            let singleCert = tempData.label as TCertificates
+            cert = [...cert, singleCert]
+            setValue('cerificates', cert)
+        } else {
+            let tempData = data as Option[]
+            tempData.forEach((tmp) => {
+                let singleCert = tmp.label as TCertificates
+                cert = [...cert, singleCert]
+                setValue('cerificates', cert)
+            })
+        } */
+
+    }
+
+    const onChangeItemRoles = (data: Option | Option[]) => {
+        setItemsRoles(data)
+        console.log(data)
+        /* let roles: TRole[] = getValues().roles ?? []
+
+        if (typeof data === 'object') {
+            let tempData = data as Option
+            let singleRole = tempData.label as TRole
+            roles = [...roles, singleRole]
+            setValue('roles', roles)
+        } else {
+            let tempData = data as Option[]
+            tempData.forEach((tmp) => {
+                let singleRole = tmp.label as TRole
+                roles = [...roles, singleRole]
+                setValue('roles', roles)
+            })
+        } */
+    }
 
 
     React.useEffect(() => {
         reset()
+        setItemsCertificates([])
+        setItemsRoles([])
     }, [isSubmitSuccessful])
 
     const onSubmit = async (data: TStaff) => {
         try {
-            const { email, name, lastName, photoUrl } = data
-
-            const dataSubmit: TStaff = {
-                cerificates: itemsCertificates,
-                roles: itemsRoles,
-                email,
-                name,
-                lastName,
-                photoUrl
-            }
-            await registerUser(dataSubmit)
+            console.log(data)
+            await registerUser(data)
             openToast('success', "New user added to the staff", 'Success')
             onClose()
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
         }
     }
+
+    console.log(errors, getValues())
+
+    console.log(itemsCertificates, 'itemsCertificates')
     return (
         <Modal
             initialFocusRef={initialRef}
@@ -161,7 +203,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                     label='Certificates'
                                     placeholder='Select certificates'
                                     size='md'
-                                    onChange={setItemsCertificates}
+                                    onChange={onChangeItemCertificates}
                                 />
 
                             </FormControl>
@@ -174,7 +216,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                     label='Roles'
                                     placeholder='Select roles'
                                     size='md'
-                                    onChange={setItemsRoles}
+                                    onChange={onChangeItemRoles}
                                 />
                             </FormControl>
                         </HStack>
@@ -186,6 +228,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                             variant='solid'
                             mr={3}
                             isLoading={isSubmitting}
+                            type='submit'
                         >
                             Save
                         </Button>

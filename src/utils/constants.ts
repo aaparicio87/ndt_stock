@@ -24,6 +24,24 @@ const QOS = [
     "Bad",
 ]
 
+const DEGREES = [
+    'Technical',
+    'Engineer'
+]
+
+const CERTIFICATES: TCertificates[] = [
+    "Green card",
+    "Blue card",
+    "Master",
+    "Other",
+]
+
+const ROLES: TRole[]  = [
+    "ADMINISTRATOR",
+    "DATA_MANAGER",
+    "USER"
+]
+
 export {
     AUTH_SLICE_NAME,
     STAFF,
@@ -33,4 +51,7 @@ export {
     TYPE_EQUIPMENTS,
     TRADEMARK,
     QOS,
+    DEGREES,
+    CERTIFICATES,
+    ROLES
 }

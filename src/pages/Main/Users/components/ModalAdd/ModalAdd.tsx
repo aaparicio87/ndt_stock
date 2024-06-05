@@ -11,7 +11,8 @@ import {
     ModalContent,
     ModalFooter,
     ModalHeader,
-    ModalOverlay
+    ModalOverlay,
+    Select as ChakraSelect
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import React from 'react'
@@ -19,6 +20,9 @@ import { useForm } from 'react-hook-form'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { useNotification } from '../../../../../hooks/useNotification'
 import { registerUser } from '../../../../../services'
+import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
+import { MultiSeleect } from '../../../../../components'
+
 
 type TProps = {
     onClose: () => void
@@ -30,13 +34,14 @@ const INITIAL_STATE: TStaff = {
     lastName: "",
     name: "",
     roles: [],
-    blueCard: false,
-    greenCard: false,
-    master: false,
     degree: "",
     photoUrl: "",
-    others: [],
+    cerificates: []
 }
+
+
+const _optionsCertificates = CERTIFICATES.map((label) => ({ label, value: label.toLowerCase() }))
+const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() }))
 
 const ModalAdd = ({ onClose, isOpen }: TProps) => {
 
@@ -50,6 +55,8 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
         },
         resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
     });
+    const [itemsCertificates, setItemsCertificates] = React.useState<any>([])
+    const [itemsRoles, setItemsRoles] = React.useState<any>([])
 
 
     React.useEffect(() => {
@@ -58,7 +65,17 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
 
     const onSubmit = async (data: TStaff) => {
         try {
-            await registerUser(data)
+            const { email, name, lastName, photoUrl } = data
+
+            const dataSubmit: TStaff = {
+                cerificates: itemsCertificates,
+                roles: itemsRoles,
+                email,
+                name,
+                lastName,
+                photoUrl
+            }
+            await registerUser(dataSubmit)
             openToast('success', "New user added to the staff", 'Success')
             onClose()
         } catch (error) {
@@ -117,13 +134,48 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
 
                             <FormControl>
                                 <FormLabel>Degree</FormLabel>
-                                <Input
-                                    placeholder='Degree'
+                                <ChakraSelect
+                                    placeholder='Select degree'
                                     {...register('degree')}
-                                />
+                                >
+                                    {
+                                        DEGREES.map((type, index) => (
+                                            <option value={type} key={index}>{type}</option>
+                                        ))
+                                    }
+                                </ChakraSelect>
                                 <FormErrorMessage>
                                     {errors.degree && errors.degree.message}
                                 </FormErrorMessage>
+                                <FormErrorMessage>
+                                    {errors.degree && errors.degree.message}
+                                </FormErrorMessage>
+                            </FormControl>
+                        </HStack>
+
+                        <HStack spacing={4} py={4} >
+                            <FormControl>
+                                <MultiSeleect
+                                    options={_optionsCertificates}
+                                    value={itemsCertificates}
+                                    label='Certificates'
+                                    placeholder='Select certificates'
+                                    size='md'
+                                    onChange={setItemsCertificates}
+                                />
+
+                            </FormControl>
+                        </HStack>
+                        <HStack spacing={4} py={4} >
+                            <FormControl>
+                                <MultiSeleect
+                                    options={_optionsRoles}
+                                    value={itemsRoles}
+                                    label='Roles'
+                                    placeholder='Select roles'
+                                    size='md'
+                                    onChange={setItemsRoles}
+                                />
                             </FormControl>
                         </HStack>
                     </ModalBody>

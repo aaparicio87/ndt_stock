@@ -88,12 +88,12 @@ export const CustomDataTable = <T extends object>({ data, columns }: TProps<T>) 
                             >
                                 {row.getVisibleCells().map(cell => {
                                     return (
-                                        <td key={cell.id}>
+                                        <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
                                             )}
-                                        </td>
+                                        </Td>
                                     )
                                 })}
                             </Tr>

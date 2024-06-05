@@ -13,6 +13,7 @@ type TSignUp = {
 
 type TRole = 'ADMINISTRATOR' | 'DATA_MANAGER' | 'USER'
 type TToastStatus = 'success' | 'error' | 'warning' | 'info'
+type TCertificates = "Green card"| "Blue card" |"Master" | "Other"
 
 type TStock = {
     uid?:string
@@ -29,12 +30,9 @@ type TStock = {
 type TStaff = TSignUp & {
     uid?:string
     degree?:string
-    greenCard?:boolean
-    blueCard?:boolean
-    master?:boolean
-    others?:string[]
     photoUrl?:string
     roles:TRole[]
+    cerificates?:TCertificates[]
 }
 
 type UserResponse = {

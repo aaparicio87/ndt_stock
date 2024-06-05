@@ -1,7 +1,20 @@
 # Tauri + React + Typescript
+# NDT_STOCK
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+### Prerequisites
 
-## Recommended IDE Setup
+```
+Node.js version >= 18.18.2
+Rust and Cargo (install from https://www.rust-lang.org/tools/install)
+```
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Install Dependencies
+```
+ npm install || yarn install
+
+```
+
+## After Intalled dependencies
+ ```
+    npm run tauri dev || yarn tauri dev
+ ```

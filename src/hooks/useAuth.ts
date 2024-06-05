@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { clearAuth, selectCurrentUser, setCredentials } from '../state/features/auth/authSlice'
 import { AppDispatch } from '../state/store';
-import { getStaffInformationByUserUID, logoutUser, registerUser, signIn } from '../services';
+import { getStaffInformationByUserUID, logoutUser, signIn } from '../services';
 import { useNavigate } from 'react-router-dom'
 import { FB_AUTH } from '../config/firebase.conf';
 
@@ -58,21 +58,6 @@ export const useAuth = () => {
     }
   }
 
-  const handleRegister = useCallback(async (userInfo: TSignUp) => {
-    try {
-      const {email, lastName, name, password} = userInfo
-      const registerData:TStaff = {
-        email,
-        lastName,
-        name,
-        password,
-        roles:['USER']
-      }
-      await registerUser(registerData)
-    } catch (error) {
-      console.error(error)
-    }
-  }, []);
 
   const handleLogout = useCallback(async () => {
         try {
@@ -87,8 +72,7 @@ export const useAuth = () => {
   return useMemo(() => ({ 
     user,
     login: handleLogin,
-    register: handleRegister, 
     logout: handleLogout,
     profile: handleGetProfileData
-  }), [user, handleLogin, handleRegister, handleGetProfileData])
+  }), [user, handleLogin, handleGetProfileData])
 }

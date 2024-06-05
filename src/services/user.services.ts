@@ -1,30 +1,37 @@
 import { 
     browserSessionPersistence,
-    createUserWithEmailAndPassword, 
     signInWithEmailAndPassword, 
     UserCredential 
 } from "firebase/auth"
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore"
+
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore"
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
-import { generateRandomPassword } from "../utils/functions"
 
 
-const registerUser = async (userData:TStaff):Promise<void> => {
+interface ICreateUserResponse {
+    success: boolean;
+    uid?: string;
+    error?: string;
+}
+
+const registerUser = async (userData:TStaff): Promise<ICreateUserResponse> => {
     try {
+        const functions = getFunctions();
+        const createUserStaff = httpsCallable(functions, 'creatNewUSerStaff');
 
-        const {email, name, lastName} = userData
-        const randomPassword = generateRandomPassword(name, lastName)
-        const response = await createUserWithEmailAndPassword(FB_AUTH, email, randomPassword)
+        const result = await createUserStaff(userData);
 
-        if(response){
-            await setDoc(doc(FB_DB, STAFF, response.user.uid), {
-               ...userData
-            });
+        const data = result.data as ICreateUserResponse;
+        console.log(data)
+        if (data.success) {
+            return { success: true, uid: data.uid };
+        } else {
+            return { success: false, error: data.error };
         }
-
     } catch (error) {
-        console.error(error)
+        return { success: false, error: (error as Error).message };
     }
 }
 

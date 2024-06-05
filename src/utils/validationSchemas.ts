@@ -78,10 +78,12 @@ const STAFF_VALIDATION_SCHEMA = z.object({
   .min(1, "E-mail is required")
   .email({ message: "Invalid email address" }),
 
-  degree: z.string().array().nonempty({
+  degree: z.string().min(1, "Degree is required"),
+
+  cerificates: z.string().array().nonempty({
     message: "Can't be empty!",
   }),
-  
+
   roles: z.string().array().nonempty({
     message: "Can't be empty!",
   })

@@ -22,7 +22,7 @@ import { useNotification } from '../../../../../hooks/useNotification'
 import { registerUser } from '../../../../../services'
 import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
 import { MultiSeleect } from '../../../../../components'
-import { Option, SelectOnChange } from 'chakra-multiselect'
+import { Option } from 'chakra-multiselect'
 
 
 type TProps = {
@@ -50,7 +50,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
     const finalRef = React.useRef(null)
     const { openToast } = useNotification()
 
-    const { register, handleSubmit, reset, setValue, getValues, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
+    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
         defaultValues: {
             ...INITIAL_STATE
         },
@@ -62,45 +62,15 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
-        const certificates = dataArray
-
-        console.log(data)
-        /* let cert: TCertificates[] = getValues().cerificates ?? []
-
-        if (typeof data === 'object') {
-            let tempData = data as Option
-            let singleCert = tempData.label as TCertificates
-            cert = [...cert, singleCert]
-            setValue('cerificates', cert)
-        } else {
-            let tempData = data as Option[]
-            tempData.forEach((tmp) => {
-                let singleCert = tmp.label as TCertificates
-                cert = [...cert, singleCert]
-                setValue('cerificates', cert)
-            })
-        } */
-
+        const certificates = dataArray.map((d) => d.label as TCertificates)
+        setValue('cerificates', certificates)
     }
 
     const onChangeItemRoles = (data: Option | Option[]) => {
         setItemsRoles(data)
-        console.log(data)
-        /* let roles: TRole[] = getValues().roles ?? []
-
-        if (typeof data === 'object') {
-            let tempData = data as Option
-            let singleRole = tempData.label as TRole
-            roles = [...roles, singleRole]
-            setValue('roles', roles)
-        } else {
-            let tempData = data as Option[]
-            tempData.forEach((tmp) => {
-                let singleRole = tmp.label as TRole
-                roles = [...roles, singleRole]
-                setValue('roles', roles)
-            })
-        } */
+        const dataArray = data as Option[]
+        const roles = dataArray.map((r) => r.label as TRole)
+        setValue('roles', roles)
     }
 
 
@@ -112,18 +82,20 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
 
     const onSubmit = async (data: TStaff) => {
         try {
-            console.log(data)
-            await registerUser(data)
-            openToast('success', "New user added to the staff", 'Success')
-            onClose()
+            const response = await registerUser(data)
+            if (response.success) {
+                openToast('success', "New user added to the staff", 'Success')
+            } else {
+                openToast('error', response.error ?? 'Internal server Error', "Error")
+
+            }
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
+        } finally {
+            onClose()
         }
     }
 
-    console.log(errors, getValues())
-
-    console.log(itemsCertificates, 'itemsCertificates')
     return (
         <Modal
             initialFocusRef={initialRef}
@@ -131,6 +103,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
             isOpen={isOpen}
             onClose={onClose}
             size={'xl'}
+            closeOnOverlayClick={false}
         >
             <ModalOverlay />
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -189,9 +162,6 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                 <FormErrorMessage>
                                     {errors.degree && errors.degree.message}
                                 </FormErrorMessage>
-                                <FormErrorMessage>
-                                    {errors.degree && errors.degree.message}
-                                </FormErrorMessage>
                             </FormControl>
                         </HStack>
 
@@ -205,7 +175,9 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                     size='md'
                                     onChange={onChangeItemCertificates}
                                 />
-
+                                <FormErrorMessage>
+                                    {errors.cerificates && errors.cerificates.message}
+                                </FormErrorMessage>
                             </FormControl>
                         </HStack>
                         <HStack spacing={4} py={4} >
@@ -218,6 +190,9 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                     size='md'
                                     onChange={onChangeItemRoles}
                                 />
+                                <FormErrorMessage>
+                                    {errors.roles && errors.roles.message}
+                                </FormErrorMessage>
                             </FormControl>
                         </HStack>
                     </ModalBody>

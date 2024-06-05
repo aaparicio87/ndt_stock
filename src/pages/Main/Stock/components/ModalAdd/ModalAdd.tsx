@@ -73,6 +73,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
             isOpen={isOpen}
             onClose={onClose}
             size={'xl'}
+            closeOnOverlayClick={false}
         >
             <ModalOverlay />
             <form onSubmit={handleSubmit(onSubmit)}>

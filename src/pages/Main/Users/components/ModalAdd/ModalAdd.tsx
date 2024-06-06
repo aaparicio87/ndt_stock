@@ -19,7 +19,7 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { useNotification } from '../../../../../hooks/useNotification'
-import { registerUser } from '../../../../../services'
+import { registerUser, updateStaffElement } from '../../../../../services'
 import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
 import { MultiSeleect } from '../../../../../components'
 import { Option } from 'chakra-multiselect'
@@ -28,6 +28,7 @@ import { Option } from 'chakra-multiselect'
 type TProps = {
     onClose: () => void
     isOpen: boolean
+    item: TStaff | undefined
 }
 
 const INITIAL_STATE: TStaff = {
@@ -44,20 +45,35 @@ const INITIAL_STATE: TStaff = {
 const _optionsCertificates = CERTIFICATES.map((label) => ({ label, value: label.toLowerCase() }))
 const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() }))
 
-const ModalAdd = ({ onClose, isOpen }: TProps) => {
+const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
+
+    const handleItemsState = () => {
+        if (item && item.cerificates) {
+            return item.cerificates.map(cert => ({ label: cert, value: cert.toLowerCase() }))
+        } else {
+            return []
+        }
+    }
+
+    const handleItemRoles = () => {
+        if (item && item.cerificates) {
+            return item.roles.map(rol => ({ label: rol, value: rol.toLowerCase() }))
+        } else {
+            return []
+        }
+    }
 
     const initialRef = React.useRef(null)
     const finalRef = React.useRef(null)
     const { openToast } = useNotification()
 
     const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
-        defaultValues: {
-            ...INITIAL_STATE
-        },
+        defaultValues: INITIAL_STATE,
         resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
     });
-    const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>([])
-    const [itemsRoles, setItemsRoles] = React.useState<any>([])
+
+    const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>(handleItemsState())
+    const [itemsRoles, setItemsRoles] = React.useState<any>(handleItemRoles())
 
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
@@ -73,6 +89,15 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
         setValue('roles', roles)
     }
 
+    React.useEffect(() => {
+        if (item) {
+            reset(item);
+        } else {
+            reset(INITIAL_STATE);
+            setItemsCertificates([]);
+            setItemsRoles([]);
+        }
+    }, [item]);
 
     React.useEffect(() => {
         reset()
@@ -82,12 +107,17 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
 
     const onSubmit = async (data: TStaff) => {
         try {
-            const response = await registerUser(data)
-            if (response.success) {
-                openToast('success', "New user added to the staff", 'Success')
+            if (item?.uid) {
+                await updateStaffElement(item.uid, data)
+                openToast('success', "User updated successfully", 'Success')
             } else {
-                openToast('error', response.error ?? 'Internal server Error', "Error")
+                const response = await registerUser(data)
+                if (response.success) {
+                    openToast('success', "New user added to the staff", 'Success')
+                } else {
+                    openToast('error', response.error ?? 'Internal server Error', "Error")
 
+                }
             }
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
@@ -108,7 +138,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
             <ModalOverlay />
             <form onSubmit={handleSubmit(onSubmit)}>
                 <ModalContent>
-                    <ModalHeader>Create user</ModalHeader>
+                    <ModalHeader>{item ? "Edit user" : "Create user"}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
 
@@ -141,6 +171,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                                 <Input
                                     placeholder='Email'
                                     {...register('email')}
+                                    isDisabled={!!item?.email}
                                 />
                                 <FormErrorMessage>
                                     {errors.email && errors.email.message}
@@ -205,7 +236,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                             isLoading={isSubmitting}
                             type='submit'
                         >
-                            Save
+                            {item ? "Update" : "Save"}
                         </Button>
                         <Button onClick={onClose}>Cancel</Button>
                     </ModalFooter>

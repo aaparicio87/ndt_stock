@@ -18,13 +18,14 @@ import React from 'react'
 import { useForm } from 'react-hook-form'
 import { STOCK_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { createNewStockElement } from '../../../../../services'
+import { createNewStockElement, updateStockElement } from '../../../../../services'
 import { QOS, TRADEMARK, TYPE_EQUIPMENTS } from '../../../../../utils/constants'
 import { useNotification } from '../../../../../hooks/useNotification'
 
 type TProps = {
     onClose: () => void
     isOpen: boolean
+    item: TStock | undefined
 }
 
 const INITIAL_STATE: TStock = {
@@ -38,31 +39,44 @@ const INITIAL_STATE: TStock = {
     remarks: "",
 }
 
-const ModalAdd = ({ onClose, isOpen }: TProps) => {
+const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
 
     const initialRef = React.useRef(null)
     const finalRef = React.useRef(null)
     const { openToast } = useNotification()
 
     const { register, handleSubmit, reset, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStock>({
-        defaultValues: {
-            ...INITIAL_STATE
-        },
+        defaultValues: INITIAL_STATE,
         resolver: zodResolver(STOCK_VALIDATION_SCHEMA)
     });
 
     React.useEffect(() => {
-        reset()
+        if (item) {
+            reset(item);
+        } else {
+            reset(INITIAL_STATE);
+        }
+    }, [item]);
+
+    React.useEffect(() => {
+        reset(INITIAL_STATE)
     }, [isSubmitSuccessful])
 
 
     const onSubmit = async (data: TStock) => {
         try {
-            await createNewStockElement(data)
-            openToast('success', "New element added to the stock", 'Success')
-            onClose()
+            if (item?.uid) {
+                await updateStockElement(item.uid, data)
+                openToast('success', "Element updated successfully", 'Success')
+            } else {
+                await createNewStockElement(data)
+                openToast('success', "New element added to the stock", 'Success')
+            }
+
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
+        } finally {
+            onClose()
         }
     }
 
@@ -78,7 +92,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
             <ModalOverlay />
             <form onSubmit={handleSubmit(onSubmit)}>
                 <ModalContent>
-                    <ModalHeader>Create product</ModalHeader>
+                    <ModalHeader>{item ? "Edit product" : "Create product"}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
 
@@ -204,7 +218,7 @@ const ModalAdd = ({ onClose, isOpen }: TProps) => {
                             type='submit'
                             isLoading={isSubmitting}
                         >
-                            Save
+                            {item ? "Update" : "Save"}
                         </Button>
                         <Button onClick={onClose}>Cancel</Button>
                     </ModalFooter>

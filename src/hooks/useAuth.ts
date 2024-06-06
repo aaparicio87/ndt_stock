@@ -49,6 +49,7 @@ export const useAuth = () => {
           dispatch(setCredentials({
             token,
             user:{
+              uid: userUID,
               ...userData
             }
           }))

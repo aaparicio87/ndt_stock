@@ -5,7 +5,7 @@ import {
 } from "firebase/auth"
 
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore"
+import { collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
 
@@ -51,7 +51,9 @@ const getStaffInformationByUserUID = async(userUID:string) => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            return docSnap.data()
+            let staff = docSnap.data() as TStaff
+            staff = {... staff , uid: userUID}
+            return staff
         } else {
         throw new Error('Document not exist')
         }
@@ -67,7 +69,7 @@ const getAllStaff = async():Promise<TStaff[]| undefined> =>{
         const querySnapshot = await getDocs(collection(FB_DB, STAFF));
         querySnapshot.forEach((doc) => {
            const staff = doc.data() as TStaff
-           listStaff.push(staff)
+           listStaff.push({uid: doc.id, ...staff})
           });
         return listStaff
     } catch (error) {
@@ -77,10 +79,32 @@ const getAllStaff = async():Promise<TStaff[]| undefined> =>{
 
 const logoutUser = async () => FB_AUTH.signOut()
 
+const deleteStaffElement = async (uid: string) => {
+    try {
+        const staffkDocRef = doc(FB_DB, STAFF, uid);
+        await deleteDoc(staffkDocRef);
+    } catch (error) {
+        console.error("Error deleting document: ", error);
+    }
+};
+
+const updateStaffElement = async (uid: string, data: TStaff) => {
+    try {
+        const staffDocRef = doc(FB_DB, STAFF, uid);
+        await updateDoc(staffDocRef, {
+            ...data
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 export{
     registerUser,
     logoutUser,
     signIn,
     getStaffInformationByUserUID,
-    getAllStaff
+    getAllStaff,
+    deleteStaffElement,
+    updateStaffElement,
 }

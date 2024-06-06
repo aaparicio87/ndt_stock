@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { FB_DB } from "../config/firebase.conf";
 import { STOCK } from "../utils/constants";
 
@@ -44,8 +44,30 @@ const getStockByUID = async(uid:string) => {
     }
 }
 
+const updateStockElement = async (uid: string, data: TStock) => {
+    try {
+        const stockDocRef = doc(FB_DB, STOCK, uid);
+        await updateDoc(stockDocRef, {
+            ...data
+        });
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const deleteStockElement = async (uid: string) => {
+    try {
+        const stockDocRef = doc(FB_DB, STOCK, uid);
+        await deleteDoc(stockDocRef);
+    } catch (error) {
+        console.error("Error deleting document: ", error);
+    }
+};
+
 export {
     getAllStcokElements,
     createNewStockElement,
     getStockByUID,
+    updateStockElement,
+    deleteStockElement,
 }

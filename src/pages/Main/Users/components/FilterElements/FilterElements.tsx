@@ -7,7 +7,6 @@ import {
     InputGroup,
     InputRightElement,
     IconButton,
-    Box
 } from "@chakra-ui/react"
 import { MenuFilter } from "../../../../../components"
 import { DEGREES } from "../../../../../utils/constants"

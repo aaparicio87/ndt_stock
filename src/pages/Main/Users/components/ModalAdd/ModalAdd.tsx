@@ -12,10 +12,13 @@ import {
     ModalFooter,
     ModalHeader,
     ModalOverlay,
-    Select as ChakraSelect
+    Select as ChakraSelect,
+    Avatar,
+    VStack,
+    Text
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { useNotification } from '../../../../../hooks/useNotification'
@@ -23,6 +26,8 @@ import { registerUser, updateStaffElement } from '../../../../../services'
 import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
 import { MultiSeleect } from '../../../../../components'
 import { Option } from 'chakra-multiselect'
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { FB_STORAGE } from '../../../../../config/firebase.conf'
 
 
 type TProps = {
@@ -31,14 +36,19 @@ type TProps = {
     item: TStaff | undefined
 }
 
-const INITIAL_STATE: TStaff = {
+type TInitialState = TStaff & {
+    profileImage: File | null;
+}
+
+const INITIAL_STATE: TInitialState = {
     email: "",
     lastName: "",
     name: "",
     roles: [],
     degree: "",
     photoUrl: "",
-    cerificates: []
+    certificates: [],
+    profileImage: null
 }
 
 
@@ -48,15 +58,15 @@ const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() 
 const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
 
     const handleItemsState = () => {
-        if (item && item.cerificates) {
-            return item.cerificates.map(cert => ({ label: cert, value: cert.toLowerCase() }))
+        if (item && item.certificates) {
+            return item.certificates.map(cert => ({ label: cert, value: cert.toLowerCase() }))
         } else {
             return []
         }
     }
 
     const handleItemRoles = () => {
-        if (item && item.cerificates) {
+        if (item && item.certificates) {
             return item.roles.map(rol => ({ label: rol, value: rol.toLowerCase() }))
         } else {
             return []
@@ -67,19 +77,21 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const finalRef = React.useRef(null)
     const { openToast } = useNotification()
 
-    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TStaff>({
+    const { register, handleSubmit, reset, setValue, getValues, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TInitialState>({
         defaultValues: INITIAL_STATE,
         resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
     });
 
     const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>(handleItemsState())
     const [itemsRoles, setItemsRoles] = React.useState<any>(handleItemRoles())
+    const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(item?.photoUrl || null);
+
 
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
         const certificates = dataArray.map((d) => d.label as TCertificates)
-        setValue('cerificates', certificates)
+        setValue('certificates', certificates)
     }
 
     const onChangeItemRoles = (data: Option | Option[]) => {
@@ -100,18 +112,34 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     }, [item]);
 
     React.useEffect(() => {
-        reset()
-        setItemsCertificates([])
-        setItemsRoles([])
+        if (isSubmitSuccessful) {
+            reset()
+            setItemsCertificates([])
+            setItemsRoles([])
+            onClose()
+        }
     }, [isSubmitSuccessful])
 
-    const onSubmit = async (data: TStaff) => {
+    const onSubmit = async (data: TInitialState) => {
         try {
+            const { profileImage } = getValues()
+            let url = ""
+            if (profileImage && profileImage !== null) {
+                const storageRef = ref(FB_STORAGE, `images/${profileImage.name}`);
+                const result = await uploadBytes(storageRef, profileImage)
+                url = await getDownloadURL(result.ref);
+            }
             if (item?.uid) {
-                await updateStaffElement(item.uid, data)
+                let updatedData = { ...data }
+                if (url.length > 0) {
+                    updatedData = { ...updatedData, photoUrl: url }
+                }
+                await updateStaffElement(item.uid, updatedData)
                 openToast('success', "User updated successfully", 'Success')
+
             } else {
-                const response = await registerUser(data)
+                const updatedDataCreate = { ...data, photoUrl: url }
+                const response = await registerUser(updatedDataCreate)
                 if (response.success) {
                     openToast('success', "New user added to the staff", 'Success')
                 } else {
@@ -121,10 +149,33 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
             }
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
-        } finally {
-            onClose()
         }
     }
+
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            const maxSizeInMB = 2;
+            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+            if (!validImageTypes.includes(file.type)) {
+                openToast('error', 'Only JPG and PNG images are allowed', 'Invalid file type');
+                return;
+            }
+
+            if (file.size > maxSizeInBytes) {
+                openToast('error', `Image size should not exceed ${maxSizeInMB} MB`, 'File too large');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+                setValue('profileImage', file);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     return (
         <Modal
@@ -141,9 +192,25 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                     <ModalHeader>{item ? "Edit user" : "Create user"}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
-
+                        <HStack spacing={4} width="100%" my={5}>
+                            <Avatar size="xl" src={selectedImage as string} />
+                            <VStack alignItems={'start'} gap={2}>
+                                <Text fontSize={'large'} as='b'>Profile Image</Text>
+                                <Text fontSize={'small'}> PNG or JPEG</Text>
+                                <Button as="label" htmlFor="profile-image" cursor="pointer" size={'sm'}>
+                                    Select
+                                    <Input
+                                        type="file"
+                                        id="profile-image"
+                                        accept="image/"
+                                        onChange={handleImageChange}
+                                        display="none"
+                                    />
+                                </Button>
+                            </VStack>
+                        </HStack>
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.name}>
                                 <FormLabel>Name</FormLabel>
                                 <Input
                                     placeholder='Name'
@@ -154,7 +221,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.lastName}>
                                 <FormLabel>Last name</FormLabel>
                                 <Input
                                     placeholder='Last name'
@@ -166,7 +233,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                             </FormControl>
                         </HStack>
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.email}>
                                 <FormLabel>Email</FormLabel>
                                 <Input
                                     placeholder='Email'
@@ -178,7 +245,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.degree}>
                                 <FormLabel>Degree</FormLabel>
                                 <ChakraSelect
                                     placeholder='Select degree'
@@ -197,7 +264,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                         </HStack>
 
                         <HStack spacing={4} py={4} >
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.certificates}>
                                 <MultiSeleect
                                     options={_optionsCertificates}
                                     value={itemsCertificates}
@@ -207,12 +274,12 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                     onChange={onChangeItemCertificates}
                                 />
                                 <FormErrorMessage>
-                                    {errors.cerificates && errors.cerificates.message}
+                                    {errors.certificates && errors.certificates.message}
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
                         <HStack spacing={4} py={4} >
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.roles}>
                                 <MultiSeleect
                                     options={_optionsRoles}
                                     value={itemsRoles}
@@ -238,7 +305,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                         >
                             {item ? "Update" : "Save"}
                         </Button>
-                        <Button onClick={onClose}>Cancel</Button>
+                        <Button onClick={onClose} isDisabled={isSubmitting}>Cancel</Button>
                     </ModalFooter>
                 </ModalContent>
             </form>

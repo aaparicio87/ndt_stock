@@ -23,12 +23,12 @@ const ELEMENTS_DISPLAY = {
     lastName: "Last name",
     email: "Email",
     degree: "Degree",
-    cerificates: "Certificates",
+    certificates: "Certificates",
     roles: "Roles",
 }
 
 const formatDataDetail = (key: string, item: TStaff) => {
-    if (key === 'cerificates') {
+    if (key === 'certificates') {
         let certificates = item[key as keyof TStaff] as TCertificates[] | undefined
         if (certificates)
             return certificates.join(', ')

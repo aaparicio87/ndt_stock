@@ -4,6 +4,7 @@ import { Forgot, Login } from '../pages/Auth'
 
 import { AuthLayout, MainLayout } from '../layout'
 import { Profile, Stock, Users } from '../pages/Main'
+import WorkedHours from '../pages/Main/WorkedHours/WorkedHours'
 
 
 const MainRoutes = () => {
@@ -18,6 +19,7 @@ const MainRoutes = () => {
                     <Route index element={<Stock />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="users" element={<Users />} />
+                    <Route path="whours" element={<WorkedHours />} />
                 </Route>
             </Route>
         </Routes>

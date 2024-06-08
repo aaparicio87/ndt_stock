@@ -24,7 +24,7 @@ const registerUser = async (userData:TStaff): Promise<ICreateUserResponse> => {
         const result = await createUserStaff(userData);
 
         const data = result.data as ICreateUserResponse;
-        console.log(data)
+        
         if (data.success) {
             return { success: true, uid: data.uid };
         } else {

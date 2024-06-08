@@ -62,10 +62,28 @@ const STOCK_VALIDATION_SCHEMA = z.object({
   typeEquipment: z.string().min(1, "Required field"),
   tradeMark: z.string().min(1,"Trademark is required"),
   store: z.string().min(1, "Store is required"),
-  calibrationDate: z.string().min(1, "Calibration is required"),
+  calibrationDate: z.string(),
   qualityOfService: z.string().min(1, "QoS is required"),
   remarks: z.string(),
-})  
+  otherTypeEquipment: z.string().optional(),
+  otherTrademark: z.string().optional(),
+}).refine((data) => {
+  if (data.typeEquipment === 'others') {
+      return data.otherTypeEquipment?.trim() !== '';
+  }
+  return true;
+}, {
+  message: "Please specify other type equipment",
+  path: ["otherTypeEquipment"],
+}).refine((data) => {
+  if (data.tradeMark === 'others') {
+      return data.otherTrademark?.trim() !== '';
+  }
+  return true;
+}, {
+  message: "Please specify other trademark",
+  path: ["otherTrademark"],
+});  
 
 const STAFF_VALIDATION_SCHEMA = z.object({
   name:z.string()
@@ -80,7 +98,7 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 
   degree: z.string().min(1, "Degree is required"),
 
-  cerificates: z.string().array().nonempty({
+  certificates: z.string().array().nonempty({
     message: "Can't be empty!",
   }),
 

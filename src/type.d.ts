@@ -32,7 +32,7 @@ type TStaff = TSignUp & {
     degree?:string
     photoUrl?:string
     roles:TRole[]
-    cerificates?:TCertificates[]
+    certificates?:TCertificates[]
 }
 
 type UserResponse = {

@@ -12,6 +12,7 @@ import { useNotification } from "../../../hooks/useNotification"
 import DetailModal from "./components/DetailModal/DetailModal"
 import { useSelector } from "react-redux"
 import { selectCurrentUser } from "../../../state/features/auth/authSlice"
+import FilterElements from "./components/FilterElements/FilterElements"
 
 type TStaffTable = {
     fullName: string
@@ -158,6 +159,15 @@ export const Users = () => {
         }
     }
 
+    const closeModalAdd = () => {
+        if (isOpen) {
+            onClose()
+            setStaffElement(undefined)
+        } else if (isOpenDetail) {
+            onCloseDetail()
+            setStaffElement(undefined)
+        }
+    }
 
     return (
         <>
@@ -171,6 +181,15 @@ export const Users = () => {
                 <Heading as='h3' size='lg' noOfLines={1}>
                     Users
                 </Heading>
+            </Stack>
+            <Stack direction='row'
+                spacing={4}
+                flex={1}
+                justifyContent={'space-between'}
+                marginBottom={5}
+                marginX={5}
+            >
+                <FilterElements />
                 <Button
                     leftIcon={<FiPlus />}
                     colorScheme='teal'
@@ -186,12 +205,12 @@ export const Users = () => {
             />
             {isOpen && <ModalAdd
                 isOpen={isOpen}
-                onClose={onClose}
+                onClose={closeModalAdd}
                 item={staffElement}
             />}
             {staffElement && <DetailModal
                 isOpen={isOpenDetail}
-                onClose={onCloseDetail}
+                onClose={closeModalAdd}
                 item={staffElement}
             />}
             <DeleteDialog

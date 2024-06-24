@@ -11,7 +11,7 @@ import {
     Input,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+//import { zodResolver } from '@hookform/resolvers/zod';
 
 const INITIAL_STATE: TWork = {
     name: "",
@@ -31,7 +31,7 @@ const INITIAL_STATE: TWork = {
 
 
 const CreaterWork = () => {
-    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TWork>({
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<TWork>({
         defaultValues: INITIAL_STATE,
     });
 

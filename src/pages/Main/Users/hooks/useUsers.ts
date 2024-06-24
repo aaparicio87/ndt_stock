@@ -64,8 +64,10 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
         try {
             if (uid) {
                 const staff = await getStaffInformationByUserUID(uid)
-                setStaffElement(staff)
-                onOpenDetail()
+                if(staff !== null){
+                    setStaffElement(staff)
+                    onOpenDetail()
+                }
             }
         } catch (error) {
             console.error(error)
@@ -74,8 +76,10 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
     const handleEdit = async (uid: string | undefined) => {
         if (uid) {
             const staff = await getStaffInformationByUserUID(uid)
-            setStaffElement(staff)
-            onOpen()
+            if(staff !== null){
+                setStaffElement(staff)
+                onOpen()
+            }
         }
         onOpen()
     }

@@ -38,7 +38,7 @@ export const useWorks = () => {
     }
 
     const handleViewDetails = (item: TWork) => {
-
+        return item
     }
 
     const handleDelete = (item: TWork) => {

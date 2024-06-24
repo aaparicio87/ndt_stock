@@ -3,7 +3,6 @@ import React from "react"
 import {
     ActionsTable,
     CustomDataTable,
-    Loader
 } from "../../../../../components"
 
 type TStaffTable = {

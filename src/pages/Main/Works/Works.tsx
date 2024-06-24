@@ -1,28 +1,24 @@
-import { HeaderViewTable } from '../../../components'
-import WorksTable from './components/WorksTable/WorksTable'
+import { DeleteDialog } from '../../../components'
 import { useWorks } from './hooks/useWorks'
+import { Outlet } from 'react-router-dom'
 
 
 const Works = () => {
+
     const {
-        isLoading,
-        data,
-        handleDelete,
-        handleEdit,
-        handleViewDetails
+        isOpenDelete,
+        onCloseDelete,
+        handleConfirmDelete,
     } = useWorks()
 
     return (
         <>
-            <HeaderViewTable
-                name="Works"
-            />
-            <WorksTable
-                data={data}
-                onDelete={handleDelete}
-                onDetails={handleViewDetails}
-                onEdit={handleEdit}
-                loading={isLoading}
+
+            <Outlet />
+            <DeleteDialog
+                isOpen={isOpenDelete}
+                onCancel={onCloseDelete}
+                onDelete={handleConfirmDelete}
             />
         </>
     )

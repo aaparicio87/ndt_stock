@@ -101,7 +101,6 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         }
     }
 
-
     const onSubmit = async (data: TInitialState) => {
         try {
             const dataToSubmit: TStock = {

@@ -22,7 +22,7 @@ const updateWorkElement = async (uid: string, data: TWork) => {
     await workService.update(uid, data);
 };
 
-const deleteStockElement = async (uid: string) => {
+const deleteWorkElement = async (uid: string) => {
     await workService.delete(uid);
 };
 
@@ -31,5 +31,5 @@ export  {
     getAllWorks,
     getWorkByUID,
     updateWorkElement,
-    deleteStockElement
+    deleteWorkElement
 }

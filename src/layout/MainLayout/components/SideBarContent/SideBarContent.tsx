@@ -26,8 +26,8 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
     { name: 'Stock', icon: FiFileText, route: '/', visible: true },
     { name: 'Users', icon: FiUsers, route: 'users', visible: true },
-    { name: 'Worked Hours', icon: FiWatch, route: 'whours', visible: true },
     { name: 'Works', icon: FiBriefcase, route: 'works', visible: true },
+    { name: 'Worked Hours', icon: FiWatch, route: 'whours', visible: true },
 ];
 
 type SidebarProps = BoxProps & {

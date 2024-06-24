@@ -1,22 +1,22 @@
 import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
-import { ActionsTable, CustomDataTable } from '../../../../../components'
+import { ActionsTable, CustomDataTable, HeaderViewTable } from '../../../../../components'
+import { useWorks } from '../../hooks/useWorks'
+import { Button } from '@chakra-ui/react'
+import { FiPlus } from 'react-icons/fi'
 
-type TProps = {
-    data: TWork[]
-    onDelete: (item: TWork) => void
-    onDetails: (item: TWork) => void
-    onEdit: (item: TWork) => void
-    loading: boolean
-}
 
-const WorksTable = ({
-    data,
-    onDelete,
-    onDetails,
-    onEdit,
-    loading,
-}: TProps) => {
+
+const WorksTable = () => {
+
+    const {
+        openAddWork,
+        isLoading,
+        data,
+        handleDelete,
+        openEditWork,
+        handleViewDetails,
+    } = useWorks()
 
     const columns = React.useMemo<ColumnDef<TWork>[]>(
         () => [
@@ -44,9 +44,9 @@ const WorksTable = ({
                 header: 'Actions',
                 cell: (props) => (
                     <ActionsTable
-                        onDelete={() => onDelete(props.row.original)}
-                        onDetails={() => onDetails(props.row.original)}
-                        onEdit={() => onEdit(props.row.original)}
+                        onDelete={() => handleDelete(props.row.original)}
+                        onDetails={() => handleViewDetails(props.row.original)}
+                        onEdit={() => openEditWork(props.row.original)}
                     />
                 )
 
@@ -56,11 +56,25 @@ const WorksTable = ({
     )
 
     return (
-        <CustomDataTable
-            columns={columns}
-            data={data}
-            loading={loading}
-        />
+        <>
+            <HeaderViewTable
+                name="Works"
+            >
+                <Button
+                    leftIcon={<FiPlus />}
+                    colorScheme='teal'
+                    variant='solid'
+                    onClick={openAddWork}
+                >
+                    Add
+                </Button>
+            </HeaderViewTable>
+            <CustomDataTable
+                columns={columns}
+                data={data}
+                loading={isLoading}
+            />
+        </>
     )
 }
 

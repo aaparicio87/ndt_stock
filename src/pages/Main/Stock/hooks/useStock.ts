@@ -16,7 +16,6 @@ export const useStock = () => {
     const [stockElement, setStockElement] = React.useState<TStock | undefined>(undefined)
     const [stockElementDelete, setStockElementDelete] = React.useState<TStock | undefined>(undefined)
     const [isLoading, setIsLoading] = React.useState(false)
-
     const [data, setData] = React.useState<TStock[]>([])
 
     React.useEffect(() => {
@@ -35,7 +34,7 @@ export const useStock = () => {
             }
         } catch (error) {
             console.error(error)
-        }finally{
+        } finally{
             setIsLoading(false)
         }
     }
@@ -44,6 +43,7 @@ export const useStock = () => {
         setStockElement(item)
         onOpenDetail()
     }
+    
     const handleEdit = async (item: TStock) => {
         setStockElement(item)
         onOpen()

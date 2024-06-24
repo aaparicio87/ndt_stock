@@ -2,7 +2,8 @@ import { ColumnDef } from "@tanstack/react-table"
 import React from "react"
 import {
     ActionsTable,
-    CustomDataTable
+    CustomDataTable,
+    Loader
 } from "../../../../../components"
 
 type TStaffTable = {
@@ -19,6 +20,7 @@ type TProps = {
     onDetails: (uuid: string | undefined) => void
     onEdit: (uuid: string | undefined) => void
     currentUser: TStaff | undefined
+    loading: boolean
 }
 
 const UsersTable = ({
@@ -26,7 +28,8 @@ const UsersTable = ({
     onDelete,
     onDetails,
     onEdit,
-    currentUser
+    currentUser,
+    loading
 }: TProps) => {
 
     const columns = React.useMemo<ColumnDef<TStaffTable>[]>(
@@ -72,6 +75,7 @@ const UsersTable = ({
         <CustomDataTable
             columns={columns}
             data={data}
+            loading={loading}
         />
     )
 }

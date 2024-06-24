@@ -24,6 +24,7 @@ export const Users = () => {
         isOpen,
         isOpenDetail,
         onCloseDelete,
+        isLoading,
     } = useUser()
 
     return (
@@ -55,6 +56,7 @@ export const Users = () => {
                 onDelete={handleDelete}
                 onDetails={handleViewDetails}
                 onEdit={handleEdit}
+                loading={isLoading}
             />
             {isOpen && <ModalAdd
                 isOpen={isOpen}

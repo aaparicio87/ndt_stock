@@ -1,8 +1,8 @@
+import React from "react";
 import { useSelector } from "react-redux";
 import { useNotification } from "../../../../hooks/useNotification";
 import { useDisclosure } from "@chakra-ui/react";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
-import React from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../config/firebase.conf";
 import { STAFF } from "../../../../utils/constants";
@@ -26,6 +26,7 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
     const [staffElement, setStaffElement] = React.useState<TStaff | undefined>(undefined)
     const [staffElementDelete, setStaffElementDelete] = React.useState<string | undefined>(undefined)
     const [data, setData] = React.useState<IStaffTable[]>([])
+    const [isLoading, setIsLoading] = React.useState(false)
 
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, STAFF), (_) => {
@@ -35,6 +36,7 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
     }, [])
 
     const getAllElements = async () => {
+        setIsLoading(true)
         try {
             const staffData = await getAllStaff();
             if (staffData) {
@@ -52,6 +54,9 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
             }
         } catch (error) {
             console.error(error)
+        }
+        finally{
+            setIsLoading(false)
         }
     }
 
@@ -115,5 +120,6 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
         isOpen,
         isOpenDetail,
         onCloseDelete,
+        isLoading
     }
 }

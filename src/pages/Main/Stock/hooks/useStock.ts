@@ -15,7 +15,7 @@ export const useStock = () => {
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [stockElement, setStockElement] = React.useState<TStock | undefined>(undefined)
     const [stockElementDelete, setStockElementDelete] = React.useState<TStock | undefined>(undefined)
-
+    const [isLoading, setIsLoading] = React.useState(false)
 
     const [data, setData] = React.useState<TStock[]>([])
 
@@ -27,6 +27,7 @@ export const useStock = () => {
     }, [])
 
     const getAllElements = async () => {
+        setIsLoading(true)
         try {
             const stockData = await getAllStcokElements();
             if (stockData) {
@@ -34,6 +35,8 @@ export const useStock = () => {
             }
         } catch (error) {
             console.error(error)
+        }finally{
+            setIsLoading(false)
         }
     }
 
@@ -75,6 +78,7 @@ export const useStock = () => {
         stockElement,
         data,
         onOpen,
-        onCloseDelete
+        onCloseDelete,
+        isLoading,
     }
 }

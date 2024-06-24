@@ -27,7 +27,8 @@ export const Stock = () => {
         onCloseDetail,
         stockElement,
         onOpen,
-        onCloseDelete
+        onCloseDelete,
+        isLoading
     } = useStock()
 
     return (
@@ -49,6 +50,7 @@ export const Stock = () => {
                 onDelete={handleDelete}
                 onDetails={handleViewDetails}
                 onEdit={handleEdit}
+                isLoading={isLoading}
             />
             <ModalAdd
                 isOpen={isOpen}

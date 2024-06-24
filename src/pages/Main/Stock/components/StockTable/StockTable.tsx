@@ -7,9 +7,10 @@ type TProps = {
     onDelete: (item: TStock) => void
     onDetails: (item: TStock) => void
     onEdit: (item: TStock) => void
+    isLoading: boolean
 }
 
-const StockTable = ({ data, onDelete, onDetails, onEdit }: TProps) => {
+const StockTable = ({ data, onDelete, onDetails, onEdit, isLoading }: TProps) => {
 
     const columns = React.useMemo<ColumnDef<TStock>[]>(
         () => [
@@ -68,6 +69,7 @@ const StockTable = ({ data, onDelete, onDetails, onEdit }: TProps) => {
         <CustomDataTable
             columns={columns}
             data={data}
+            loading={isLoading}
         />
     )
 }

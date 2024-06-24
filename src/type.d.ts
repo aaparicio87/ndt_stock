@@ -47,6 +47,7 @@ interface ILocation {
 }
 
 type TWork = {
+    uid?:string
     name:string
     location?:ILocation
     customer: string

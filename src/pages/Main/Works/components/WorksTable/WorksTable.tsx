@@ -7,13 +7,15 @@ type TProps = {
     onDelete: (item: TWork) => void
     onDetails: (item: TWork) => void
     onEdit: (item: TWork) => void
+    loading: boolean
 }
 
 const WorksTable = ({
     data,
     onDelete,
     onDetails,
-    onEdit
+    onEdit,
+    loading,
 }: TProps) => {
 
     const columns = React.useMemo<ColumnDef<TWork>[]>(
@@ -57,6 +59,7 @@ const WorksTable = ({
         <CustomDataTable
             columns={columns}
             data={data}
+            loading={loading}
         />
     )
 }

@@ -3,11 +3,10 @@ import {
     signInWithEmailAndPassword, 
     UserCredential 
 } from "firebase/auth"
-
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { collection, deleteDoc, doc, getDoc, getDocs, updateDoc } from "firebase/firestore"
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
+import FirebaseService from "./firebase.services";
 
 
 interface ICreateUserResponse {
@@ -15,6 +14,8 @@ interface ICreateUserResponse {
     uid?: string;
     error?: string;
 }
+
+const usersService = new FirebaseService<TStaff>(FB_DB, STAFF);
 
 const registerUser = async (userData:TStaff): Promise<ICreateUserResponse> => {
     try {
@@ -46,57 +47,21 @@ const signIn = async (userData:TSignIn):Promise<UserCredential | undefined> => {
 }
 
 const getStaffInformationByUserUID = async(userUID:string) => {
-    try {
-        const docRef = doc(FB_DB, STAFF, userUID);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            let staff = docSnap.data() as TStaff
-            staff = {... staff , uid: userUID}
-            return staff
-        } else {
-        throw new Error('Document not exist')
-        }
-       
-    } catch (error) {
-        console.error(error)
-    }
+    return await usersService.getByUID(userUID);
 }
 
 const getAllStaff = async():Promise<TStaff[]| undefined> =>{
-    try {
-        const listStaff:TStaff[] = []
-        const querySnapshot = await getDocs(collection(FB_DB, STAFF));
-        querySnapshot.forEach((doc) => {
-           const staff = doc.data() as TStaff
-           listStaff.push({uid: doc.id, ...staff})
-          });
-        return listStaff
-    } catch (error) {
-        console.error(error)
-    }
+    return await usersService.getAll();
 }
 
 const logoutUser = async () => FB_AUTH.signOut()
 
 const deleteStaffElement = async (uid: string) => {
-    try {
-        const staffkDocRef = doc(FB_DB, STAFF, uid);
-        await deleteDoc(staffkDocRef);
-    } catch (error) {
-        console.error("Error deleting document: ", error);
-    }
+    await usersService.delete(uid);
 };
 
 const updateStaffElement = async (uid: string, data: TStaff) => {
-    try {
-        const staffDocRef = doc(FB_DB, STAFF, uid);
-        await updateDoc(staffDocRef, {
-            ...data
-        });
-    } catch (error) {
-        console.error(error);
-    }
+    await usersService.update(uid, data);
 };
 
 export{

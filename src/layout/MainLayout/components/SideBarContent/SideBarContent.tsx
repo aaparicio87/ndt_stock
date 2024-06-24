@@ -9,7 +9,8 @@ import { IconType } from 'react-icons';
 import {
     FiUsers,
     FiFileText,
-    FiWatch
+    FiWatch,
+    FiBriefcase
 } from "react-icons/fi";
 import { NavItem } from "../NavItem/NavItem";
 import { LogoCompany } from "../../../../components";
@@ -25,6 +26,7 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
     { name: 'Stock', icon: FiFileText, route: '/', visible: true },
     { name: 'Users', icon: FiUsers, route: 'users', visible: true },
+    { name: 'Works', icon: FiBriefcase, route: 'works', visible: true },
     { name: 'Worked Hours', icon: FiWatch, route: 'whours', visible: true },
 ];
 

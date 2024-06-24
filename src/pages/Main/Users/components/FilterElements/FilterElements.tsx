@@ -13,7 +13,6 @@ import { DEGREES } from "../../../../../utils/constants"
 import { FiXCircle } from "react-icons/fi";
 
 
-
 const FilterElements = () => {
 
     return (

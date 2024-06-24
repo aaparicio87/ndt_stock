@@ -5,6 +5,7 @@ import { Forgot, Login } from '../pages/Auth'
 import { AuthLayout, MainLayout } from '../layout'
 import { Profile, Stock, Users } from '../pages/Main'
 import WorkedHours from '../pages/Main/WorkedHours/WorkedHours'
+import Works from '../pages/Main/Works/Works'
 
 
 const MainRoutes = () => {
@@ -20,6 +21,7 @@ const MainRoutes = () => {
                     <Route path="profile" element={<Profile />} />
                     <Route path="users" element={<Users />} />
                     <Route path="whours" element={<WorkedHours />} />
+                    <Route path="works" element={<Works />} />
                 </Route>
             </Route>
         </Routes>

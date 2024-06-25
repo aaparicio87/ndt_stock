@@ -61,9 +61,10 @@ type TWork = {
     invoiceNumber: string
     films?:number
     cans?:number
-    documentationTime:string
+    documentationTime:number
     timeAtTheClient:string
     reportPlace:string
+    billed: string
 }
 
     

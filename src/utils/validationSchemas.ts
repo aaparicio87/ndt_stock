@@ -32,8 +32,6 @@ const RESET_PASSWORD_VALIDATION_SCHEMA = z.object({
 
 
 const SIGN_UP_VALIDATION_SCHEMA = z.object({
-  
-
   name:z.string()
   .min(1, "Name is required"),
 
@@ -105,7 +103,35 @@ const STAFF_VALIDATION_SCHEMA = z.object({
   roles: z.string().array().nonempty({
     message: "Can't be empty!",
   })
-})  
+}) 
+
+const WORKS_VALIDATION_SCHEMA = z.object({
+  name:z.string()
+  .min(1, "Name is required"),
+
+  customer: z.string()
+  .min(1, "Last name is required"),
+
+  description: z.string()
+  .min(10, "Needed at least a small description"),
+  
+  certifications: z.string().array().nonempty({
+    message: "Can't be empty!",
+  }),
+
+  expiredDate: z.string()
+  .min(1, "Can't be empty!"),
+
+  reportNumber: z.string()
+  .min(1, "Can't be empty!"),
+
+  invoiceNumber: z.string()
+  .min(1, "Can't be empty!"),
+
+  reportPlace: z.string()
+  .min(1, "Can't be empty!"),
+
+}) 
 
 
 export {
@@ -114,5 +140,6 @@ export {
     RESET_PASSWORD_VALIDATION_SCHEMA,
     SIGN_UP_VALIDATION_SCHEMA,
     STOCK_VALIDATION_SCHEMA,
-    STAFF_VALIDATION_SCHEMA
+    STAFF_VALIDATION_SCHEMA,
+    WORKS_VALIDATION_SCHEMA,
 }

@@ -18,16 +18,17 @@ import {
     Text
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { useNotification } from '../../../../../hooks/useNotification'
 import { registerUser, updateStaffElement } from '../../../../../services'
-import { CERTIFICATES, DEGREES, ROLES } from '../../../../../utils/constants'
-import { MultiSeleect } from '../../../../../components'
+import { DEGREES, ROLES } from '../../../../../utils/constants'
+import { Loader, MultiSeleect } from '../../../../../components'
 import { Option } from 'chakra-multiselect'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FB_STORAGE } from '../../../../../config/firebase.conf'
+import { useUser } from '../../hooks/useUsers'
+import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 
 
 type TProps = {
@@ -51,15 +52,18 @@ const INITIAL_STATE: TInitialState = {
     profileImage: null
 }
 
-
-const _optionsCertificates = CERTIFICATES.map((label) => ({ label: label.name, value: label.id }))
 const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() }))
 
 const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
+    const {
+        handleGetAllCertificates,
+        certificatesList,
+    } = useUser()
 
+    const [loading, setLoading] = useState(true)
     const handleItemsState = () => {
         if (item && item.certificates) {
-            return item.certificates.map(cert => ({ label: cert.name, value: cert.id }))
+            return item.certificates.map(cert => ({ label: cert.name, value: cert.uid }))
         } else {
             return []
         }
@@ -91,7 +95,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
         const certs = dataArray.map((d) => {
-            const certificates: TCertificates = { id: d.value as string, name: d.label }
+            const certificates: TCertificates = { uid: d.value as string, name: d.label }
             return certificates
         })
         setValue('certificates', certs)
@@ -105,6 +109,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     }
 
     React.useEffect(() => {
+        handleGetAllCertificates().finally(() => setLoading(false))
         if (item) {
             reset(item);
         } else {
@@ -180,6 +185,11 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         }
     };
 
+    if (loading) {
+        return <Loader />;
+    }
+
+
     return (
         <Modal
             initialFocusRef={initialRef}
@@ -195,7 +205,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                     <ModalHeader>{item ? "Edit user" : "Create user"}</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody pb={6}>
-                        <HStack spacing={4} width="100%" my={5}>
+                        <HStack spacing={4} width="100%" my={4}>
                             <Avatar size="xl" src={selectedImage as string} />
                             <VStack alignItems={'start'} gap={2}>
                                 <Text fontSize={'large'} as='b'>Profile Image</Text>
@@ -212,7 +222,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </Button>
                             </VStack>
                         </HStack>
-                        <HStack spacing={4} py={4}>
+                        <HStack spacing={4} py={3}>
                             <FormControl isInvalid={!!errors.name}>
                                 <FormLabel>Name</FormLabel>
                                 <Input
@@ -235,7 +245,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={4}>
+                        <HStack spacing={4} py={3}>
                             <FormControl isInvalid={!!errors.email}>
                                 <FormLabel>Email</FormLabel>
                                 <Input
@@ -266,10 +276,10 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                             </FormControl>
                         </HStack>
 
-                        <HStack spacing={4} py={4} >
+                        <HStack spacing={4} py={3} >
                             <FormControl isInvalid={!!errors.certificates}>
                                 <MultiSeleect
-                                    options={_optionsCertificates}
+                                    options={certificatesList}
                                     value={itemsCertificates}
                                     label='Certificates'
                                     placeholder='Select certificates'

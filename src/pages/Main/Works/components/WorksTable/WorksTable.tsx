@@ -47,6 +47,8 @@ const WorksTable = () => {
                         onDelete={() => handleDelete(props.row.original)}
                         onDetails={() => handleViewDetails(props.row.original)}
                         onEdit={() => openEditWork(props.row.original)}
+                        iconEditProps={{ "mr": 2 }}
+                        iconDetailsProps={{ "mr": 2 }}
                     />
                 )
 

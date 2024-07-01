@@ -2,7 +2,9 @@ import { REGEX_PASSWORD } from './constants'
 import { z } from "zod";
 
 const USER_INPUT_FORGOT_VALIDATION_SCHEMA = z.object({
-    email: z.string().min(1, "E-mail is required").email({ message: "Invalid email address" })
+    email: z.string()
+            .min(1, "E-mail is required")
+            .email({ message: "Invalid email address" })
 })
 
 const LOGIN_VALIDATION_SCHEMA = z.object({
@@ -83,6 +85,11 @@ const STOCK_VALIDATION_SCHEMA = z.object({
   path: ["otherTrademark"],
 });  
 
+const CertificateSchema = z.object({
+  uid: z.string().min(1, "UID is required" ),
+  name: z.string().min(1, "Name is required"),
+});
+
 const STAFF_VALIDATION_SCHEMA = z.object({
   name:z.string()
   .min(1, "Name is required"),
@@ -96,9 +103,8 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 
   degree: z.string().min(1, "Degree is required"),
 
-  certificates: z.string().array().nonempty({
-    message: "Can't be empty!",
-  }),
+  certificates: z.array(CertificateSchema)
+                 .nonempty({message: "Can't be empty!"}),
 
   roles: z.string().array().nonempty({
     message: "Can't be empty!",
@@ -112,12 +118,8 @@ const WORKS_VALIDATION_SCHEMA = z.object({
   customer: z.string()
   .min(1, "Last name is required"),
 
-  description: z.string()
-  .min(10, "Needed at least a small description"),
-  
-  typeWork: z.string().array().nonempty({
-    message: "Can't be empty!",
-  }),
+  typeWork: z.array(CertificateSchema)
+                 .nonempty({message: "Can't be empty!"}),
 
   startDate: z.string()
   .min(1, "Can't be empty!"),
@@ -134,7 +136,31 @@ const WORKS_VALIDATION_SCHEMA = z.object({
   reportPlace: z.string()
   .min(1, "Can't be empty!"),
 
-}) 
+  workers: z.array(STAFF_VALIDATION_SCHEMA).nonempty({message: "Can't be empty!"}),  
+}).refine(data => {
+  const startDate = new Date(data.startDate);
+  const endDate = new Date(data.endDate);
+  return startDate < endDate;
+}, {
+  message: "Start date must be before end date",
+  path: ["endDate"], // you can specify a path to set the error on a specific field
+}); 
+
+const CHANGE_PASSWORD_SCHEMA = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  password: z.string()
+                .min(1, 'Password is required')
+              .regex(REGEX_PASSWORD, 'Password must contain Upper case, lower case, special character and min length 6'),
+
+  confirm: z
+          .string()
+          .min(1, 'Confirm password is required')
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords must match",
+    path:["confirm"]  
+  })
+  
 
 
 export {
@@ -145,4 +171,5 @@ export {
     STOCK_VALIDATION_SCHEMA,
     STAFF_VALIDATION_SCHEMA,
     WORKS_VALIDATION_SCHEMA,
+    CHANGE_PASSWORD_SCHEMA,
 }

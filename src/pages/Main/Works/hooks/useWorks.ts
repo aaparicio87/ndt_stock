@@ -13,11 +13,11 @@ import { useNavigate } from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
 
+
 interface IOption {
     label: string, 
     value: string 
 }
-
 
 export const useWorks = () => {
     const navigate = useNavigate()
@@ -33,7 +33,6 @@ export const useWorks = () => {
     const customersRemote = React.useRef<TCustomer[]>([])
     const certificatesRemote = React.useRef<TCertificates[]>([])
     
-
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
             await getAllElements()
@@ -81,9 +80,7 @@ export const useWorks = () => {
 
     const handleGetAllCustomers = async() => {
         try {
-            console.log('before customers')
             const customers = await getAllCustomers()
-            console.log('after customers')
             if(customers){
                 customersRemote.current = customers
                 const list = customers
@@ -97,6 +94,7 @@ export const useWorks = () => {
             console.error("Error fetching staff: ", error)
         }
     }
+
     const handleGetAllCertificates = async() => {
         try {
             const certificates = await getAllCertificates()
@@ -131,6 +129,7 @@ export const useWorks = () => {
     }
 
     const openAddWork = () => navigate('create')
+    const openWorksTable = () => navigate('/works')
     const openEditWork = async (item: TWork) => navigate(`edit/${item.uid}`)
 
     return {
@@ -152,5 +151,6 @@ export const useWorks = () => {
         handleGetAllCertificates,
         certificatesList,
         customersList,
+        openWorksTable
     }
 }

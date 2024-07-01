@@ -35,16 +35,6 @@ const StockTable = ({ data, onDelete, onDetails, onEdit, isLoading }: TProps) =>
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'store',
-                header: 'Store',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'calibrationDate',
-                header: 'Calibration',
-                footer: props => props.column.id,
-            },
-            {
                 accessorKey: 'qualityOfService',
                 header: 'QoS',
                 footer: props => props.column.id,

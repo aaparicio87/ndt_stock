@@ -1,6 +1,10 @@
 import { 
     browserSessionPersistence,
+    EmailAuthProvider,
+    getAuth,
+    reauthenticateWithCredential,
     signInWithEmailAndPassword, 
+    updatePassword, 
     UserCredential 
 } from "firebase/auth"
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -22,7 +26,7 @@ const registerUser = async (userData:TStaff): Promise<ICreateUserResponse> => {
         const functions = getFunctions();
         const createUserStaff = httpsCallable(functions, 'creatNewUSerStaff');
 
-        const result = await createUserStaff(userData);
+        const result = await createUserStaff(userData)
 
         const data = result.data as ICreateUserResponse;
         
@@ -43,6 +47,28 @@ const signIn = async (userData:TSignIn):Promise<UserCredential | undefined> => {
         return await signInWithEmailAndPassword(FB_AUTH, email, password)
     } catch (error) {
         console.error(error)
+    }
+}
+
+const changePassword = async (newPassword:string, currentPassword:string , email:string) => {
+    
+    const credential = EmailAuthProvider.credential(email, currentPassword);
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) {
+        return { success: false}
+      }
+    console.log(credential, user)  
+    try {
+        const response = await reauthenticateWithCredential(user, credential);
+        if(response){
+            await updatePassword(user, newPassword);
+        }
+
+        return { success: true}
+        
+    } catch (error) {
+        return { success: false, error: (error as Error).message };
     }
 }
 
@@ -72,4 +98,5 @@ export{
     getAllStaff,
     deleteStaffElement,
     updateStaffElement,
+    changePassword
 }

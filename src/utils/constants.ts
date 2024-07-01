@@ -33,13 +33,6 @@ const DEGREES = [
     'Engineer'
 ]
 
-const CERTIFICATES: TCertificates[] = [
-    {id:'1', name: "Green card" },
-    {id:'2', name: "Blue card" },
-    {id:'3', name:  "Master" },
-    {id:'4', name:  "Other" },
-]
-
 const ROLES: TRole[]  = [
     "ADMINISTRATOR",
     "DATA_MANAGER",
@@ -56,7 +49,6 @@ export {
     TRADEMARK,
     QOS,
     DEGREES,
-    CERTIFICATES,
     ROLES,
     WORKS,
     CERTIFICATE,

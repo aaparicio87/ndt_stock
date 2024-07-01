@@ -52,14 +52,14 @@ const INITIAL_STATE: TInitialState = {
 }
 
 
-const _optionsCertificates = CERTIFICATES.map((label) => ({ label, value: label.toLowerCase() }))
+const _optionsCertificates = CERTIFICATES.map((label) => ({ label: label.name, value: label.id }))
 const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() }))
 
 const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
 
     const handleItemsState = () => {
         if (item && item.certificates) {
-            return item.certificates.map(cert => ({ label: cert, value: cert.toLowerCase() }))
+            return item.certificates.map(cert => ({ label: cert.name, value: cert.id }))
         } else {
             return []
         }
@@ -90,8 +90,11 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
-        const certificates = dataArray.map((d) => d.label as TCertificates)
-        setValue('certificates', certificates)
+        const certs = dataArray.map((d) => {
+            const certificates: TCertificates = { id: d.value as string, name: d.label }
+            return certificates
+        })
+        setValue('certificates', certs)
     }
 
     const onChangeItemRoles = (data: Option | Option[]) => {

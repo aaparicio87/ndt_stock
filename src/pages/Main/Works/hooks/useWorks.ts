@@ -2,10 +2,21 @@ import React from "react"
 import { collection, onSnapshot } from "firebase/firestore"
 import { FB_DB } from "../../../../config/firebase.conf"
 import { WORKS } from "../../../../utils/constants"
-import { deleteWorkElement, getAllWorks } from "../../../../services"
+import { 
+    deleteWorkElement, 
+    getAllCustomers, 
+    getAllStaff, 
+    getAllWorks, 
+    getAllCertificates, 
+} from "../../../../services"
 import { useNavigate } from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
+
+interface IOption {
+    label: string, 
+    value: string 
+}
 
 
 export const useWorks = () => {
@@ -15,10 +26,17 @@ export const useWorks = () => {
     const [data, setData] = React.useState<TWork[]>([])
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
     const [workElementDelete, setWorkElementDelete] = React.useState<TWork | undefined>(undefined)
+    const [workersList, setWorkersList] = React.useState<IOption[]>([])
+    const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
+    const [customersList, setCustomersList] = React.useState<IOption[]>([])
+    const workersRemote = React.useRef<TStaff[]>([])
+    const customersRemote = React.useRef<TCustomer[]>([])
+    const certificatesRemote = React.useRef<TCertificates[]>([])
+    
 
     React.useEffect(() => {
-        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), (_) => {
-            getAllElements()
+        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
+            await getAllElements()
         })
         return () => unsubscribe();
     }, [])
@@ -39,6 +57,61 @@ export const useWorks = () => {
 
     const handleViewDetails = (item: TWork) => {
         return item
+    }
+
+    const handleGetAllStaff = async() => {
+        try {
+          const allStaff =  await getAllStaff()
+          if (!allStaff) {
+            console.error("No response from getAllStaff")
+            return
+        }
+        workersRemote.current = allStaff
+        const listWorkers = allStaff
+            .filter((res) => res.roles.some((role) => role === 'USER'))
+            .map((res) => ({
+                label: `${res.name} ${res.lastName}`,
+                value: `${res.uid}`
+            }));
+        setWorkersList(listWorkers)
+        } catch (error) {
+            console.error("Error fetching staff: ", error)
+        }
+    }
+
+    const handleGetAllCustomers = async() => {
+        try {
+            console.log('before customers')
+            const customers = await getAllCustomers()
+            console.log('after customers')
+            if(customers){
+                customersRemote.current = customers
+                const list = customers
+                    .map((res) => ({
+                        label: res.name,
+                        value: res.uid
+                    }));
+                setCustomersList(list)
+            }
+        } catch (error) {
+            console.error("Error fetching staff: ", error)
+        }
+    }
+    const handleGetAllCertificates = async() => {
+        try {
+            const certificates = await getAllCertificates()
+            if(certificates){
+                certificatesRemote.current = certificates
+                const list = certificates
+                    .map((res) => ({
+                        label: res.name,
+                        value: res.uid
+                    }));
+                setCertificatesList(list)
+            }
+        } catch (error) {
+            console.error("Error fetching staff: ", error)
+        }
     }
 
     const handleDelete = (item: TWork) => {
@@ -70,5 +143,14 @@ export const useWorks = () => {
         isOpenDelete,
         onCloseDelete,
         handleConfirmDelete,
+        workersRemote,
+        workersList,
+        customersRemote,
+        certificatesRemote,
+        handleGetAllStaff,
+        handleGetAllCustomers,
+        handleGetAllCertificates,
+        certificatesList,
+        customersList,
     }
 }

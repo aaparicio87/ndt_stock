@@ -115,11 +115,14 @@ const WORKS_VALIDATION_SCHEMA = z.object({
   description: z.string()
   .min(10, "Needed at least a small description"),
   
-  certifications: z.string().array().nonempty({
+  typeWork: z.string().array().nonempty({
     message: "Can't be empty!",
   }),
 
-  expiredDate: z.string()
+  startDate: z.string()
+  .min(1, "Can't be empty!"),
+
+  endDate: z.string()
   .min(1, "Can't be empty!"),
 
   reportNumber: z.string()

@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { ChangeEvent } from 'react';
 import {
     Box,
     Button,
@@ -17,50 +17,62 @@ import {
     NumberIncrementStepper,
     NumberDecrementStepper,
     Switch,
+    Select,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form';
-import { CERTIFICATES } from '../../../../../utils/constants';
 import { MultiSeleect } from '../../../../../components';
 import { Option } from 'chakra-multiselect';
-import { getAllStaff } from '../../../../../services';
+import { useWorks } from '../../hooks/useWorks';
 //import { zodResolver } from '@hookform/resolvers/zod';
 
 const INITIAL_STATE: TWork = {
     name: "",
-    customer: "",
+    customer: undefined,
     description: "",
-    certifications: [],
-    expiredDate: "",
+    typeWork: [],
+    startDate: "",
+    endDate: "",
     reportNumber: "",
     invoiceNumber: "",
     reportPlace: "",
     films: 0,
     cans: 0,
     address: "",
-    documentationTime: 0,
+    //documentationTime: 0,
     needToDeliver: false,
-    timeAtTheClient: "",
     workers: [],
-    billed: ""
+    //billed: ""
 }
 
-const _optionsCertificates = CERTIFICATES.map((label) => ({ label, value: label.toLowerCase() }))
+
 
 const CreaterWork = () => {
+    const {
+        workersRemote,
+        certificatesRemote,
+        customersRemote,
+        certificatesList,
+        customersList,
+        workersList,
+        handleGetAllStaff,
+        handleGetAllCustomers,
+        handleGetAllCertificates,
+    } = useWorks()
 
     const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<TWork>({
         defaultValues: INITIAL_STATE,
     });
     const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>([])
-    const [workersList, setWorkersList] = React.useState<{ label: string, value: string }[]>([])
-    const workersRemote = useRef<TStaff[]>([])
     const [workersSelected, setWorkersSelected] = React.useState<Option | Option[]>([])
 
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
-        const certificates = dataArray.map((d) => d.label as TCertificates)
-        setValue('certifications', certificates)
+        const typeWork = dataArray.map((d) => {
+            const tWork: TCertificates = { uid: d.value as string, name: d.label }
+            return tWork
+        })
+        setValue('typeWork', typeWork)
     }
 
     const onChangeWorkersSelect = (data: Option | Option[]) => {
@@ -70,24 +82,22 @@ const CreaterWork = () => {
         setValue('workers', workerToSave)
     }
 
+    const onChangeCustomers = (event: ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = event.target.value;
+        const customerSelected = customersRemote.current.find((cr) => cr.uid === selectedValue)
+        setValue('customer', customerSelected)
+    }
+
+
     React.useEffect(() => {
-        getAllStaff().then((response) => {
-            if (!response) {
-                console.error("No response from getAllStaff")
-                return
-            }
-            workersRemote.current = response
-            const listWorkers = response
-                .filter((res) => res.roles.some((role) => role === 'USER'))
-                .map((res) => ({
-                    label: `${res.name} ${res.lastName}`,
-                    value: `${res.uid}`
-                }));
-            setWorkersList(listWorkers)
-        }).catch(error => {
-            console.error("Error fetching staff: ", error)
-        })
+
+        const p1 = handleGetAllStaff()
+        const p2 = handleGetAllCustomers()
+        const p3 = handleGetAllCertificates()
+        Promise.allSettled([p1, p2, p3])
+
     }, [])
+
 
 
     const onSubmit = async () => {
@@ -121,17 +131,69 @@ const CreaterWork = () => {
                             {errors.name && errors.name.message}
                         </FormErrorMessage>
                     </FormControl>
-                    <FormControl>
+                    <FormControl isInvalid={!!errors.customer}>
                         <FormLabel>Customer</FormLabel>
-                        <Input
-                            placeholder='Enter customer name'
+                        <Select
+                            placeholder='Select customer'
                             {...register('customer')}
-                        />
+                            onChange={onChangeCustomers}
+                        >
+                            {
+                                customersList.map((customer, index) => (
+                                    <option value={customer.value} key={index}>{customer.label}</option>
+                                ))
+                            }
+                        </Select>
                         <FormErrorMessage>
                             {errors.customer && errors.customer.message}
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
+                <HStack spacing={4} py={3}>
+                    <FormControl>
+                        <FormLabel>Start date</FormLabel>
+                        <Input
+                            placeholder='Start date'
+                            size='md'
+                            type='date'
+                            {...register('startDate')}
+                        />
+                        <FormErrorMessage>
+                            {errors.startDate && errors.startDate.message}
+                        </FormErrorMessage>
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel>End date</FormLabel>
+                        <Input
+                            placeholder='En date'
+                            size='md'
+                            type='date'
+                            {...register('endDate')}
+                        />
+                        <FormErrorMessage>
+                            {errors.endDate && errors.endDate.message}
+                        </FormErrorMessage>
+                    </FormControl>
+
+                </HStack>
+                {
+                    workersList.length > 0 &&
+                    <HStack py={3} >
+                        <FormControl isInvalid={!!errors.workers}>
+                            <MultiSeleect
+                                options={workersList}
+                                value={workersSelected}
+                                label='Workers'
+                                placeholder='Select workers'
+                                size='md'
+                                onChange={onChangeWorkersSelect}
+                            />
+                            <FormErrorMessage>
+                                {errors.workers && errors.workers.message}
+                            </FormErrorMessage>
+                        </FormControl>
+                    </HStack>
+                }
                 <HStack py={3}>
                     <FormControl>
                         <FormLabel>Description</FormLabel>
@@ -145,9 +207,9 @@ const CreaterWork = () => {
                     </FormControl>
                 </HStack>
                 <HStack py={3} >
-                    <FormControl isInvalid={!!errors.certifications}>
+                    <FormControl isInvalid={!!errors.typeWork}>
                         <MultiSeleect
-                            options={_optionsCertificates}
+                            options={certificatesList}
                             value={itemsCertificates}
                             label='Certifications'
                             placeholder='Select certifications'
@@ -155,31 +217,7 @@ const CreaterWork = () => {
                             onChange={onChangeItemCertificates}
                         />
                         <FormErrorMessage>
-                            {errors.certifications && errors.certifications.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                </HStack>
-                <HStack spacing={4} py={3}>
-                    <FormControl>
-                        <FormLabel>Expiration date</FormLabel>
-                        <Input
-                            placeholder='Select expiration date'
-                            size='md'
-                            type='date'
-                            {...register('expiredDate')}
-                        />
-                        <FormErrorMessage>
-                            {errors.expiredDate && errors.expiredDate.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                    <FormControl>
-                        <FormLabel>Invoice number</FormLabel>
-                        <Input
-                            placeholder='Enter invoice number'
-                            {...register('invoiceNumber')}
-                        />
-                        <FormErrorMessage>
-                            {errors.invoiceNumber && errors.invoiceNumber.message}
+                            {errors.typeWork && errors.typeWork.message}
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
@@ -217,6 +255,19 @@ const CreaterWork = () => {
                         </FormErrorMessage>
                     </FormControl>
                     <FormControl>
+                        <FormLabel>Invoice number</FormLabel>
+                        <Input
+                            placeholder='Enter invoice number'
+                            {...register('invoiceNumber')}
+                        />
+                        <FormErrorMessage>
+                            {errors.invoiceNumber && errors.invoiceNumber.message}
+                        </FormErrorMessage>
+                    </FormControl>
+
+                </HStack>
+                {/*  <HStack spacing={4} py={3}>
+                     <FormControl>
                         <FormLabel>Documentation time</FormLabel>
                         <NumberInput
                             min={0}
@@ -234,19 +285,7 @@ const CreaterWork = () => {
                             {errors.documentationTime && errors.documentationTime.message}
                         </FormErrorMessage>
                     </FormControl>
-                </HStack>
-                <HStack spacing={4} py={3}>
-                    <FormControl>
-                        <FormLabel>Time at the client</FormLabel>
-                        <Input
-                            placeholder='Time at the client'
-                            {...register('timeAtTheClient')}
-                        />
-                        <FormErrorMessage>
-                            {errors.timeAtTheClient && errors.timeAtTheClient.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                    <FormControl>
+                     <FormControl>
                         <FormLabel>Billed</FormLabel>
                         <Input
                             placeholder='Billed'
@@ -256,25 +295,7 @@ const CreaterWork = () => {
                             {errors.billed && errors.billed.message}
                         </FormErrorMessage>
                     </FormControl>
-                </HStack>
-                {
-                    workersList.length > 0 &&
-                    <HStack py={3} >
-                        <FormControl isInvalid={!!errors.workers}>
-                            <MultiSeleect
-                                options={workersList}
-                                value={workersSelected}
-                                label='Workers'
-                                placeholder='Select workers'
-                                size='md'
-                                onChange={onChangeWorkersSelect}
-                            />
-                            <FormErrorMessage>
-                                {errors.workers && errors.workers.message}
-                            </FormErrorMessage>
-                        </FormControl>
-                    </HStack>
-                }
+                </HStack> */}
                 <HStack spacing={5} py={3}>
                     <FormControl>
                         <FormLabel>Films</FormLabel>

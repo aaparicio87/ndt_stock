@@ -13,7 +13,6 @@ type TSignUp = {
 
 type TRole = 'ADMINISTRATOR' | 'DATA_MANAGER' | 'USER'
 type TToastStatus = 'success' | 'error' | 'warning' | 'info'
-type TCertificates = "Green card"| "Blue card" |"Master" | "Other"
 type TWorkState = "Completed"| "In progress" | "Published" | "Unpublished"
 
 type TStock = {
@@ -34,6 +33,7 @@ type TStaff = TSignUp & {
     photoUrl?:string
     roles:TRole[]
     certificates?:TCertificates[]
+    initials?:string
 }
 
 type UserResponse = {
@@ -46,25 +46,35 @@ interface ILocation {
     longitude: number
 }
 
+type TCertificates = {
+    uid: string
+    name: string
+}
+
+type TCustomer = {
+    uid: string
+    name: string
+}
+
 type TWork = {
     uid?:string
     name:string
     location?:ILocation
-    customer: string
+    customer: TCustomer | undefined
     description: string
-    expiredDate: string
+    startDate:string
+    endDate: string
     address: string
-    certifications: TCertificates[]
+    typeWork: TCertificates[]
     workers: TStaff[]
     reportNumber: string
     needToDeliver: boolean
     invoiceNumber: string
     films?:number
     cans?:number
-    documentationTime:number
-    timeAtTheClient:string
-    reportPlace:string
-    billed: string
+    documentationTime?:number
+    reportPlace?:string
+    billed?: string
 }
 
     

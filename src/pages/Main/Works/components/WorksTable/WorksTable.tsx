@@ -1,10 +1,9 @@
-import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
+import { ColumnDef } from '@tanstack/react-table'
 import { ActionsTable, CustomDataTable, HeaderViewTable } from '../../../../../components'
 import { useWorks } from '../../hooks/useWorks'
 import { Button } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
-
 
 
 const WorksTable = () => {
@@ -25,19 +24,20 @@ const WorksTable = () => {
                 header: 'Report number',
                 footer: props => props.column.id,
             },
-            {
-                accessorKey: 'name',
-                header: () => 'Name',
-                footer: props => props.column.id,
-            },
+
             {
                 accessorKey: 'customer',
                 header: () => <span>Customer</span>,
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'expiredDate',
-                header: 'Expired Date',
+                accessorKey: 'startDate',
+                header: 'Start Date',
+                footer: props => props.column.id,
+            },
+            {
+                accessorKey: 'endDate',
+                header: 'End Date',
                 footer: props => props.column.id,
             },
             {

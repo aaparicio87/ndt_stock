@@ -2,6 +2,9 @@ const AUTH_SLICE_NAME = 'auth'
 const STAFF = 'staff'
 const STOCK = 'stock'
 const WORKS = 'works'
+const CERTIFICATE = 'certificates'
+const CLIENT = 'clients'
+
 
 const REGEX_EMAIL = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const REGEX_PASSWORD = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,64}$/
@@ -31,10 +34,10 @@ const DEGREES = [
 ]
 
 const CERTIFICATES: TCertificates[] = [
-    "Green card",
-    "Blue card",
-    "Master",
-    "Other",
+    {id:'1', name: "Green card" },
+    {id:'2', name: "Blue card" },
+    {id:'3', name:  "Master" },
+    {id:'4', name:  "Other" },
 ]
 
 const ROLES: TRole[]  = [
@@ -55,5 +58,7 @@ export {
     DEGREES,
     CERTIFICATES,
     ROLES,
-    WORKS
+    WORKS,
+    CERTIFICATE,
+    CLIENT,
 }

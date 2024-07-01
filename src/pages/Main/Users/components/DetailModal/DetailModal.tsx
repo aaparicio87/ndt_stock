@@ -10,6 +10,7 @@ import {
     ModalHeader,
     ModalOverlay,
     Stack,
+    Text,
 } from '@chakra-ui/react'
 
 type TProps = {
@@ -29,17 +30,19 @@ const ELEMENTS_DISPLAY = {
 
 const formatDataDetail = (key: string, item: TStaff) => {
     if (key === 'certificates') {
-        let certificates = item[key as keyof TStaff] as TCertificates[] | undefined
-        if (certificates)
-            return certificates.join(', ')
-        else return '-'
+        let certificates = item[key as keyof TStaff] as TCertificates[]
+        if (certificates) {
+            return certificates.map((cert) => cert.name).join(', ')
+        } else {
+            return '-'
+        }
     } else if (key === 'roles') {
         let roles = item[key as keyof TStaff] as TRole[] | undefined
         if (roles)
             return roles.join(', ')
         else return '-'
     } else {
-        return item[key as keyof TStaff] ?? '-'
+        return item[key as keyof TStaff]?.toString() ?? '-'
     }
 }
 
@@ -55,7 +58,7 @@ const DetailModal = ({ isOpen, onClose, item }: TProps) => {
                         <Stack spacing={4}>
                             {Object.entries(ELEMENTS_DISPLAY).map(([key, label]) => (
                                 <Box key={key}>
-                                    <strong>{label}:</strong> {formatDataDetail(key, item)}
+                                    <strong>{label}:</strong> <Text>{formatDataDetail(key, item)}</Text>
                                     <Divider mt={2} />
                                 </Box>
                             ))}

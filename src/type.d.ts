@@ -1,4 +1,5 @@
 
+
 type TSignIn = {
     email: string,
     password:string,
@@ -33,7 +34,7 @@ type TStaff = TSignUp & {
     photoUrl?:string
     roles:TRole[]
     certificates?:TCertificates[]
-    initials?:string
+    createdAt?:string
 }
 
 type UserResponse = {

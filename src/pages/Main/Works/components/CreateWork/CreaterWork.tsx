@@ -20,10 +20,14 @@ import {
     Select,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form';
-import { MultiSeleect } from '../../../../../components';
+import { Loader, MultiSeleect } from '../../../../../components';
 import { Option } from 'chakra-multiselect';
 import { useWorks } from '../../hooks/useWorks';
-//import { zodResolver } from '@hookform/resolvers/zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { WORKS_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas';
+import { createNewWorkElement } from '../../../../../services';
+import { useNotification } from '../../../../../hooks/useNotification';
+
 
 const INITIAL_STATE: TWork = {
     name: "",
@@ -44,8 +48,6 @@ const INITIAL_STATE: TWork = {
     //billed: ""
 }
 
-
-
 const CreaterWork = () => {
     const {
         workersRemote,
@@ -57,59 +59,78 @@ const CreaterWork = () => {
         handleGetAllStaff,
         handleGetAllCustomers,
         handleGetAllCertificates,
+        openWorksTable,
     } = useWorks()
 
-    const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<TWork>({
+    const { register, handleSubmit, setValue, reset, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TWork>({
         defaultValues: INITIAL_STATE,
+        resolver: zodResolver(WORKS_VALIDATION_SCHEMA)
     });
+    const { openToast } = useNotification()
     const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>([])
     const [workersSelected, setWorkersSelected] = React.useState<Option | Option[]>([])
+    const [customerSelected, setCustomerSelected] = React.useState("")
+    const [loading, setLoading] = React.useState(true);
 
     const onChangeItemCertificates = (data: Option | Option[]) => {
         setItemsCertificates(data)
         const dataArray = data as Option[]
-        const typeWork = dataArray.map((d) => {
-            const tWork: TCertificates = { uid: d.value as string, name: d.label }
-            return tWork
-        })
+        const typeWork = certificatesRemote.current
+            .filter(item => dataArray
+                .map(data => data.value as string)
+                .includes(item.uid ?? ''));
+
         setValue('typeWork', typeWork)
     }
 
     const onChangeWorkersSelect = (data: Option | Option[]) => {
         setWorkersSelected(data)
         const dataArray = data as Option[]
-        const workerToSave = workersRemote.current.filter(item => dataArray.map(data => data.value as string).includes(item.uid ?? ''));
+        const workerToSave = workersRemote.current
+            .filter(item => dataArray
+                .map(data => data.value as string)
+                .includes(item.uid ?? ''));
         setValue('workers', workerToSave)
     }
 
     const onChangeCustomers = (event: ChangeEvent<HTMLSelectElement>) => {
         const selectedValue = event.target.value;
-        const customerSelected = customersRemote.current.find((cr) => cr.uid === selectedValue)
-        setValue('customer', customerSelected)
+        const client = customersRemote.current.find((cr) => cr.uid === selectedValue)
+        setCustomerSelected(client?.uid ?? '')
+        setValue('customer', client)
     }
 
-
     React.useEffect(() => {
-
         const p1 = handleGetAllStaff()
         const p2 = handleGetAllCustomers()
         const p3 = handleGetAllCertificates()
         Promise.allSettled([p1, p2, p3])
-
+            .finally(() => {
+                setLoading(false)
+            })
     }, [])
 
+    React.useEffect(() => {
+        if (isSubmitSuccessful) {
+            reset()
+        }
+    }, [isSubmitSuccessful])
 
-
-    const onSubmit = async () => {
-
+    const onSubmit = async (data: TWork) => {
         try {
-
+            await createNewWorkElement(data)
+            openToast('success', "New work created", 'Success')
+            openWorksTable()
         } catch (error) {
-
-        } finally {
-
+            openToast('error', JSON.stringify(error), "Error")
         }
     };
+
+
+    if (loading) {
+        return <Loader />;
+    }
+
     return (
         <Container maxW={'4xl'}>
             <Heading
@@ -137,6 +158,7 @@ const CreaterWork = () => {
                             placeholder='Select customer'
                             {...register('customer')}
                             onChange={onChangeCustomers}
+                            value={customerSelected}
                         >
                             {
                                 customersList.map((customer, index) => (
@@ -176,24 +198,23 @@ const CreaterWork = () => {
                     </FormControl>
 
                 </HStack>
-                {
-                    workersList.length > 0 &&
-                    <HStack py={3} >
-                        <FormControl isInvalid={!!errors.workers}>
-                            <MultiSeleect
-                                options={workersList}
-                                value={workersSelected}
-                                label='Workers'
-                                placeholder='Select workers'
-                                size='md'
-                                onChange={onChangeWorkersSelect}
-                            />
-                            <FormErrorMessage>
-                                {errors.workers && errors.workers.message}
-                            </FormErrorMessage>
-                        </FormControl>
-                    </HStack>
-                }
+
+                <HStack py={3} >
+                    <FormControl isInvalid={!!errors.workers}>
+                        <MultiSeleect
+                            options={workersList}
+                            value={workersSelected}
+                            label='Workers'
+                            placeholder='Select workers'
+                            size='md'
+                            onChange={onChangeWorkersSelect}
+                        />
+                        <FormErrorMessage>
+                            {errors.workers && errors.workers.message}
+                        </FormErrorMessage>
+                    </FormControl>
+                </HStack>
+
                 <HStack py={3}>
                     <FormControl>
                         <FormLabel>Description</FormLabel>
@@ -264,7 +285,6 @@ const CreaterWork = () => {
                             {errors.invoiceNumber && errors.invoiceNumber.message}
                         </FormErrorMessage>
                     </FormControl>
-
                 </HStack>
                 {/*  <HStack spacing={4} py={3}>
                      <FormControl>

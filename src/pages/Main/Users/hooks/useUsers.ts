@@ -6,7 +6,7 @@ import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../config/firebase.conf";
 import { STAFF } from "../../../../utils/constants";
-import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from "../../../../services";
+import { deleteStaffElement, getAllCertificates, getAllStaff, getStaffInformationByUserUID } from "../../../../services";
 
 
  export interface IStaffTable {
@@ -16,6 +16,12 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
     roles: string
     uid?: string
  }
+
+
+interface IOption {
+    label: string, 
+    value: string 
+}
  
  export const useUser = () => {
     const { openToast } = useNotification()
@@ -27,6 +33,7 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
     const [staffElementDelete, setStaffElementDelete] = React.useState<string | undefined>(undefined)
     const [data, setData] = React.useState<IStaffTable[]>([])
     const [isLoading, setIsLoading] = React.useState(false)
+    const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
 
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, STAFF), (_) => {
@@ -57,6 +64,22 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
         }
         finally{
             setIsLoading(false)
+        }
+    }
+
+    const handleGetAllCertificates = async() => {
+        try {
+            const certificates = await getAllCertificates()
+            if(certificates){
+                const list = certificates
+                    .map((res) => ({
+                        label: res.name,
+                        value: res.uid
+                    }));
+                setCertificatesList(list)
+            }
+        } catch (error) {
+            console.error("Error fetching staff: ", error)
         }
     }
 
@@ -124,6 +147,8 @@ import { deleteStaffElement, getAllStaff, getStaffInformationByUserUID } from ".
         isOpen,
         isOpenDetail,
         onCloseDelete,
-        isLoading
+        isLoading,
+        certificatesList,
+        handleGetAllCertificates,
     }
 }

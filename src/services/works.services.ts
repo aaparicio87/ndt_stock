@@ -6,7 +6,7 @@ import FirebaseService from "./firebase.services";
 const workService = new FirebaseService<TWork>(FB_DB, WORKS);
 
 
-const createNewWorkElement = async(data: TStock) => {
+const createNewWorkElement = async(data: TWork) => {
     await workService.create(data);
 }
 

@@ -43,14 +43,16 @@ export const useAuth = () => {
   const handleGetProfileData = async (userUID:string, token:string) => {
     try {
       const remoteData = await getStaffInformationByUserUID(userUID)
-        if(remoteData){
+
+        if(remoteData !== null ){
           const userData = remoteData as TStaff
 
           dispatch(setCredentials({
             token,
             user:{
               uid: userUID,
-              ...userData
+              ...userData,
+              createdAt: JSON.stringify(userData.createdAt)
             }
           }))
         }

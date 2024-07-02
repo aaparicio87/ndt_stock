@@ -1,4 +1,4 @@
-import { Box, Center, Container, FormControl, FormLabel, Heading, HStack, Icon, SimpleGrid, Text, VStack } from '@chakra-ui/react';
+import { Box, Center, Container, FormControl, FormLabel, Heading, HStack, Icon, SimpleGrid, Text } from '@chakra-ui/react';
 import React from 'react'
 import { useParams } from 'react-router-dom';
 import { IDetailWork, useWorks } from '../../hooks/useWorks';

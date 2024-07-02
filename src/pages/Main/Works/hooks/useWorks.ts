@@ -7,7 +7,8 @@ import {
     getAllCustomers, 
     getAllStaff, 
     getAllWorks, 
-    getAllCertificates, 
+    getAllCertificates,
+    getWorkByUID
 } from "../../../../services"
 import { useNavigate } from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
@@ -19,19 +20,45 @@ interface IOption {
     value: string 
 }
 
+export interface IWorkTable {
+    uid?:string
+    customerName:string
+    startDate:string
+    endDate:string
+    reportNumber:string
+}
+
+export interface IDetailWork {
+    name: string,
+    workers:string,
+    customer: string,
+    startDate: string,
+    endDate: string,
+    description: string,
+    reportNumber: string,
+    reportPlace: string,
+    address: string,
+    invoiceNumber: string,
+    films: number,
+    cans: number,
+    needToDeliver: string,
+}
+
 export const useWorks = () => {
     const navigate = useNavigate()
     const { openToast } = useNotification()
     const [isLoading, setIsLoading] = React.useState(false)
-    const [data, setData] = React.useState<TWork[]>([])
+    const [data, setData] = React.useState<IWorkTable[]>([])
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
-    const [workElementDelete, setWorkElementDelete] = React.useState<TWork | undefined>(undefined)
     const [workersList, setWorkersList] = React.useState<IOption[]>([])
     const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
     const [customersList, setCustomersList] = React.useState<IOption[]>([])
+    const [workElementDelete, setWorkElementDelete] = React.useState<TWork | undefined>(undefined)
+    const [workElementDetailt, setWorkElementDetailt] = React.useState<IDetailWork | undefined>(undefined)
     const workersRemote = React.useRef<TStaff[]>([])
     const customersRemote = React.useRef<TCustomer[]>([])
     const certificatesRemote = React.useRef<TCertificates[]>([])
+    const worksRemoteRef = React.useRef<TWork[]>([])
     
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
@@ -45,17 +72,24 @@ export const useWorks = () => {
         try{
             const workData = await getAllWorks();
             if (workData) {
-                setData(workData)
+                worksRemoteRef.current = workData
+                const dataTable = workData.map((wd) => {
+                    const wsTable:IWorkTable = {
+                        endDate: wd.endDate,
+                        startDate: wd.startDate,
+                        customerName: wd.customer?.name ?? '-',
+                        reportNumber: wd.reportNumber,
+                        uid: wd.uid 
+                    }
+                    return wsTable
+            })
+                setData(dataTable)
             }
         }catch (error) {
             console.error(error)
         }finally{
             setIsLoading(false)
         }
-    }
-
-    const handleViewDetails = (item: TWork) => {
-        return item
     }
 
     const handleGetAllStaff = async() => {
@@ -74,7 +108,7 @@ export const useWorks = () => {
             }));
         setWorkersList(listWorkers)
         } catch (error) {
-            console.error("Error fetching staff: ", error)
+            openToast('error', JSON.stringify(error), "Error")
         }
     }
 
@@ -91,7 +125,7 @@ export const useWorks = () => {
                 setCustomersList(list)
             }
         } catch (error) {
-            console.error("Error fetching staff: ", error)
+            openToast('error', JSON.stringify(error), "Error")
         }
     }
 
@@ -108,13 +142,15 @@ export const useWorks = () => {
                 setCertificatesList(list)
             }
         } catch (error) {
-            console.error("Error fetching staff: ", error)
+            openToast('error', JSON.stringify(error), "Error")
         }
     }
 
-    const handleDelete = (item: TWork) => {
-        setWorkElementDelete(item)
+    const handleDelete = (uid:string) => {
+        const work = worksRemoteRef.current.find((wr) => wr.uid === uid)
+        setWorkElementDelete(work)
         onOpenDelete()
+        console.log('handleDelete End')
     }
 
     const handleConfirmDelete = async () => {
@@ -128,14 +164,45 @@ export const useWorks = () => {
         }
     }
 
+    const handleGetElementDetail = async(uid:string) => {
+        setIsLoading(true)
+        try {
+          const work =  await getWorkByUID(uid)
+          if(work !== null){
+            console.log(work)
+            const detailWork:IDetailWork = {
+                name: work.typeWork.map((tw) => tw.name).join(", "),
+                address: work.address ? work.address.length > 0 ? work.address : '-': '-',
+                cans: work.cans ?? 0,
+                customer: work.customer?.name ?? '-',
+                description: work.description ? work.description.length > 0 ? work.description : '-' : '-',
+                startDate: work.startDate,
+                endDate: work.endDate,
+                films: work.films ?? 0,
+                invoiceNumber: work.invoiceNumber,
+                needToDeliver: work.needToDeliver ? "Yes" : "No",
+                reportNumber: work.reportNumber,
+                reportPlace: work.reportPlace ?? '-',
+                workers: work.workers.map((ws) => `${ws.name} ${ws.lastName}`).join(', ')
+            }
+            setWorkElementDetailt(detailWork)
+          }
+        } catch (error) {
+            console.error(error)
+            openToast('error', JSON.stringify(error), "Error")
+        }finally{
+            setIsLoading(false)
+        }
+    }
+
     const openAddWork = () => navigate('create')
     const openWorksTable = () => navigate('/works')
-    const openEditWork = async (item: TWork) => navigate(`edit/${item.uid}`)
+    const openEditWork = (uid: string) => navigate(`edit/${uid}`)
+    const openViewDetail = (uid: string) => navigate(`detail/${uid}`)
 
     return {
         isLoading,
         data,
-        handleViewDetails,
         openEditWork,
         handleDelete,
         openAddWork,
@@ -151,6 +218,9 @@ export const useWorks = () => {
         handleGetAllCertificates,
         certificatesList,
         customersList,
-        openWorksTable
+        openWorksTable,
+        openViewDetail,
+        handleGetElementDetail,
+        workElementDetailt
     }
 }

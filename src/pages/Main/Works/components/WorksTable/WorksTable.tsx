@@ -1,7 +1,7 @@
 import React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ActionsTable, CustomDataTable, HeaderViewTable } from '../../../../../components'
-import { useWorks } from '../../hooks/useWorks'
+import { ActionsTable, CustomDataTable, DeleteDialog, HeaderViewTable } from '../../../../../components'
+import { IWorkTable, useWorks } from '../../hooks/useWorks'
 import { Button } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
 
@@ -14,10 +14,13 @@ const WorksTable = () => {
         data,
         handleDelete,
         openEditWork,
-        handleViewDetails,
+        isOpenDelete,
+        onCloseDelete,
+        handleConfirmDelete,
+        openViewDetail
     } = useWorks()
 
-    const columns = React.useMemo<ColumnDef<TWork>[]>(
+    const columns = React.useMemo<ColumnDef<IWorkTable>[]>(
         () => [
             {
                 accessorKey: 'reportNumber',
@@ -26,7 +29,7 @@ const WorksTable = () => {
             },
 
             {
-                accessorKey: 'customer',
+                accessorKey: 'customerName',
                 header: () => <span>Customer</span>,
                 footer: props => props.column.id,
             },
@@ -44,9 +47,9 @@ const WorksTable = () => {
                 header: 'Actions',
                 cell: (props) => (
                     <ActionsTable
-                        onDelete={() => handleDelete(props.row.original)}
-                        onDetails={() => handleViewDetails(props.row.original)}
-                        onEdit={() => openEditWork(props.row.original)}
+                        onDelete={() => props.row.original.uid && handleDelete(props.row.original.uid)}
+                        onDetails={() => props.row.original.uid && openViewDetail(props.row.original.uid)}
+                        onEdit={() => props.row.original.uid && openEditWork(props.row.original.uid)}
                         iconEditProps={{ "mr": 2 }}
                         iconDetailsProps={{ "mr": 2 }}
                     />
@@ -75,6 +78,11 @@ const WorksTable = () => {
                 columns={columns}
                 data={data}
                 loading={isLoading}
+            />
+            <DeleteDialog
+                isOpen={isOpenDelete}
+                onCancel={onCloseDelete}
+                onDelete={handleConfirmDelete}
             />
         </>
     )

@@ -90,6 +90,11 @@ const CertificateSchema = z.object({
   name: z.string().min(1, "Name is required"),
 });
 
+const CustomerSchema = z.object({
+  uid: z.string().min(1, "UID is required" ),
+  name: z.string().min(1, "Name is required"),
+});
+
 const STAFF_VALIDATION_SCHEMA = z.object({
   name:z.string()
   .min(1, "Name is required"),
@@ -112,14 +117,13 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 }) 
 
 const WORKS_VALIDATION_SCHEMA = z.object({
-  name:z.string()
-  .min(1, "Name is required"),
-
-  customer: z.string()
-  .min(1, "Last name is required"),
-
   typeWork: z.array(CertificateSchema)
                  .nonempty({message: "Can't be empty!"}),
+
+  workers: z.array(STAFF_VALIDATION_SCHEMA)
+             .nonempty({message: "Can't be empty!"}),  
+
+  customer: CustomerSchema,
 
   startDate: z.string()
   .min(1, "Can't be empty!"),
@@ -130,13 +134,12 @@ const WORKS_VALIDATION_SCHEMA = z.object({
   reportNumber: z.string()
   .min(1, "Can't be empty!"),
 
-  invoiceNumber: z.string()
-  .min(1, "Can't be empty!"),
-
   reportPlace: z.string()
   .min(1, "Can't be empty!"),
 
-  workers: z.array(STAFF_VALIDATION_SCHEMA).nonempty({message: "Can't be empty!"}),  
+  invoiceNumber: z.string()
+  .min(1, "Can't be empty!"),
+
 }).refine(data => {
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);

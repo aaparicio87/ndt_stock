@@ -29,23 +29,20 @@ import { createNewWorkElement } from '../../../../../services';
 import { useNotification } from '../../../../../hooks/useNotification';
 
 
-const INITIAL_STATE: TWork = {
-    name: "",
-    customer: undefined,
-    description: "",
+const INITIAL_STATE: Partial<TWork> = {
     typeWork: [],
+    workers: [],
+    customer: undefined,
     startDate: "",
     endDate: "",
+    description: "",
     reportNumber: "",
-    invoiceNumber: "",
     reportPlace: "",
+    address: "",
+    invoiceNumber: "",
     films: 0,
     cans: 0,
-    address: "",
-    //documentationTime: 0,
     needToDeliver: false,
-    workers: [],
-    //billed: ""
 }
 
 const CreaterWork = () => {
@@ -132,7 +129,7 @@ const CreaterWork = () => {
     }
 
     return (
-        <Container maxW={'4xl'}>
+        <Container maxW={'3xl'}>
             <Heading
                 as='h3'
                 size='lg'
@@ -140,23 +137,45 @@ const CreaterWork = () => {
             >
                 Create a new work
             </Heading>
+
             <Box as={"form"} onSubmit={handleSubmit(onSubmit)} mt={5}>
-                <HStack spacing={4}>
-                    <FormControl>
-                        <FormLabel>Work name</FormLabel>
-                        <Input
-                            placeholder='Enter work name'
-                            {...register('name')}
+                <HStack py={3} >
+                    <FormControl isInvalid={!!errors.typeWork}>
+                        <MultiSeleect
+                            options={certificatesList}
+                            value={itemsCertificates}
+                            label='Type of work'
+                            placeholder='Select type of work'
+                            size='md'
+                            onChange={onChangeItemCertificates}
                         />
                         <FormErrorMessage>
-                            {errors.name && errors.name.message}
+                            {errors.typeWork && errors.typeWork.message}
                         </FormErrorMessage>
                     </FormControl>
+                </HStack>
+
+                <HStack py={3} >
+                    <FormControl isInvalid={!!errors.workers}>
+                        <MultiSeleect
+                            options={workersList}
+                            value={workersSelected}
+                            label='Workers'
+                            placeholder='Select workers'
+                            size='md'
+                            onChange={onChangeWorkersSelect}
+                        />
+                        <FormErrorMessage>
+                            {errors.workers && errors.workers.message}
+                        </FormErrorMessage>
+                    </FormControl>
+                </HStack>
+
+                <HStack spacing={4}>
                     <FormControl isInvalid={!!errors.customer}>
                         <FormLabel>Customer</FormLabel>
                         <Select
                             placeholder='Select customer'
-                            {...register('customer')}
                             onChange={onChangeCustomers}
                             value={customerSelected}
                         >
@@ -171,6 +190,7 @@ const CreaterWork = () => {
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
+
                 <HStack spacing={4} py={3}>
                     <FormControl>
                         <FormLabel>Start date</FormLabel>
@@ -199,22 +219,6 @@ const CreaterWork = () => {
 
                 </HStack>
 
-                <HStack py={3} >
-                    <FormControl isInvalid={!!errors.workers}>
-                        <MultiSeleect
-                            options={workersList}
-                            value={workersSelected}
-                            label='Workers'
-                            placeholder='Select workers'
-                            size='md'
-                            onChange={onChangeWorkersSelect}
-                        />
-                        <FormErrorMessage>
-                            {errors.workers && errors.workers.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                </HStack>
-
                 <HStack py={3}>
                     <FormControl>
                         <FormLabel>Description</FormLabel>
@@ -227,30 +231,16 @@ const CreaterWork = () => {
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
-                <HStack py={3} >
-                    <FormControl isInvalid={!!errors.typeWork}>
-                        <MultiSeleect
-                            options={certificatesList}
-                            value={itemsCertificates}
-                            label='Certifications'
-                            placeholder='Select certifications'
-                            size='md'
-                            onChange={onChangeItemCertificates}
-                        />
-                        <FormErrorMessage>
-                            {errors.typeWork && errors.typeWork.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                </HStack>
+
                 <HStack spacing={4} py={3}>
                     <FormControl>
                         <FormLabel>Report number</FormLabel>
                         <Input
-                            placeholder='Enter customer name'
+                            placeholder='Enter report number'
                             {...register('reportNumber')}
                         />
                         <FormErrorMessage>
-                            {errors.customer && errors.customer.message}
+                            {errors.reportNumber && errors.reportNumber.message}
                         </FormErrorMessage>
                     </FormControl>
                     <FormControl>
@@ -264,6 +254,7 @@ const CreaterWork = () => {
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
+
                 <HStack spacing={4} py={3}>
                     <FormControl>
                         <FormLabel>Address</FormLabel>
@@ -286,36 +277,7 @@ const CreaterWork = () => {
                         </FormErrorMessage>
                     </FormControl>
                 </HStack>
-                {/*  <HStack spacing={4} py={3}>
-                     <FormControl>
-                        <FormLabel>Documentation time</FormLabel>
-                        <NumberInput
-                            min={0}
-                            defaultValue={0}
-                        >
-                            <NumberInputField
-                                {...register('documentationTime')}
-                            />
-                            <NumberInputStepper>
-                                <NumberIncrementStepper />
-                                <NumberDecrementStepper />
-                            </NumberInputStepper>
-                        </NumberInput>
-                        <FormErrorMessage>
-                            {errors.documentationTime && errors.documentationTime.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                     <FormControl>
-                        <FormLabel>Billed</FormLabel>
-                        <Input
-                            placeholder='Billed'
-                            {...register('billed')}
-                        />
-                        <FormErrorMessage>
-                            {errors.billed && errors.billed.message}
-                        </FormErrorMessage>
-                    </FormControl>
-                </HStack> */}
+
                 <HStack spacing={5} py={3}>
                     <FormControl>
                         <FormLabel>Films</FormLabel>
@@ -365,6 +327,7 @@ const CreaterWork = () => {
                         />
                     </FormControl>
                 </HStack>
+
                 <Flex justifyContent={'flex-end'}>
                     <Button
                         mt={4}

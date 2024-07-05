@@ -78,4 +78,8 @@ type TWork = {
     billed?: string
 }
 
-    
+type TOptions = {
+    label: string;
+    value: string;
+}
+

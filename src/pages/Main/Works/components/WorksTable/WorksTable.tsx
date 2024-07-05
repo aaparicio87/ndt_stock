@@ -1,9 +1,13 @@
 import React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { ActionsTable, CustomDataTable, DeleteDialog, HeaderViewTable } from '../../../../../components'
-import { IWorkTable, useWorks } from '../../hooks/useWorks'
+import { IWorkTable } from '../../hooks/useWorks'
 import { Button } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
+import {collection, onSnapshot} from "firebase/firestore";
+import {FB_DB} from "../../../../../config/firebase.conf.ts";
+import {WORKS} from "../../../../../utils/constants.ts";
+import {useWorkContext} from "../../../../../context/WorkContext.tsx";
 
 
 const WorksTable = () => {
@@ -17,8 +21,9 @@ const WorksTable = () => {
         isOpenDelete,
         onCloseDelete,
         handleConfirmDelete,
-        openViewDetail
-    } = useWorks()
+        openViewDetail,
+        getAllElements
+    } = useWorkContext()
 
     const columns = React.useMemo<ColumnDef<IWorkTable>[]>(
         () => [
@@ -59,6 +64,13 @@ const WorksTable = () => {
         ],
         []
     )
+
+    React.useEffect(() => {
+        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
+            await getAllElements()
+        })
+        return () => unsubscribe();
+    }, [])
 
     return (
         <>

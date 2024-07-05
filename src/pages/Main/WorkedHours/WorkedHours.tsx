@@ -1,7 +1,8 @@
+import WorkCalendar from "./components/WorkCalendar/WorkCalendar.tsx";
 
 const WorkedHours = () => {
     return (
-        <div>WHours</div>
+        <WorkCalendar/>
     )
 }
 

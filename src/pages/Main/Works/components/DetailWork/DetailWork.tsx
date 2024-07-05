@@ -1,9 +1,21 @@
-import { Box, Center, Container, FormControl, FormLabel, Heading, HStack, Icon, SimpleGrid, Text } from '@chakra-ui/react';
+import {
+    Box,
+    Center,
+    Container,
+    FormControl,
+    FormLabel,
+    Heading,
+    HStack,
+    Icon,
+    SimpleGrid,
+    Text
+} from '@chakra-ui/react';
 import React from 'react'
 import { useParams } from 'react-router-dom';
-import { IDetailWork, useWorks } from '../../hooks/useWorks';
+import { IDetailWork } from '../../hooks/useWorks';
 import { Loader } from '../../../../../components';
 import { FiInbox } from "react-icons/fi"
+import {useWorkContext} from "../../../../../context/WorkContext.tsx";
 
 const ELEMENTS_DISPLAY: { [key: string]: string } = {
     name: "Name",
@@ -23,7 +35,10 @@ const ELEMENTS_DISPLAY: { [key: string]: string } = {
 
 const DetailWork = () => {
     const { id } = useParams<{ id: string }>();
-    const { workElementDetailt, isLoading, handleGetElementDetail } = useWorks()
+    const { isLoading,
+            handleGetElementDetail,
+            workElementDetail
+            } = useWorkContext()
 
     React.useEffect(() => {
         (async () => {
@@ -57,15 +72,15 @@ const DetailWork = () => {
                 mt={5}
             >
                 <SimpleGrid columns={[1, null, 2]} spacing={4}>
-                    {workElementDetailt ?
+                    {workElementDetail ?
                         Object.keys(ELEMENTS_DISPLAY).map((key) => {
-                            if (workElementDetailt.hasOwnProperty(key)) {
+                            if (workElementDetail.hasOwnProperty(key)) {
                                 return (
                                     <FormControl key={key} isReadOnly>
                                         <HStack align={'baseline'}>
                                             <FormLabel fontWeight="bold" >{`${ELEMENTS_DISPLAY[key]}:`}</FormLabel>
                                             <Text >
-                                                {workElementDetailt[key as keyof IDetailWork]}
+                                                {workElementDetail[key as keyof IDetailWork]}
                                             </Text>
                                         </HStack>
                                     </FormControl>

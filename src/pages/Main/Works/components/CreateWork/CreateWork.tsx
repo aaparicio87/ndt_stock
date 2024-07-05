@@ -1,17 +1,17 @@
-import {Container, Heading} from "@chakra-ui/react";
-import WorkForm from "../WorkForm/WorkForm.tsx";
 import React from "react";
+import {Container, Heading
+} from '@chakra-ui/react'
+import WorkForm from "../WorkForm/WorkForm.tsx";
 import {useWorkContext} from "../../../../../context/WorkContext.tsx";
 
 
-const EditWork = () => {
-
-    const {
-        handleSelectOptions,
-    } = useWorkContext()
+const CreateWork = () => {
+    const { handleSelectOptions } = useWorkContext()
 
     React.useEffect(() => {
-        (async() => await handleSelectOptions())()
+        (async() => {
+            await handleSelectOptions()
+        })()
     }, []);
 
     return (
@@ -21,7 +21,7 @@ const EditWork = () => {
                 size='lg'
                 noOfLines={1}
             >
-                Edit work
+                Create a new work
             </Heading>
 
             <WorkForm/>
@@ -29,4 +29,4 @@ const EditWork = () => {
     )
 }
 
-export default EditWork
+export default CreateWork

@@ -1,24 +1,22 @@
-import React from "react"
-import { collection, onSnapshot } from "firebase/firestore"
-import { FB_DB } from "../../../../config/firebase.conf"
-import { WORKS } from "../../../../utils/constants"
-import { 
-    deleteWorkElement, 
-    getAllCustomers, 
-    getAllStaff, 
-    getAllWorks, 
+import React, {ChangeEvent} from "react"
+import {
+    deleteWorkElement,
+    getAllCustomers,
+    getAllStaff,
+    getAllWorks,
     getAllCertificates,
-    getWorkByUID
+    getWorkByUID,
+    createNewWorkElement,
+    updateWorkElement,
 } from "../../../../services"
-import { useNavigate } from "react-router-dom"
+import {useNavigate, useParams} from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
+import {FieldErrors, useForm, UseFormRegister} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {WORKS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
+import {MultiValue} from "react-select";
 
-
-interface IOption {
-    label: string, 
-    value: string 
-}
 
 export interface IWorkTable {
     uid?:string
@@ -44,28 +42,114 @@ export interface IDetailWork {
     needToDeliver: string,
 }
 
-export const useWorks = () => {
+const INITIAL_STATE: Partial<TWork> = {
+    typeWork: [],
+    workers: [],
+    customer: undefined,
+    startDate: "",
+    endDate: "",
+    description: "",
+    reportNumber: "",
+    reportPlace: "",
+    address: "",
+    invoiceNumber: "",
+    films: 0,
+    cans: 0,
+    needToDeliver: false,
+}
+
+export interface IWorkHook {
+    isLoading: boolean,
+    data: IWorkTable[],
+    openEditWork: (uid: string) => void,
+    handleDelete: (id: string) => void,
+    openAddWork: () => void,
+    isOpenDelete: boolean,
+    onCloseDelete: () => void,
+    handleConfirmDelete: () => Promise<void>,
+    workersList: TOptions[],
+    handleGetAllStaff: () => Promise<void>,
+    handleGetAllCustomers: () => Promise<void>,
+    handleGetAllCertificates: () => Promise<void>,
+    certificatesList: TOptions[],
+    customersList: TOptions[],
+    openWorksTable: () => void,
+    openViewDetail: (uid: string) => void,
+    handleGetElementDetail: (uid:string) => Promise<void>,
+    handleChangeWorkersSelect: (newValue: MultiValue<TOptions>) => void,
+    handleChangeCustomersSelect: (event: ChangeEvent<HTMLSelectElement>) => void,
+    handleChangeItemCertificates: (newValue: MultiValue<TOptions>) => void,
+    workersSelected: MultiValue<TOptions>,
+    itemsCertificates: MultiValue<TOptions>,
+    customerSelected: string,
+    register: UseFormRegister<TWork>,
+    errors:FieldErrors<TWork>,
+    isSubmitting: boolean,
+    handleCancel: () => void,
+    handleCreateUpdateWork: (e?: (React.BaseSyntheticEvent<object, any, any> | undefined)) => Promise<void>,
+    handleSelectOptions: ()=> Promise<void>,
+    getAllElements:()=> Promise<void>,
+    workElementDetail: IDetailWork | undefined,
+}
+
+export const useWorks = ():IWorkHook => {
     const navigate = useNavigate()
+    const { id } = useParams<{ id: string }>();
     const { openToast } = useNotification()
+    const {
+        register,
+        setValue,
+        getValues,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting, isSubmitSuccessful }
+    } = useForm<TWork>({
+        resolver: zodResolver(WORKS_VALIDATION_SCHEMA)
+    });
     const [isLoading, setIsLoading] = React.useState(false)
     const [data, setData] = React.useState<IWorkTable[]>([])
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
-    const [workersList, setWorkersList] = React.useState<IOption[]>([])
-    const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
-    const [customersList, setCustomersList] = React.useState<IOption[]>([])
+    const [workersList, setWorkersList] = React.useState<TOptions[]>([])
+    const [certificatesList, setCertificatesList] = React.useState<TOptions[]>([])
+    const [customersList, setCustomersList] = React.useState<TOptions[]>([])
     const [workElementDelete, setWorkElementDelete] = React.useState<TWork | undefined>(undefined)
-    const [workElementDetailt, setWorkElementDetailt] = React.useState<IDetailWork | undefined>(undefined)
+    const [workElementDetail, setWorkElementDetail] = React.useState<IDetailWork | undefined>(undefined)
+    const [itemsCertificates, setItemsCertificates] = React.useState<MultiValue<TOptions>>([])
+    const [workersSelected, setWorkersSelected] = React.useState<MultiValue<TOptions>>([])
+    const [customerSelected, setCustomerSelected] = React.useState("")
     const workersRemote = React.useRef<TStaff[]>([])
     const customersRemote = React.useRef<TCustomer[]>([])
     const certificatesRemote = React.useRef<TCertificates[]>([])
     const worksRemoteRef = React.useRef<TWork[]>([])
-    
+
     React.useEffect(() => {
-        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
-            await getAllElements()
-        })
-        return () => unsubscribe();
-    }, [])
+        if (isSubmitSuccessful) {
+            reset()
+            setItemsCertificates([])
+            setWorkersSelected([])
+            setCustomerSelected("")
+        }
+    }, [isSubmitSuccessful])
+
+    React.useEffect(()=>{
+        if(id){
+            getWorkToUpdate(id)
+        }else{
+            reset(INITIAL_STATE);
+            setItemsCertificates([])
+            setWorkersSelected([])
+            setCustomerSelected("")
+        }
+    },[id, reset])
+
+    React.useEffect(() => {
+        return () => {
+            reset(INITIAL_STATE);
+            setItemsCertificates([])
+            setWorkersSelected([])
+            setCustomerSelected("")
+        };
+    }, [reset]);
 
     const getAllElements = async () => {
         setIsLoading(true)
@@ -79,7 +163,7 @@ export const useWorks = () => {
                         startDate: wd.startDate,
                         customerName: wd.customer?.name ?? '-',
                         reportNumber: wd.reportNumber,
-                        uid: wd.uid 
+                        uid: wd.uid
                     }
                     return wsTable
             })
@@ -92,6 +176,37 @@ export const useWorks = () => {
         }
     }
 
+    const handleSelectOptions = async () => {
+        setIsLoading(true)
+        const p1 = handleGetAllStaff()
+        const p2 = handleGetAllCustomers()
+        const p3 = handleGetAllCertificates()
+        try{
+            await Promise.allSettled([ p1, p2, p3])
+        }catch(error){
+            console.error(error)
+        }finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleGetAllCertificates = async() => {
+        try {
+            const certificates = await getAllCertificates()
+            if(certificates){
+                certificatesRemote.current = certificates
+                const list = certificates
+                    .map((res) => ({
+                        label: res.name,
+                        value: res.uid
+                    }));
+                setCertificatesList(list)
+            }
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
+    }
+
     const handleGetAllStaff = async() => {
         try {
           const allStaff =  await getAllStaff()
@@ -100,13 +215,13 @@ export const useWorks = () => {
             return
         }
         workersRemote.current = allStaff
-        const listWorkers = allStaff
+        const lstWorkers = allStaff
             .filter((res) => res.roles.some((role) => role === 'USER'))
             .map((res) => ({
                 label: `${res.name} ${res.lastName}`,
                 value: `${res.uid}`
             }));
-        setWorkersList(listWorkers)
+        setWorkersList(lstWorkers)
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
         }
@@ -123,23 +238,6 @@ export const useWorks = () => {
                         value: res.uid
                     }));
                 setCustomersList(list)
-            }
-        } catch (error) {
-            openToast('error', JSON.stringify(error), "Error")
-        }
-    }
-
-    const handleGetAllCertificates = async() => {
-        try {
-            const certificates = await getAllCertificates()
-            if(certificates){
-                certificatesRemote.current = certificates
-                const list = certificates
-                    .map((res) => ({
-                        label: res.name,
-                        value: res.uid
-                    }));
-                setCertificatesList(list)
             }
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
@@ -169,7 +267,6 @@ export const useWorks = () => {
         try {
           const work =  await getWorkByUID(uid)
           if(work !== null){
-            console.log(work)
             const detailWork:IDetailWork = {
                 name: work.typeWork.map((tw) => tw.name).join(", "),
                 address: work.address ? work.address.length > 0 ? work.address : '-': '-',
@@ -185,7 +282,7 @@ export const useWorks = () => {
                 reportPlace: work.reportPlace ?? '-',
                 workers: work.workers.map((ws) => `${ws.name} ${ws.lastName}`).join(', ')
             }
-            setWorkElementDetailt(detailWork)
+              setWorkElementDetail(detailWork)
           }
         } catch (error) {
             console.error(error)
@@ -195,10 +292,107 @@ export const useWorks = () => {
         }
     }
 
+    const handleChangeItemCertificates = (newValue: MultiValue<TOptions>) => {
+       try {
+           setItemsCertificates(newValue)
+           const dataArray = newValue
+           const typeWork = certificatesRemote.current
+               .filter(item => dataArray
+                   .map(data => data.value as string)
+                   .includes(item.uid ?? ''));
+           const typeWorkIds = typeWork.map((tw) => tw.uid)
+           const workersLst = workersRemote.current
+               .filter((wr) => wr.certificates?.some((cert) => typeWorkIds.includes(cert.uid)))
+               .map((res) => ({
+                   label: `${res.name} ${res.lastName}`,
+                   value: `${res.uid}`
+               }));
+           setValue('typeWork', typeWork)
+
+           if(workersLst.length === 0){
+               let lstWorkers = workersRemote.current
+                   .filter((res) => res.roles.some((role) => role === 'USER'))
+                   .map((res) => ({
+                       label: `${res.name} ${res.lastName}`,
+                       value: `${res.uid}`
+                   }));
+               setWorkersList(lstWorkers)
+
+           }
+
+           if(workersLst.length > 0){
+               setWorkersList(workersLst)
+           }
+       }catch (error){
+            console.error(error)
+       }
+
+    }
+
+    const handleChangeWorkersSelect = (newValue: MultiValue<TOptions>) => {
+        setWorkersSelected(newValue)
+        const dataArray = newValue
+        const workersToSave =  workersRemote.current
+            .filter(item => dataArray
+                .map(data => data.value as string)
+                .includes(item.uid ?? ''));
+        setValue('workers', workersToSave)
+    }
+
+    const handleChangeCustomersSelect = (event: ChangeEvent<HTMLSelectElement>) => {
+        const selectedValue = event.target.value;
+        const client = customersRemote.current.find((cr) => cr.uid === selectedValue)
+        setCustomerSelected(client?.uid ?? '')
+        setValue('customer', client)
+    }
+
     const openAddWork = () => navigate('create')
     const openWorksTable = () => navigate('/works')
     const openEditWork = (uid: string) => navigate(`edit/${uid}`)
     const openViewDetail = (uid: string) => navigate(`detail/${uid}`)
+
+    const handleCancel = () => {
+        openWorksTable()
+        reset()
+    }
+
+
+    const handleCreateUpdateWork = handleSubmit(async () =>{
+        try {
+            const data = getValues()
+            if(id){
+                await  updateWorkElement(id, data)
+                openToast('success', "Work updated", 'Success')
+                openWorksTable()
+            }else{
+                await createNewWorkElement(data)
+                openToast('success', "New work created", 'Success')
+                openWorksTable()
+            }
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
+    } )
+    const getWorkToUpdate = async(uid:string) => {
+        try {
+            const work = await getWorkByUID(uid)
+            if(work){
+                reset({
+                    ...work
+                })
+
+                const tWork = work.typeWork.map(w => ({ label: w.name, value: w.uid }))
+                const workers = work.workers.map((w) => ({ label: w.name, value: w.uid ?? '' }))
+                setItemsCertificates(tWork)
+                setWorkersSelected(workers)
+                if(work.customer){
+                 setCustomerSelected(work.customer.uid)
+                }
+            }
+        }catch(error){
+            console.error(error)
+        }
+    }
 
     return {
         isLoading,
@@ -209,10 +403,7 @@ export const useWorks = () => {
         isOpenDelete,
         onCloseDelete,
         handleConfirmDelete,
-        workersRemote,
         workersList,
-        customersRemote,
-        certificatesRemote,
         handleGetAllStaff,
         handleGetAllCustomers,
         handleGetAllCertificates,
@@ -221,6 +412,19 @@ export const useWorks = () => {
         openWorksTable,
         openViewDetail,
         handleGetElementDetail,
-        workElementDetailt
+        workElementDetail,
+        handleChangeWorkersSelect,
+        handleChangeCustomersSelect,
+        handleChangeItemCertificates,
+        workersSelected,
+        itemsCertificates,
+        customerSelected,
+        register,
+        errors,
+        isSubmitting,
+        handleCancel,
+        handleCreateUpdateWork,
+        handleSelectOptions,
+        getAllElements,
     }
 }

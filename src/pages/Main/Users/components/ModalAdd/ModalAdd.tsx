@@ -23,13 +23,12 @@ import { useForm } from 'react-hook-form'
 import { useNotification } from '../../../../../hooks/useNotification'
 import { registerUser, updateStaffElement } from '../../../../../services'
 import { DEGREES, ROLES } from '../../../../../utils/constants'
-import { Loader, MultiSeleect } from '../../../../../components'
-import { Option } from 'chakra-multiselect'
+import { Loader, MultiSelect } from '../../../../../components'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FB_STORAGE } from '../../../../../config/firebase.conf'
 import { useUser } from '../../hooks/useUsers'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
-
+import {MultiValue} from "react-select";
 
 type TProps = {
     onClose: () => void
@@ -86,25 +85,23 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
     });
 
-    const [itemsCertificates, setItemsCertificates] = React.useState<Option | Option[]>(handleItemsState())
-    const [itemsRoles, setItemsRoles] = React.useState<any>(handleItemRoles())
+    const [itemsCertificates, setItemsCertificates] = React.useState<MultiValue<TOptions>>(handleItemsState())
+    const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>(handleItemRoles())
     const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(item?.photoUrl || null);
 
 
-    const onChangeItemCertificates = (data: Option | Option[]) => {
+    const onChangeItemCertificates = (data:MultiValue<TOptions>) => {
         setItemsCertificates(data)
-        const dataArray = data as Option[]
-        const certs = dataArray.map((d) => {
+        const certs = data.map((d) => {
             const certificates: TCertificates = { uid: d.value as string, name: d.label }
             return certificates
         })
         setValue('certificates', certs)
     }
 
-    const onChangeItemRoles = (data: Option | Option[]) => {
+    const onChangeItemRoles = (data:MultiValue<TOptions>) => {
         setItemsRoles(data)
-        const dataArray = data as Option[]
-        const roles = dataArray.map((r) => r.label as TRole)
+        const roles = data.map((r) => r.label as TRole)
         setValue('roles', roles)
     }
 
@@ -278,12 +275,10 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
 
                         <HStack spacing={4} py={3} >
                             <FormControl isInvalid={!!errors.certificates}>
-                                <MultiSeleect
+                                <FormLabel>Certificates</FormLabel>
+                                <MultiSelect
                                     options={certificatesList}
                                     value={itemsCertificates}
-                                    label='Certificates'
-                                    placeholder='Select certificates'
-                                    size='md'
                                     onChange={onChangeItemCertificates}
                                 />
                                 <FormErrorMessage>
@@ -293,12 +288,10 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                         </HStack>
                         <HStack spacing={4} py={4} >
                             <FormControl isInvalid={!!errors.roles}>
-                                <MultiSeleect
+                                <FormLabel>Roles</FormLabel>
+                                <MultiSelect
                                     options={_optionsRoles}
                                     value={itemsRoles}
-                                    label='Roles'
-                                    placeholder='Select roles'
-                                    size='md'
                                     onChange={onChangeItemRoles}
                                 />
                                 <FormErrorMessage>

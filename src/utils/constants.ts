@@ -33,7 +33,6 @@ const DEGREES = [
     'Engineer'
 ]
 
-
 const ROLES: TRole[]  = [
     "ADMINISTRATOR",
     "DATA_MANAGER",

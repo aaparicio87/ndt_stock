@@ -358,8 +358,8 @@ export const useWorks = ():IWorkHook => {
 
 
     const handleCreateUpdateWork = handleSubmit(async () =>{
-        try {
             const data = getValues()
+        try {
             if(id){
                 await  updateWorkElement(id, data)
                 openToast('success', "Work updated", 'Success')

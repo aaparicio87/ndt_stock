@@ -11,7 +11,13 @@ function capitalizeFirstLetter(text:string) {
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
 }
 
+const timeToMinutes = (time: string): number => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours * 60 + minutes;
+};
+
 
  export {
-    generateRandomPassword
+    generateRandomPassword,
+     timeToMinutes,
  }

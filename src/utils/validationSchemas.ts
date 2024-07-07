@@ -1,5 +1,6 @@
 import { REGEX_PASSWORD } from './constants'
 import { z } from "zod";
+import {timeToMinutes} from "./functions.ts";
 
 const USER_INPUT_FORGOT_VALIDATION_SCHEMA = z.object({
     email: z.string()
@@ -10,11 +11,11 @@ const USER_INPUT_FORGOT_VALIDATION_SCHEMA = z.object({
 const LOGIN_VALIDATION_SCHEMA = z.object({
     email: z.string()
             .min(1, "E-mail is required")
-            .email({ message: "Invalid email address" }), 
-            
+            .email({ message: "Invalid email address" }),
+
     password: z.string()
                .min(1,"Password is required")
-               .regex(REGEX_PASSWORD, 'Password must contain Upper case, lower case, special character and min length 6') 
+               .regex(REGEX_PASSWORD, 'Password must contain Upper case, lower case, special character and min length 6')
 })
 
 const RESET_PASSWORD_VALIDATION_SCHEMA = z.object({
@@ -55,7 +56,7 @@ const SIGN_UP_VALIDATION_SCHEMA = z.object({
     message: "Passwords must match",
     path:["confirm"]
   })
- 
+
 const STOCK_VALIDATION_SCHEMA = z.object({
   serialNumber: z.string().min(1, "Serial number is required"),
   model: z.string().min(1, "Model is required"),
@@ -83,7 +84,7 @@ const STOCK_VALIDATION_SCHEMA = z.object({
 }, {
   message: "Please specify other trademark",
   path: ["otherTrademark"],
-});  
+});
 
 const CertificateSchema = z.object({
   uid: z.string().min(1, "UID is required" ),
@@ -114,14 +115,14 @@ const STAFF_VALIDATION_SCHEMA = z.object({
   roles: z.string().array().nonempty({
     message: "Can't be empty!",
   })
-}) 
+})
 
 const WORKS_VALIDATION_SCHEMA = z.object({
   typeWork: z.array(CertificateSchema)
                  .nonempty({message: "Can't be empty!"}),
 
   workers: z.array(STAFF_VALIDATION_SCHEMA)
-             .nonempty({message: "Can't be empty!"}),  
+             .nonempty({message: "Can't be empty!"}),
 
   customer: CustomerSchema,
 
@@ -147,7 +148,7 @@ const WORKS_VALIDATION_SCHEMA = z.object({
 }, {
   message: "Start date must be before end date",
   path: ["endDate"], // you can specify a path to set the error on a specific field
-}); 
+});
 
 const CHANGE_PASSWORD_SCHEMA = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -161,9 +162,27 @@ const CHANGE_PASSWORD_SCHEMA = z.object({
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords must match",
-    path:["confirm"]  
+    path:["confirm"]
   })
-  
+
+const WORK_HOURS_VALIDATION_SCHEMA = z.object({
+  date: z.string().min(1, "Can't be empty!"),
+  client: CustomerSchema,
+  location: z.string().min(1, "Can't be empty!"),
+  startTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: "Invalid time format, must be HH:mm",
+  }),
+  endTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
+    message: "Invalid time format, must be HH:mm",
+  })
+}).refine(data => {
+  const startMinutes = timeToMinutes(data.startTime);
+  const endMinutes = timeToMinutes(data.endTime);
+  return startMinutes < endMinutes;
+}, {
+  message: "Start time must be before end time",
+  path: ["endTime"]
+});
 
 
 export {
@@ -175,4 +194,5 @@ export {
     STAFF_VALIDATION_SCHEMA,
     WORKS_VALIDATION_SCHEMA,
     CHANGE_PASSWORD_SCHEMA,
+    WORK_HOURS_VALIDATION_SCHEMA,
 }

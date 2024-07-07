@@ -18,11 +18,18 @@ const slice = createSlice({
             state.user = user
             state.token = token
         },
+        updateUserData: (state, action: PayloadAction< TStaff>) => {
+            state.user = action.payload
+        },
         clearAuth: () => INITIAL_STATE
     },
 })
 
-export const { setCredentials, clearAuth } = slice.actions
+export const {
+    setCredentials,
+    clearAuth,
+    updateUserData
+} = slice.actions
 
 export default slice.reducer
 

@@ -28,6 +28,17 @@ type TStock = {
     remarks: string
 }
 
+type TWorkHour = {
+    uid?:string
+    date: string
+    client: TCustomer
+    location: string
+    ndtMethods?: TCertificates[]
+    startTime: string
+    endTime: string
+    note?: string
+}
+
 type TStaff = TSignUp & {
     uid?:string
     degree?:string
@@ -35,6 +46,7 @@ type TStaff = TSignUp & {
     roles:TRole[]
     certificates?:TCertificates[]
     createdAt?:string
+    wHours?: TWorkHour[]
 }
 
 type UserResponse = {

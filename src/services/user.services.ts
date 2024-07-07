@@ -1,11 +1,11 @@
-import { 
+import {
     browserSessionPersistence,
     EmailAuthProvider,
     getAuth,
     reauthenticateWithCredential,
-    signInWithEmailAndPassword, 
-    updatePassword, 
-    UserCredential 
+    signInWithEmailAndPassword,
+    updatePassword,
+    UserCredential
 } from "firebase/auth"
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
@@ -29,7 +29,7 @@ const registerUser = async (userData:TStaff): Promise<ICreateUserResponse> => {
         const result = await createUserStaff(userData)
 
         const data = result.data as ICreateUserResponse;
-        
+
         if (data.success) {
             return { success: true, uid: data.uid };
         } else {
@@ -51,14 +51,13 @@ const signIn = async (userData:TSignIn):Promise<UserCredential | undefined> => {
 }
 
 const changePassword = async (newPassword:string, currentPassword:string , email:string) => {
-    
+
     const credential = EmailAuthProvider.credential(email, currentPassword);
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) {
         return { success: false}
       }
-    console.log(credential, user)  
     try {
         const response = await reauthenticateWithCredential(user, credential);
         if(response){
@@ -66,7 +65,7 @@ const changePassword = async (newPassword:string, currentPassword:string , email
         }
 
         return { success: true}
-        
+
     } catch (error) {
         return { success: false, error: (error as Error).message };
     }

@@ -14,16 +14,16 @@ import {
     ModalOverlay, Select, Textarea
 } from "@chakra-ui/react";
 import {MultiSelect} from "../../../../../components";
-import {useWorkedHours} from "../../hooks/useWorkedHours.ts";
+import React from "react";
+import {useWorkedHoursContext} from "../../../../../context/WorkedHoursContext.tsx";
 
 
 type TProps = {
     onClose: () => void
     isOpen: boolean
-    item: TWorkHour | undefined
 }
 
-const ModalEdit = ({ onClose, isOpen, item }: TProps) => {
+const ModalEdit = ({ onClose, isOpen }: TProps) => {
 
     const {
         initialRef,
@@ -37,8 +37,20 @@ const ModalEdit = ({ onClose, isOpen, item }: TProps) => {
         certificatesList,
         itemsCertificates,
         handleChangeItemCertificates,
-        isSubmitting
-    } = useWorkedHours(item)
+        isSubmitting,
+        handleGetAllCustomers,
+        handleGetAllCertificates,
+        openToast,
+        workHourSelected,
+    } = useWorkedHoursContext()
+
+    React.useEffect(()=>{
+        const customers = handleGetAllCustomers()
+        const certificates = handleGetAllCertificates()
+        Promise.allSettled([customers,certificates])
+            .catch((errors) => openToast('error', JSON.stringify(errors), "Error"))
+
+    },[handleGetAllCustomers, handleGetAllCertificates])
 
     return(
         <Modal
@@ -52,12 +64,12 @@ const ModalEdit = ({ onClose, isOpen, item }: TProps) => {
             <ModalOverlay/>
             <form onSubmit={handleCreateWorkHour}>
                 <ModalContent>
-                    <ModalHeader>{item ? "Edit user" : "Create user"}</ModalHeader>
+                    <ModalHeader>{workHourSelected ? "Edit user" : "Create user"}</ModalHeader>
                     <ModalCloseButton/>
                     <ModalBody pb={6}>
                         <HStack spacing={4} py={3}>
                             <FormControl isInvalid={!!errors.date}>
-                                <FormLabel>Calibration</FormLabel>
+                                <FormLabel>Date</FormLabel>
                                 <Input
                                     placeholder='Select Date'
                                     size='md'
@@ -89,7 +101,7 @@ const ModalEdit = ({ onClose, isOpen, item }: TProps) => {
                         </HStack>
                         <HStack spacing={4} py={3}>
                             <FormControl isInvalid={!!errors.location}>
-                                <FormLabel>Email</FormLabel>
+                                <FormLabel>Location</FormLabel>
                                 <Input
                                     placeholder='Location'
                                     {...register('location')}
@@ -161,7 +173,7 @@ const ModalEdit = ({ onClose, isOpen, item }: TProps) => {
                             isLoading={isSubmitting}
                             type='submit'
                         >
-                            {item ? "Update" : "Save"}
+                            {workHourSelected ? "Update" : "Save"}
                         </Button>
                         <Button onClick={onClose} isDisabled={isSubmitting}>Cancel</Button>
                     </ModalFooter>

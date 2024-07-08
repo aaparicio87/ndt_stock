@@ -9,6 +9,7 @@ import WorksTable from '../pages/Main/Works/components/WorksTable/WorksTable'
 import EditWork from '../pages/Main/Works/components/EditWork/EditWork'
 import DetailWork from '../pages/Main/Works/components/DetailWork/DetailWork'
 import CreateWork from "../pages/Main/Works/components/CreateWork/CreateWork.tsx";
+import {WorkedHoursProvider} from "../context/WorkedHoursContext.tsx";
 
 
 const MainRoutes = () => {
@@ -23,7 +24,11 @@ const MainRoutes = () => {
                     <Route index element={<Stock />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="users" element={<Users />} />
-                    <Route path="whours" element={<WorkedHours />} />
+                    <Route path="whours" element={
+                        <WorkedHoursProvider>
+                            <WorkedHours />
+                        </WorkedHoursProvider>
+                    } />
                     <Route path="works" element={<Works />}>
                         <Route index element={<WorksTable />} />
                         <Route path="create" element={<CreateWork />} />

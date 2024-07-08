@@ -1,10 +1,11 @@
+import React from "react";
 import {
     FormControl,
     FormLabel,
     Input,
     Stack,
     Link as ChakraLink,
-    Button, FormErrorMessage
+    Button, FormErrorMessage, InputGroup, InputRightElement
 } from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { useForm } from 'react-hook-form';
@@ -22,6 +23,8 @@ export const Login = () => {
 
     const { login } = useAuth()
     const { openToast } = useNotification()
+    const [show, setShow] = React.useState(false)
+    const handleClick = () => setShow(!show)
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<TSignIn>({
         defaultValues: {
@@ -54,11 +57,18 @@ export const Login = () => {
                 </FormControl>
                 <FormControl id="password" isInvalid={errors.password ? true : undefined}>
                     <FormLabel htmlFor='password'>Password</FormLabel>
+                    <InputGroup size='md'>
                     <Input
-                        type="password"
+                        type={show ? 'text' : 'password'}
                         id='password'
                         {...register('password')}
                     />
+                    <InputRightElement width='4.5rem'>
+                        <Button h='1.75rem' size='sm' onClick={handleClick}>
+                            {show ? 'Hide' : 'Show'}
+                        </Button>
+                    </InputRightElement>
+                    </InputGroup>
                     <FormErrorMessage>
                         {errors.password && errors.password.message}
                     </FormErrorMessage>

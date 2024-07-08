@@ -1,13 +1,13 @@
 import React, {ChangeEvent, useEffect} from "react";
-import {useForm} from "react-hook-form";
+import {FieldErrors, useForm, UseFormRegister} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {STAFF_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 import {useNotification} from "../../../../hooks/useNotification.ts";
-import {getAllCertificates, getAllCustomers, updateStaffElement} from "../../../../services";
+import {addWorkHours, editWorkHours, getAllCertificates, getAllCustomers} from "../../../../services";
 import {MultiValue} from "react-select";
-import {useDispatch, useSelector} from "react-redux";
-import {selectCurrentUser, updateUserData} from "../../../../state/features/auth/authSlice.tsx";
-import {AppDispatch} from "../../../../state/store.ts";
+import {useSelector} from "react-redux";
+import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
+import {useDisclosure} from "@chakra-ui/react";
+import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 
 const INITIAL_STATE: Partial<TWorkHour> = {
     date: "",
@@ -19,11 +19,34 @@ const INITIAL_STATE: Partial<TWorkHour> = {
     note: "",
 }
 
-export const useWorkedHours = (item:  TWorkHour | undefined) => {
+export interface IWorkedHoursHooks {
+    initialRef:  React.MutableRefObject<null>,
+    finalRef :  React.MutableRefObject<null>,
+    register: UseFormRegister<TWorkHour>,
+    errors: FieldErrors<TWorkHour>,
+    isSubmitting: boolean,
+    customersList: TOptions[],
+    certificatesList: TOptions[],
+    itemsCertificates: MultiValue<TOptions>,
+    customerSelected: string,
+    handleChangeItemCertificates: (newValue: MultiValue<TOptions>)=>void,
+    handleChangeCustomersSelect: (event: ChangeEvent<HTMLSelectElement>) => void,
+    handleCreateWorkHour: (e?: (React.BaseSyntheticEvent<object, any, any> | undefined)) => Promise<void>,
+    isOpen: boolean,
+    onOpen: () => void,
+    onClose: () => void,
+    handleGetAllCustomers: ()=> Promise<void>,
+    handleGetAllCertificates: ()=> Promise<void>,
+    openToast: (status: TToastStatus, description: string, title: string) => void
+    handleWorkHoursSelected: (workHour: TWorkHour | undefined)=>void
+    workHourSelected: TWorkHour | undefined
+}
+
+export const useWorkedHours = (): IWorkedHoursHooks => {
 
     const { openToast } = useNotification()
     const user = useSelector(selectCurrentUser);
-    const dispatch:AppDispatch = useDispatch()
+    const { isOpen, onOpen, onClose } = useDisclosure()
     const {
         register,
         handleSubmit,
@@ -37,7 +60,7 @@ export const useWorkedHours = (item:  TWorkHour | undefined) => {
         }
     } = useForm<TWorkHour>({
         defaultValues: INITIAL_STATE,
-        resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
+        resolver: zodResolver(WORK_HOURS_VALIDATION_SCHEMA)
     });
     const initialRef = React.useRef(null)
     const finalRef = React.useRef(null)
@@ -47,27 +70,20 @@ export const useWorkedHours = (item:  TWorkHour | undefined) => {
     const [itemsCertificates, setItemsCertificates] = React.useState<MultiValue<TOptions>>([])
     const [certificatesList, setCertificatesList] = React.useState<TOptions[]>([])
     const [customerSelected, setCustomerSelected] = React.useState("")
-
-    React.useEffect(()=>{
-        const customers = handleGetAllCustomers()
-        const certificates = handleGetAllCertificates()
-        Promise.allSettled([customers,certificates])
-            .catch((errors) => openToast('error', JSON.stringify(errors), "Error"))
-
-    },[])
+    const [workHourSelected, setWorkHourSelected] = React.useState<TWorkHour | undefined>(undefined)
 
     useEffect(()=>{
-        if(item){
+        if(workHourSelected){
           reset({
-              ...item
+              ...workHourSelected
           })
-            if( item.ndtMethods){
-                const tWork = item.ndtMethods.map(w => ({ label: w.name, value: w.uid }))
+            if( workHourSelected.ndtMethods){
+                const tWork = workHourSelected.ndtMethods.map(w => ({ label: w.name, value: w.uid }))
                 setItemsCertificates(tWork)
             }
-            setCustomerSelected(item.client.uid)
+            setCustomerSelected(workHourSelected.client.uid)
         }
-    }, [item])
+    }, [workHourSelected])
 
     React.useEffect(() => {
         if (isSubmitSuccessful) {
@@ -137,26 +153,41 @@ export const useWorkedHours = (item:  TWorkHour | undefined) => {
     const handleCreateWorkHour = handleSubmit(async () =>{
         const data = getValues()
         try {
-            if(user){
-                const {uid, wHours} = user
-                if(uid){
-                    let dataUpdate = wHours
-                    if(dataUpdate){
-                        dataUpdate = [...dataUpdate, data]
-                    }else{
-                        dataUpdate = [data]
-                    }
-                    let userUpdate = {...user}
-                    userUpdate = {...userUpdate, wHours: dataUpdate}
-                    await updateStaffElement(uid, userUpdate)
-                    dispatch(updateUserData(userUpdate))
-                    openToast('success', "New worked hour created", 'Success')
+                if(!user){
+                    openToast('error', "Internal error, user is undefined", 'Error')
+                    return
                 }
-            }
+                if(!user.roles.includes('USER')){
+                    openToast('info', "You need to be a user to add your work hours", 'Info')
+                    return
+                }
+                const {uid} = user
+                if(!uid){
+                    openToast('error', "Internal error, user uid is undefined", 'Error')
+                    return
+                }
+               if(!workHourSelected){
+                   await addWorkHours(uid, data)
+                   openToast('success', "New worked hour created", 'Success')
+               }else{
+                   if(!workHourSelected.uid){
+                       openToast('error', "Internal error, work hour uid is undefined", 'Error')
+                       return
+                   }
+                   await editWorkHours(uid, workHourSelected.uid, data)
+                   openToast('success', "Updated worked hour", 'Success')
+               }
+
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
+        }finally {
+            onClose()
         }
     } )
+
+    const handleWorkHoursSelected = (workHour: TWorkHour | undefined) => {
+        setWorkHourSelected(workHour)
+    }
 
     return {
         initialRef,
@@ -170,6 +201,14 @@ export const useWorkedHours = (item:  TWorkHour | undefined) => {
         customerSelected,
         handleChangeItemCertificates,
         handleChangeCustomersSelect,
-        handleCreateWorkHour
+        handleCreateWorkHour,
+        isOpen,
+        onOpen,
+        onClose,
+        handleGetAllCustomers,
+        handleGetAllCertificates,
+        openToast,
+        handleWorkHoursSelected,
+        workHourSelected,
     }
 }

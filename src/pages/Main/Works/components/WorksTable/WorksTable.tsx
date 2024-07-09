@@ -8,6 +8,8 @@ import {collection, onSnapshot} from "firebase/firestore";
 import {FB_DB} from "../../../../../config/firebase.conf.ts";
 import {WORKS} from "../../../../../utils/constants.ts";
 import {useWorkContext} from "../../../../../context/WorkContext.tsx";
+import {useSelector} from "react-redux";
+import {selectCurrentUser} from "../../../../../state/features/auth/authSlice.tsx";
 
 
 const WorksTable = () => {
@@ -24,6 +26,14 @@ const WorksTable = () => {
         openViewDetail,
         getAllElements
     } = useWorkContext()
+
+    const user = useSelector(selectCurrentUser);
+
+    if(!user){
+        return null
+    }
+
+    const currentUserAdminManager = user.roles.some((rol) =>  rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
 
     const columns = React.useMemo<ColumnDef<IWorkTable>[]>(
         () => [
@@ -77,14 +87,14 @@ const WorksTable = () => {
             <HeaderViewTable
                 name="Works"
             >
-                <Button
+                {currentUserAdminManager && <Button
                     leftIcon={<FiPlus />}
                     colorScheme='teal'
                     variant='solid'
                     onClick={openAddWork}
                 >
                     Add
-                </Button>
+                </Button>}
             </HeaderViewTable>
             <CustomDataTable
                 columns={columns}

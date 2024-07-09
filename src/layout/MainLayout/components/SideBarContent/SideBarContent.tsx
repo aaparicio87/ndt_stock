@@ -16,6 +16,7 @@ import { NavItem } from "../NavItem/NavItem";
 import { LogoCompany } from "../../../../components";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
+import {NAMES, ROUTES} from "../../../../utils/constants.ts";
 
 interface LinkItemProps {
     name: string
@@ -24,10 +25,10 @@ interface LinkItemProps {
     visible: boolean
 }
 const LinkItems: Array<LinkItemProps> = [
-    { name: 'Stock', icon: FiFileText, route: '/', visible: true },
-    { name: 'Users', icon: FiUsers, route: 'users', visible: true },
-    { name: 'Works', icon: FiBriefcase, route: 'works', visible: true },
-    { name: 'Worked Hours', icon: FiWatch, route: 'whours', visible: true },
+    { name: NAMES.STOCK, icon: FiFileText, route: ROUTES.STOCK, visible: true },
+    { name: NAMES.USERS, icon: FiUsers, route: ROUTES.USERS, visible: true },
+    { name: NAMES.WORKS, icon: FiBriefcase, route: ROUTES.WORKS, visible: true },
+    { name: NAMES.WORKED_HOURS, icon: FiWatch, route: ROUTES.WORKED_HOURS, visible: true },
 ];
 
 type SidebarProps = BoxProps & {
@@ -38,12 +39,12 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     const user = useSelector(selectCurrentUser);
 
     const LINKS_PERMISSIONS = LinkItems.map((link) => {
-        if (link.name === 'Users') {
-            return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR') }
+        if (link.name === NAMES.USERS) {
+            return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER') }
         }
-        if (link.name === 'Worked Hours') {
+        /*if (link.name === NAMES.WORKS) {
             return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR') }
-        }
+        }*/
         return link
     })
 

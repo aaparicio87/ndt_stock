@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { PrivateOutlet } from '../utils/PrivateOutlet'
-import { Forgot, Login } from '../pages/Auth'
+import { /*Forgot,*/ Login } from '../pages/Auth'
 
 import { AuthLayout, MainLayout } from '../layout'
 import { Profile, Stock, Users, Works } from '../pages/Main'
@@ -17,7 +17,7 @@ const MainRoutes = () => {
         <Routes>
             <Route element={<AuthLayout />}>
                 <Route path="/login" element={<Login />} />
-                <Route path="/forgot" element={<Forgot />} />
+                {/*<Route path="/forgot" element={<Forgot />} />*/}
             </Route>
             <Route path="*" element={<PrivateOutlet />}>
                 <Route element={<MainLayout />}>

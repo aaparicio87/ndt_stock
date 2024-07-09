@@ -14,7 +14,14 @@ Rust and Cargo (install from https://www.rust-lang.org/tools/install)
 
 ```
 
-## After Intalled dependencies
+## After Installed dependencies
  ```
     npm run tauri dev || yarn tauri dev
  ```
+
+## When user is created
+```
+Password is the combination of the first and last name with 
+the first letter capitalized followed by 123*
+{Firstname}{Lastname}123*
+```

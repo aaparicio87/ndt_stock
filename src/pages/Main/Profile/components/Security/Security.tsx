@@ -7,7 +7,7 @@ import {
     FormControl,
     FormErrorMessage,
     FormLabel,
-    Input,
+    Input, InputGroup, InputRightElement,
     VStack
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form';
@@ -36,6 +36,12 @@ const Security = () => {
         defaultValues: INITIAL_STATE,
         resolver: zodResolver(CHANGE_PASSWORD_SCHEMA)
     });
+    const [show, setShow] = React.useState(false)
+    const [showNew, setShowNew] = React.useState(false)
+    const [showConfirm, setShowConfirm] = React.useState(false)
+    const handleClick = () => setShow((prev)=> !prev)
+    const handleClickNew = () => setShowNew((prev)=> !prev)
+    const handleClickConfirm = () => setShowConfirm((prev) => !prev)
 
     React.useEffect(() => {
         if (isSubmitSuccessful) {
@@ -69,20 +75,37 @@ const Security = () => {
                 <VStack py={3} spacing={6}>
                     <FormControl isInvalid={!!errors.currentPassword}>
                         <FormLabel>Current Password</FormLabel>
+                        <InputGroup size='md'>
                         <Input
+                            type={show ? 'text' : 'password'}
                             placeholder='Current Password'
                             {...register("currentPassword")}
                         />
+                        <InputRightElement width='4.5rem'>
+                            <Button h='1.75rem' size='sm' onClick={handleClick}>
+                                {show ? 'Hide' : 'Show'}
+                            </Button>
+                        </InputRightElement>
+                        </InputGroup>
                         <FormErrorMessage>
                             {errors.currentPassword && errors.currentPassword.message}
                         </FormErrorMessage>
                     </FormControl>
+
                     <FormControl isInvalid={!!errors.password}>
                         <FormLabel>New Password</FormLabel>
+                        <InputGroup size='md'>
                         <Input
+                            type={showNew ? 'text' : 'password'}
                             placeholder='New Password'
                             {...register("password")}
                         />
+                        <InputRightElement width='4.5rem'>
+                            <Button h='1.75rem' size='sm' onClick={handleClickNew}>
+                                {showNew ? 'Hide' : 'Show'}
+                            </Button>
+                        </InputRightElement>
+                        </InputGroup>
                         <FormErrorMessage>
                             {errors.password && errors.password.message}
                         </FormErrorMessage>
@@ -90,10 +113,18 @@ const Security = () => {
 
                     <FormControl isInvalid={!!errors.confirm}>
                         <FormLabel>Confirm new password</FormLabel>
-                        <Input
-                            placeholder='Confirm password'
-                            {...register("confirm")}
-                        />
+                        <InputGroup size='md'>
+                            <Input
+                                type={showConfirm ? 'text' : 'password'}
+                                placeholder='Confirm password'
+                                {...register("confirm")}
+                            />
+                            <InputRightElement width='4.5rem'>
+                                <Button h='1.75rem' size='sm' onClick={handleClickConfirm}>
+                                    {showConfirm ? 'Hide' : 'Show'}
+                                </Button>
+                            </InputRightElement>
+                        </InputGroup>
                         <FormErrorMessage>
                             {errors.confirm && errors.confirm.message}
                         </FormErrorMessage>

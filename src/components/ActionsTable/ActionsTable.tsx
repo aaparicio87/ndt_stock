@@ -1,6 +1,8 @@
 import { Box, IconButton, IconButtonProps, Tooltip } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
 import { FiEdit, FiEye, FiTrash2 } from 'react-icons/fi'
+import {useSelector} from "react-redux";
+import {selectCurrentUser} from "../../state/features/auth/authSlice.tsx";
 
 type TProps = {
     onDetails: <Type>(item: Type) => void
@@ -16,6 +18,7 @@ interface IToolTips {
     icon: IconType
     action: <Type>(item: Type) => void
     iconProps: IconButtonProps
+    visible: boolean
 }
 
 export const ActionsTable = ({
@@ -29,18 +32,28 @@ export const ActionsTable = ({
 
 ) => {
 
+    const user = useSelector(selectCurrentUser);
+
+    if(!user){
+        return null
+    }
+
+    const currentUserAdminManager = user.roles.some((rol) =>  rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
+
     const tooltipList: IToolTips[] = [
-        { action: onDetails, icon: FiEye, label: 'Show details', iconProps: { ...iconDetailsProps, "aria-label": "Show details" } },
-        { action: onEdit, icon: FiEdit, label: 'Update', iconProps: { ...iconEditProps, "aria-label": "Update" } },
-        { action: onDelete, icon: FiTrash2, label: 'Delete', iconProps: { ...iconDeleteProps, "aria-label": "Delete" } }
+        { action: onDetails, icon: FiEye, label: 'Show details', iconProps: { ...iconDetailsProps, "aria-label": "Show details" }, visible: true },
+        { action: onEdit, icon: FiEdit, label: 'Update', iconProps: { ...iconEditProps, "aria-label": "Update" }, visible: currentUserAdminManager },
+        { action: onDelete, icon: FiTrash2, label: 'Delete', iconProps: { ...iconDeleteProps, "aria-label": "Delete" }, visible: currentUserAdminManager }
     ]
 
     return (
         <Box>
             {tooltipList.map((toolTip, index) => {
 
-                const { label, action, icon: Icon, iconProps } = toolTip
-
+                const { label, action, icon: Icon, iconProps, visible } = toolTip
+                if(!visible){
+                    return
+                }
                 return (
                     <Tooltip
                         key={index}

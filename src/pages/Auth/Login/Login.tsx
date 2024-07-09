@@ -4,10 +4,10 @@ import {
     FormLabel,
     Input,
     Stack,
-    Link as ChakraLink,
+    //Link as ChakraLink,
     Button, FormErrorMessage, InputGroup, InputRightElement
 } from "@chakra-ui/react";
-import { Link as ReactRouterLink } from "react-router-dom";
+//import { Link as ReactRouterLink } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LOGIN_VALIDATION_SCHEMA } from "../../../utils/validationSchemas";
@@ -74,7 +74,7 @@ export const Login = () => {
                     </FormErrorMessage>
                 </FormControl>
                 <Stack spacing={10}>
-                    <Stack
+                   {/* <Stack
                         direction={{ base: 'column', sm: 'row' }}
                         align={'start'}
                     >
@@ -82,12 +82,13 @@ export const Login = () => {
                         <ChakraLink as={ReactRouterLink} to='/forgot'>
                             Forgot password?
                         </ChakraLink>
-                    </Stack>
+                    </Stack>*/}
                     <Button
                         colorScheme='teal'
                         variant='solid'
                         isLoading={isSubmitting}
                         type="submit"
+                        mt={5}
                     >
                         Sign in
                     </Button>

@@ -1,12 +1,12 @@
 import React, { createContext, useContext } from "react";
-import {IWorkedHoursHooks, useWorkedHours} from "../pages/Main/WorkedHours/hooks/useWorkedHours.ts";
+import { IWorkedHoursHooks, useWorkedHours } from "../pages/Main/WorkedHours/hooks/useWorkedHours.ts";
 
 
 type Props = {
     children: React.ReactNode
 }
 
-const WorkedHoursContext = createContext<IWorkedHoursHooks  | null>(null)
+const WorkedHoursContext = createContext<IWorkedHoursHooks | null>(null)
 
 const WorkedHoursProvider = ({ children }: Props) => {
     const {
@@ -30,6 +30,8 @@ const WorkedHoursProvider = ({ children }: Props) => {
         openToast,
         handleWorkHoursSelected,
         workHourSelected,
+        handleGetWorkHoursByUser,
+        userWorkHours,
     } = useWorkedHours()
 
     return (
@@ -55,6 +57,8 @@ const WorkedHoursProvider = ({ children }: Props) => {
                 openToast,
                 handleWorkHoursSelected,
                 workHourSelected,
+                handleGetWorkHoursByUser,
+                userWorkHours,
             }}
         >
             {children}

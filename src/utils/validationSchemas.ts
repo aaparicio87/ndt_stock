@@ -144,10 +144,10 @@ const WORKS_VALIDATION_SCHEMA = z.object({
 }).refine(data => {
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
-  return startDate < endDate;
+  return startDate <= endDate;
 }, {
   message: "Start date must be before end date",
-  path: ["endDate"], // you can specify a path to set the error on a specific field
+  path: ["startDate"], // you can specify a path to set the error on a specific field
 });
 
 const CHANGE_PASSWORD_SCHEMA = z.object({
@@ -181,8 +181,18 @@ const WORK_HOURS_VALIDATION_SCHEMA = z.object({
   return startMinutes < endMinutes;
 }, {
   message: "Start time must be before end time",
-  path: ["endTime"]
+  path: ["startMinutes"]
 });
+
+const PROFILE_VALIDATION_SCHEMA = z.object({
+  name:z.string()
+  .min(1, "Name is required"),
+
+  lastName:z.string()
+  .min(1, "Last name is required"),
+
+  degree: z.string().min(1, "Degree is required"),
+})
 
 
 export {
@@ -195,4 +205,5 @@ export {
     WORKS_VALIDATION_SCHEMA,
     CHANGE_PASSWORD_SCHEMA,
     WORK_HOURS_VALIDATION_SCHEMA,
+    PROFILE_VALIDATION_SCHEMA
 }

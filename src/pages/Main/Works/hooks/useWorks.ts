@@ -248,7 +248,6 @@ export const useWorks = ():IWorkHook => {
         const work = worksRemoteRef.current.find((wr) => wr.uid === uid)
         setWorkElementDelete(work)
         onOpenDelete()
-        console.log('handleDelete End')
     }
 
     const handleConfirmDelete = async () => {

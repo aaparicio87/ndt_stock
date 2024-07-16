@@ -6,7 +6,15 @@ import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../config/firebase.conf";
 import { STAFF } from "../../../../utils/constants";
-import { deleteStaffElement, getAllCertificates, getAllStaff, getStaffInformationByUserUID } from "../../../../services";
+import { 
+    deleteStaffElement, 
+    getAllCertificates, 
+    getAllStaff, 
+    getStaffInformationByUserUID,
+    getWorkHours
+ } from "../../../../services";
+ import { Event } from 'react-big-calendar'
+import { useNavigate } from "react-router-dom";
 
 
  export interface IStaffTable {
@@ -17,13 +25,13 @@ import { deleteStaffElement, getAllCertificates, getAllStaff, getStaffInformatio
     uid?: string
  }
 
-
 interface IOption {
     label: string, 
     value: string 
 }
  
  export const useUser = () => {
+    const navigate = useNavigate()
     const { openToast } = useNotification()
     const user = useSelector(selectCurrentUser);
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -34,6 +42,8 @@ interface IOption {
     const [data, setData] = React.useState<IStaffTable[]>([])
     const [isLoading, setIsLoading] = React.useState(false)
     const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
+    const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
+
 
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, STAFF), (_) => {
@@ -96,6 +106,7 @@ interface IOption {
             console.error(error)
         }
     }
+
     const handleEdit = async (uid: string | undefined) => {
         if (uid) {
             const staff = await getStaffInformationByUserUID(uid)
@@ -105,6 +116,34 @@ interface IOption {
             }
         }
         onOpen()
+    }
+
+    const handleUserHours = async (uid: string ) => {
+        try {
+            setIsLoading((prev) => !prev)
+            getWorkHours(uid)
+                .then((result) => {
+                    const events: Event[] = result.map((wh) => {
+                        const start = new Date(`${wh.date}T${wh.startTime}:00`)
+                        const end = new Date(`${wh.date}T${wh.endTime}:00`)
+                        return {
+                            title: wh.client.name,
+                            start,
+                            end,
+                            resource: {
+                            ...wh,
+                            }
+                        }
+                        })
+                    setUserWorkHours(events)
+                })
+                .finally(()=>{
+                    setIsLoading(false)
+                })
+            
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
     }
 
     const handleDelete = (item: string | undefined) => {
@@ -133,6 +172,8 @@ interface IOption {
         }
     }
 
+    const openWorksUser = (uid: string) => navigate(`workhours/${uid}`)
+
     return {
         handleViewDetails,
         handleEdit,
@@ -150,5 +191,8 @@ interface IOption {
         isLoading,
         certificatesList,
         handleGetAllCertificates,
+        handleUserHours,
+        userWorkHours,
+        openWorksUser
     }
 }

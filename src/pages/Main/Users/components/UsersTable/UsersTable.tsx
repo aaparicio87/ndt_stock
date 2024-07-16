@@ -18,8 +18,10 @@ type TProps = {
     onDelete: (uuid: string | undefined) => void
     onDetails: (uuid: string | undefined) => void
     onEdit: (uuid: string | undefined) => void
+    onHours: (uuid: string) => void
     currentUser: TStaff | undefined
     loading: boolean
+    visibleHours: boolean
 }
 
 const UsersTable = ({
@@ -27,8 +29,10 @@ const UsersTable = ({
     onDelete,
     onDetails,
     onEdit,
+    onHours,
     currentUser,
-    loading
+    loading,
+    visibleHours
 }: TProps) => {
 
     const columns = React.useMemo<ColumnDef<TStaffTable>[]>(
@@ -60,9 +64,12 @@ const UsersTable = ({
                         onDelete={() => onDelete(props.row.original.uid)}
                         onDetails={() => onDetails(props.row.original.uid)}
                         onEdit={() => onEdit(props.row.original.uid)}
+                        onHours={() => props.row.original.uid && onHours(props.row.original.uid)}
                         iconDetailsProps={{ "mr": 2 }}
                         iconEditProps={{ "mr": 2 }}
-                        iconDeleteProps={{ "isDisabled": currentUser?.uid === props.row.original.uid }}
+                        iconDeleteProps={{ "isDisabled": currentUser?.uid === props.row.original.uid, "mr": 2 }}
+                        iconHoursProps={{ "isDisabled": currentUser?.uid === props.row.original.uid }}
+                        visibleHours={visibleHours}
                     />
                 )
 

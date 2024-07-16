@@ -51,6 +51,11 @@ const ROLES: TRole[]  = [
     "USER"
 ]
 
+const COLORS_DEGREE: Record<string, string> = {
+    'Technical': 'red',
+    'Engineer': 'green',
+}
+
 export {
     AUTH_SLICE_NAME,
     STAFF,
@@ -67,4 +72,5 @@ export {
     CLIENT,
     ROUTES,
     NAMES,
+    COLORS_DEGREE
 }

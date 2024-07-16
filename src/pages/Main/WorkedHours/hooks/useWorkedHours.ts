@@ -2,12 +2,13 @@ import React, {ChangeEvent, useEffect} from "react";
 import {FieldErrors, useForm, UseFormRegister} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useNotification} from "../../../../hooks/useNotification.ts";
-import {addWorkHours, editWorkHours, getAllCertificates, getAllCustomers} from "../../../../services";
+import {addWorkHours, editWorkHours, getAllCertificates, getAllCustomers, getWorkHours} from "../../../../services";
 import {MultiValue} from "react-select";
 import {useSelector} from "react-redux";
 import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
 import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
+import { Event } from 'react-big-calendar'
 
 const INITIAL_STATE: Partial<TWorkHour> = {
     date: "",
@@ -40,6 +41,8 @@ export interface IWorkedHoursHooks {
     openToast: (status: TToastStatus, description: string, title: string) => void
     handleWorkHoursSelected: (workHour: TWorkHour | undefined)=>void
     workHourSelected: TWorkHour | undefined
+    handleGetWorkHoursByUser: ()=> Promise<void>
+    userWorkHours: Event[]
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -71,7 +74,12 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     const [certificatesList, setCertificatesList] = React.useState<TOptions[]>([])
     const [customerSelected, setCustomerSelected] = React.useState("")
     const [workHourSelected, setWorkHourSelected] = React.useState<TWorkHour | undefined>(undefined)
+    const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
 
+    useEffect(() => {
+        handleGetWorkHoursByUser()
+    }, [])
+    
     useEffect(()=>{
         if(workHourSelected){
           reset({
@@ -181,12 +189,38 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
         }finally {
+            handleGetWorkHoursByUser()
             onClose()
         }
     } )
 
     const handleWorkHoursSelected = (workHour: TWorkHour | undefined) => {
         setWorkHourSelected(workHour)
+    }
+
+    const handleGetWorkHoursByUser = async() => {
+        try {
+            if(user?.uid){
+              const result  = await getWorkHours(user.uid)
+              if(result.length > 0){
+               const response = result.map((wh) => {
+                    const start = new Date(`${wh.date}T${wh.startTime}:00`)
+                    const end = new Date(`${wh.date}T${wh.endTime}:00`)
+                    return {
+                        title: wh.client.name,
+                        start,
+                        end,
+                        resource: {
+                            ...wh,
+                        }
+                    }
+                })
+                setUserWorkHours(response)
+              }
+            }
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
     }
 
     return {
@@ -210,5 +244,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         openToast,
         handleWorkHoursSelected,
         workHourSelected,
+        handleGetWorkHoursByUser,
+        userWorkHours,
     }
 }

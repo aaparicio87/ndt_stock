@@ -55,7 +55,7 @@ const Pagination = <T,>({ table }: PaginationProps<T>) => {
                         defaultValue={table.getState().pagination.pageIndex + 1}
                         min={1}
                         max={table.getPageCount()}
-                        onChange={(valueAsString, valueAsNumber) => {
+                        onChange={(_, valueAsNumber) => {
                             const page = valueAsNumber ? valueAsNumber - 1 : 0;
                             table.setPageIndex(page);
                         }}

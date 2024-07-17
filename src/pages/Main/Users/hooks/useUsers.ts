@@ -70,7 +70,7 @@ interface IOption {
                 setData(staffDataTable)
             }
         } catch (error) {
-            console.error(error)
+            openToast('error', (error as Error).message, "Error")
         }
         finally{
             setIsLoading(false)
@@ -89,7 +89,7 @@ interface IOption {
                 setCertificatesList(list)
             }
         } catch (error) {
-            console.error("Error fetching staff: ", error)
+            openToast('error',`Error fetching staff: ${(error as Error).message}`, "Error")
         }
     }
 
@@ -103,7 +103,7 @@ interface IOption {
                 }
             }
         } catch (error) {
-            console.error(error)
+            openToast('error',`${(error as Error).message}`, "Error")
         }
     }
 

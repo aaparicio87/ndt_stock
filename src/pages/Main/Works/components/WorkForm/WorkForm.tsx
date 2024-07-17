@@ -36,6 +36,10 @@ const WorkForm = () => {
         handleCancel,
     } = useWorkContext()
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+    };
+
     return (
         <>
             {
@@ -97,6 +101,7 @@ const WorkForm = () => {
                                     placeholder='Start date'
                                     size='md'
                                     type='date'
+                                    onKeyDown={handleKeyDown}
                                     {...register('startDate')}
                                 />
                                 <FormErrorMessage>
@@ -109,6 +114,7 @@ const WorkForm = () => {
                                     placeholder='En date'
                                     size='md'
                                     type='date'
+                                    onKeyDown={handleKeyDown}
                                     {...register('endDate')}
                                 />
                                 <FormErrorMessage>

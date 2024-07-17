@@ -37,7 +37,7 @@ export const Login = () => {
         try {
             await login(data)
         } catch (error) {
-            openToast('error', JSON.stringify(error), "Error")
+            openToast('error', (error as Error).message, "Error")
         }
     }
 
@@ -58,23 +58,23 @@ export const Login = () => {
                 <FormControl id="password" isInvalid={errors.password ? true : undefined}>
                     <FormLabel htmlFor='password'>Password</FormLabel>
                     <InputGroup size='md'>
-                    <Input
-                        type={show ? 'text' : 'password'}
-                        id='password'
-                        {...register('password')}
-                    />
-                    <InputRightElement width='4.5rem'>
-                        <Button h='1.75rem' size='sm' onClick={handleClick}>
-                            {show ? 'Hide' : 'Show'}
-                        </Button>
-                    </InputRightElement>
+                        <Input
+                            type={show ? 'text' : 'password'}
+                            id='password'
+                            {...register('password')}
+                        />
+                        <InputRightElement width='4.5rem'>
+                            <Button h='1.75rem' size='sm' onClick={handleClick}>
+                                {show ? 'Hide' : 'Show'}
+                            </Button>
+                        </InputRightElement>
                     </InputGroup>
                     <FormErrorMessage>
                         {errors.password && errors.password.message}
                     </FormErrorMessage>
                 </FormControl>
                 <Stack spacing={10}>
-                   {/* <Stack
+                    {/* <Stack
                         direction={{ base: 'column', sm: 'row' }}
                         align={'start'}
                     >

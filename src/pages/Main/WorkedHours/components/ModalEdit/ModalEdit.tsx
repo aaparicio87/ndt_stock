@@ -13,9 +13,9 @@ import {
     ModalHeader,
     ModalOverlay, Select, Textarea
 } from "@chakra-ui/react";
-import {MultiSelect} from "../../../../../components";
+import { MultiSelect } from "../../../../../components";
 import React from "react";
-import {useWorkedHoursContext} from "../../../../../context/WorkedHoursContext.tsx";
+import { useWorkedHoursContext } from "../../../../../context/WorkedHoursContext.tsx";
 
 
 type TProps = {
@@ -44,15 +44,19 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
         workHourSelected,
     } = useWorkedHoursContext()
 
-    React.useEffect(()=>{
+    React.useEffect(() => {
         const customers = handleGetAllCustomers()
         const certificates = handleGetAllCertificates()
-        Promise.allSettled([customers,certificates])
+        Promise.allSettled([customers, certificates])
             .catch((errors) => openToast('error', JSON.stringify(errors), "Error"))
 
-    },[handleGetAllCustomers, handleGetAllCertificates])
+    }, [handleGetAllCustomers, handleGetAllCertificates])
 
-    return(
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+    };
+
+    return (
         <Modal
             initialFocusRef={initialRef}
             finalFocusRef={finalRef}
@@ -61,11 +65,11 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
             size={'xl'}
             closeOnOverlayClick={false}
         >
-            <ModalOverlay/>
+            <ModalOverlay />
             <form onSubmit={handleCreateWorkHour}>
                 <ModalContent>
-                    <ModalHeader>{workHourSelected ? "Edit user" : "Create user"}</ModalHeader>
-                    <ModalCloseButton/>
+                    <ModalHeader>{workHourSelected ? "Edit event" : "Create event"}</ModalHeader>
+                    <ModalCloseButton />
                     <ModalBody pb={6}>
                         <HStack spacing={4} py={3}>
                             <FormControl isInvalid={!!errors.date}>
@@ -75,6 +79,7 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                     size='md'
                                     type='date'
                                     {...register('date')}
+                                    onKeyDown={handleKeyDown}
                                 />
                                 <FormErrorMessage>
                                     {errors.date && errors.date.message}
@@ -132,6 +137,7 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                     placeholder='Select start time'
                                     size='md'
                                     type='time'
+                                    onKeyDown={handleKeyDown}
                                     {...register('startTime')}
                                 />
                                 <FormErrorMessage>
@@ -144,6 +150,7 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                     placeholder='Select end time'
                                     size='md'
                                     type='time'
+                                    onKeyDown={handleKeyDown}
                                     {...register('endTime')}
                                 />
                                 <FormErrorMessage>

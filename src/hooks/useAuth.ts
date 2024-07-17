@@ -5,10 +5,12 @@ import { AppDispatch } from '../state/store';
 import { getStaffInformationByUserUID, logoutUser, signIn } from '../services';
 import { useNavigate } from 'react-router-dom'
 import { FB_AUTH } from '../config/firebase.conf';
+import { useNotification } from './useNotification';
 
 export const useAuth = () => {
   const user = useSelector(selectCurrentUser);
   const navigate = useNavigate()
+  const { openToast } = useNotification()
   
   const dispatch: AppDispatch = useDispatch();
 
@@ -36,7 +38,7 @@ export const useAuth = () => {
       }
       
     } catch (error) {
-      console.error(error)
+      openToast('error', (error as Error).message, "Error")
     }
   }, [dispatch]);
 
@@ -57,7 +59,7 @@ export const useAuth = () => {
           }))
         }
     } catch (error) {
-      console.error(error)
+      openToast('error', JSON.stringify(error), "Error")
     }
   }
 
@@ -67,7 +69,7 @@ export const useAuth = () => {
           await logoutUser()
           dispatch(clearAuth())
         } catch (error) {
-          console.error()
+          openToast('error', JSON.stringify(error), "Error")
         }
     },[dispatch])
   

@@ -8,7 +8,7 @@ import { useWorkedHoursContext } from "../../../context/WorkedHoursContext.tsx";
 
 const WorkedHours = () => {
 
-    const { onOpen, isOpen, onClose } = useWorkedHoursContext()
+    const { onOpen, isOpen, handleCloseModal } = useWorkedHoursContext()
 
     return (
         <>
@@ -26,7 +26,7 @@ const WorkedHours = () => {
             </HeaderViewTable>
             <WorkCalendar />
             {isOpen && <ModalEdit
-                onClose={onClose}
+                onClose={handleCloseModal}
                 isOpen={isOpen}
             />}
         </>

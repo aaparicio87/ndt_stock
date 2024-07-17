@@ -11,6 +11,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
 import FirebaseService from "./firebase.services";
+import { FirebaseError } from "firebase/app";
 
 
 interface ICreateUserResponse {
@@ -46,7 +47,21 @@ const signIn = async (userData:TSignIn):Promise<UserCredential | undefined> => {
         await FB_AUTH.setPersistence(browserSessionPersistence);
         return await signInWithEmailAndPassword(FB_AUTH, email, password)
     } catch (error) {
-        console.error(error)
+        if (error instanceof FirebaseError) {
+            // Mapea los códigos de error a mensajes más amigables
+            switch (error.code) {
+                case 'auth/invalid-credential':
+                    throw new Error('Invalid credentials. Please check your email and password.');
+                case 'auth/user-not-found':
+                    throw new Error('User not found. Please check your email.');
+                case 'auth/wrong-password':
+                    throw new Error('Incorrect password. Please try again.');
+                default:
+                    throw new Error('An unexpected error occurred. Please try again.');
+            }
+        } else {
+            throw new Error('An unexpected error occurred. Please try again.');
+        }
     }
 }
 
@@ -72,21 +87,37 @@ const changePassword = async (newPassword:string, currentPassword:string , email
 }
 
 const getStaffInformationByUserUID = async(userUID:string) => {
-    return await usersService.getByUID(userUID);
+    try {
+        return await usersService.getByUID(userUID);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const getAllStaff = async():Promise<TStaff[]| undefined> =>{
-    return await usersService.getAll();
+    try {
+        return await usersService.getAll();
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const logoutUser = async () => FB_AUTH.signOut()
 
 const deleteStaffElement = async (uid: string) => {
-    await usersService.delete(uid);
+    try {
+        await usersService.delete(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 const updateStaffElement = async (uid: string, data: TStaff) => {
-    await usersService.update(uid, data);
+    try {
+        await usersService.update(uid, data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 export{

@@ -6,15 +6,27 @@ import FirebaseService from "./firebase.services";
 const certificateService = new FirebaseService<TCertificates>(FB_DB, CERTIFICATE);
 
 const getAllCertificates = async():Promise<TCertificates[]| undefined> =>{
-    return await certificateService.getAll();
+    try {
+        return await certificateService.getAll();
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const deleteCertificateElement = async (uid: string) => {
-    await certificateService.delete(uid);
+    try {     
+        await certificateService.delete(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 const updateCertificateElement = async (uid: string, data: TCertificates) => {
-    await certificateService.update(uid, data);
+    try {
+        await certificateService.update(uid, data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 export{

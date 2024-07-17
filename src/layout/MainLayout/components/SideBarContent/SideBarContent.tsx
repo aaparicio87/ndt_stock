@@ -39,12 +39,10 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     const user = useSelector(selectCurrentUser);
 
     const LINKS_PERMISSIONS = LinkItems.map((link) => {
+        //Only Admins and Data Managers can manage Users
         if (link.name === NAMES.USERS) {
             return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER') }
         }
-        /*if (link.name === NAMES.WORKS) {
-            return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR') }
-        }*/
         return link
     })
 

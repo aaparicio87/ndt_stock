@@ -25,7 +25,7 @@ class FirebaseService<T> {
             const collectionRef = collection(this.db, this.collectionName);
             await addDoc(collectionRef, data);
         } catch (error) {
-            console.error(`Error creating document in ${this.collectionName}: `, error);
+            throw new Error(`Error creating document in ${this.collectionName}: ${(error as Error).message}`)
         }
     }
 
@@ -40,8 +40,7 @@ class FirebaseService<T> {
             });
             return list;
         } catch (error) {
-            console.error(`Error getting documents from ${this.collectionName}: `, error);
-            return [];
+            throw new Error(`Error getting documents from ${this.collectionName}: ${(error as Error).message}`)
         }
     }
 
@@ -56,8 +55,7 @@ class FirebaseService<T> {
                 throw new Error('Document does not exist');
             }
         } catch (error) {
-            console.error(`Error getting document by UID from ${this.collectionName}: `, error);
-            return null;
+            throw new Error(`Error getting document by UID from ${this.collectionName}: ${(error as Error).message}`)
         }
     }
 
@@ -66,7 +64,7 @@ class FirebaseService<T> {
             const docRef = doc(this.db, this.collectionName, uid);
             await updateDoc(docRef, data);
         } catch (error) {
-            console.error(`Error updating document in ${this.collectionName}: `, error);
+            throw new Error(`Error updating document in ${this.collectionName}: ${(error as Error).message}`)
         }
     }
 
@@ -75,7 +73,7 @@ class FirebaseService<T> {
             const docRef = doc(this.db, this.collectionName, uid);
             await deleteDoc(docRef);
         } catch (error) {
-            console.error(`Error deleting document from ${this.collectionName}: `, error);
+            throw new Error(`Error deleting document from ${this.collectionName}: ${(error as Error).message}`)
         }
     }
 }

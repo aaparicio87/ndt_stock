@@ -39,7 +39,7 @@ const INITIAL_STATE: TInitialState = {
     typeEquipment: "",
     tradeMark: "",
     store: "",
-    calibrationDate: "",
+    calibrationDate: new Date().toISOString().split("T")[0],
     qualityOfService: "",
     remarks: "",
     otherTypeEquipment: "",
@@ -123,6 +123,10 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+    };
+
     return (
         <Modal
             initialFocusRef={initialRef}
@@ -140,7 +144,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                     <ModalBody pb={6}>
 
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.serialNumber}>
                                 <FormLabel>Serial number</FormLabel>
                                 <Input
                                     placeholder='Serial number'
@@ -151,7 +155,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.model}>
                                 <FormLabel>Model</FormLabel>
                                 <Input
                                     placeholder='Model'
@@ -163,7 +167,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                             </FormControl>
                         </HStack>
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.typeEquipment}>
                                 <FormLabel>Type of equipment</FormLabel>
                                 <Select
                                     placeholder='Select option'
@@ -185,7 +189,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
 
 
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.otherTrademark || !!errors.tradeMark}>
                                 <FormLabel>Trademark</FormLabel>
                                 <Select
                                     placeholder='Select option'
@@ -212,7 +216,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 isOtherTradeMarkSelected) &&
                             <HStack spacing={4} py={1} width={'100%'} flex={1}>
                                 {isOtherTypeSelected && (
-                                    <FormControl w={'50%'}>
+                                    <FormControl w={'50%'} isInvalid={!!errors.otherTypeEquipment}>
                                         <Input
                                             placeholder='Other type of equipment'
                                             {...register('otherTypeEquipment')}
@@ -234,7 +238,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                             </HStack>
                         }
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.store}>
                                 <FormLabel>Store</FormLabel>
                                 <Input
                                     placeholder='Store'
@@ -245,13 +249,14 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.calibrationDate}>
                                 <FormLabel>Calibration</FormLabel>
                                 <Input
                                     placeholder='Select Date and Time'
                                     size='md'
                                     type='date'
                                     {...register('calibrationDate')}
+                                    onKeyDown={handleKeyDown}
                                 />
                                 <FormErrorMessage>
                                     {errors.calibrationDate && errors.calibrationDate.message}
@@ -259,7 +264,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                             </FormControl>
                         </HStack>
                         <HStack spacing={4} py={4}>
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.qualityOfService}>
                                 <FormLabel>QoS</FormLabel>
                                 <Select
                                     placeholder='Select option'
@@ -276,7 +281,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl>
+                            <FormControl isInvalid={!!errors.remarks}>
                                 <FormLabel>Remarks</FormLabel>
                                 <Input
                                     placeholder='Remarks'
@@ -299,7 +304,10 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                         >
                             {item ? "Update" : "Save"}
                         </Button>
-                        <Button onClick={onClose} isDisabled={isSubmitting}>Cancel</Button>
+                        <Button onClick={() => {
+                            onClose()
+                            reset()
+                        }} isDisabled={isSubmitting}>Cancel</Button>
                     </ModalFooter>
                 </ModalContent>
             </form>

@@ -25,13 +25,13 @@ const WorkedHoursProvider = ({ children }: Props) => {
         isOpen,
         initialRef,
         finalRef,
-        onClose,
         onOpen,
         openToast,
         handleWorkHoursSelected,
         workHourSelected,
         handleGetWorkHoursByUser,
         userWorkHours,
+        handleCloseModal
     } = useWorkedHours()
 
     return (
@@ -52,13 +52,13 @@ const WorkedHoursProvider = ({ children }: Props) => {
                 isOpen,
                 initialRef,
                 finalRef,
-                onClose,
                 onOpen,
                 openToast,
                 handleWorkHoursSelected,
                 workHourSelected,
                 handleGetWorkHoursByUser,
                 userWorkHours,
+                handleCloseModal,
             }}
         >
             {children}

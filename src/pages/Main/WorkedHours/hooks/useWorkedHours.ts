@@ -11,12 +11,12 @@ import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.
 import { Event } from 'react-big-calendar'
 
 const INITIAL_STATE: Partial<TWorkHour> = {
-    date: "",
+    date: new Date().toISOString().split("T")[0],
     client: undefined,
     location: "",
     ndtMethods: undefined,
-    startTime: "",
-    endTime: "",
+    startTime: new Date().toTimeString().split(" ")[0].slice(0, 5),
+    endTime: new Date().toTimeString().split(" ")[0].slice(0, 5),
     note: "",
 }
 
@@ -35,7 +35,6 @@ export interface IWorkedHoursHooks {
     handleCreateWorkHour: (e?: (React.BaseSyntheticEvent<object, any, any> | undefined)) => Promise<void>,
     isOpen: boolean,
     onOpen: () => void,
-    onClose: () => void,
     handleGetAllCustomers: ()=> Promise<void>,
     handleGetAllCertificates: ()=> Promise<void>,
     openToast: (status: TToastStatus, description: string, title: string) => void
@@ -43,6 +42,7 @@ export interface IWorkedHoursHooks {
     workHourSelected: TWorkHour | undefined
     handleGetWorkHoursByUser: ()=> Promise<void>
     userWorkHours: Event[]
+    handleCloseModal: () => void
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -95,7 +95,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
 
     React.useEffect(() => {
         if (isSubmitSuccessful) {
-            reset()
+            reset(INITIAL_STATE)
+            setCustomerSelected("")
+            setItemsCertificates([])
         }
     }, [isSubmitSuccessful])
 
@@ -145,7 +147,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
             setValue('ndtMethods', typeWork)
 
         }catch (error){
-            console.error(error)
+            openToast('error',`${(error as Error).message}`, "Error")
         }
     }
 
@@ -160,16 +162,15 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
 
     const handleCreateWorkHour = handleSubmit(async () =>{
         const data = getValues()
+
         try {
                 if(!user){
                     openToast('error', "Internal error, user is undefined", 'Error')
                     return
                 }
-                if(!user.roles.includes('USER')){
-                    openToast('info', "You need to be a user to add your work hours", 'Info')
-                    return
-                }
+
                 const {uid} = user
+
                 if(!uid){
                     openToast('error', "Internal error, user uid is undefined", 'Error')
                     return
@@ -223,6 +224,13 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         }
     }
 
+    const handleCloseModal = () => {
+        onClose()
+        reset(INITIAL_STATE)
+        setCustomerSelected("")
+        setItemsCertificates([])
+    }
+
     return {
         initialRef,
         finalRef,
@@ -238,7 +246,6 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         handleCreateWorkHour,
         isOpen,
         onOpen,
-        onClose,
         handleGetAllCustomers,
         handleGetAllCertificates,
         openToast,
@@ -246,5 +253,6 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         workHourSelected,
         handleGetWorkHoursByUser,
         userWorkHours,
+        handleCloseModal
     }
 }

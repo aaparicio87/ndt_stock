@@ -1,5 +1,6 @@
 import {
     Center,
+    Flex,
     Icon,
     Table,
     TableContainer,
@@ -22,6 +23,7 @@ import {
 import React from "react"
 import { FiInbox } from "react-icons/fi"
 import { Loader } from "../Loader/Loader"
+import Pagination from "../Pagination/Pagination"
 
 type TProps<T> = {
     data: T[]
@@ -55,55 +57,63 @@ export const CustomDataTable = <T extends object>({ data, columns, loading }: TP
         <TableContainer>
             {loading
                 ? <Loader />
-                : <Table variant='simple'>
-                    <Thead>
-                        {table.getHeaderGroups().map(headerGroup => (
-                            <Tr key={headerGroup.id}>
-                                {headerGroup.headers.map(header => {
-                                    return (
-                                        <Th key={header.id} colSpan={header.colSpan}>
-                                            {flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                        </Th>
-                                    )
-                                })}
-                            </Tr>
-                        ))}
-                    </Thead>
-                    <Tbody>
-                        {table.getRowModel().rows.length === 0 &&
-                            <Tr>
-                                <Td colSpan={columns.length}>
-                                    <Center py={10}>
-                                        <Icon as={FiInbox} w={10} h={10} mr={2} />
-                                        No data available
-                                    </Center>
-                                </Td>
-                            </Tr>
-                        }
-                        {table.getRowModel().rows.map(row => {
-                            return (
-                                <Tr
-                                    key={row.id}
-                                    textAlign={'center'}
-                                >
-                                    {row.getVisibleCells().map(cell => {
+                : <>
+                    <Table variant='simple'>
+                        <Thead>
+                            {table.getHeaderGroups().map(headerGroup => (
+                                <Tr key={headerGroup.id}>
+                                    {headerGroup.headers.map(header => {
                                         return (
-                                            <Td key={cell.id}>
+                                            <Th key={header.id} colSpan={header.colSpan}>
                                                 {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
                                                 )}
-                                            </Td>
+                                            </Th>
                                         )
                                     })}
                                 </Tr>
-                            )
-                        })}
-                    </Tbody>
-                </Table>}
+                            ))}
+                        </Thead>
+                        <Tbody>
+                            {table.getRowModel().rows.length === 0 &&
+                                <Tr>
+                                    <Td colSpan={columns.length}>
+                                        <Center py={10}>
+                                            <Icon as={FiInbox} w={10} h={10} mr={2} />
+                                            No data available
+                                        </Center>
+                                    </Td>
+                                </Tr>
+                            }
+                            {table.getRowModel().rows.map(row => {
+                                return (
+                                    <Tr
+                                        key={row.id}
+                                        textAlign={'center'}
+                                    >
+                                        {row.getVisibleCells().map(cell => {
+                                            return (
+                                                <Td key={cell.id}>
+                                                    {flexRender(
+                                                        cell.column.columnDef.cell,
+                                                        cell.getContext()
+                                                    )}
+                                                </Td>
+                                            )
+                                        })}
+                                    </Tr>
+                                )
+                            })}
+                        </Tbody>
+                    </Table>
+                    <Flex justifyContent={'end'}>
+                        <Pagination
+                            table={table}
+                        />
+                    </Flex>
+                </>
+            }
         </TableContainer>
     )
 }

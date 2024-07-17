@@ -6,23 +6,43 @@ import FirebaseService from "./firebase.services";
 const stockService = new FirebaseService<TStock>(FB_DB, STOCK);
 
 const createNewStockElement = async(data: TStock) => {
-    await stockService.create(data);
+    try {
+        await stockService.create(data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const getAllStcokElements = async () => {
-    return await stockService.getAll();
+    try {     
+        return await stockService.getAll();
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const getStockByUID = async(uid:string) => {
-    return await stockService.getByUID(uid);
+    try {
+        return await stockService.getByUID(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const updateStockElement = async (uid: string, data: TStock) => {
-    await stockService.update(uid, data);
+    try {     
+        await stockService.update(uid, data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 const deleteStockElement = async (uid: string) => {
-    await stockService.delete(uid);
+    try {
+        await stockService.delete(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 export {

@@ -40,11 +40,11 @@ const UsersMain = () => {
                 <Stack direction='row'
                     spacing={4}
                     flex={1}
-                    justifyContent={'space-between'}
+                    justifyContent={'flex-end'}
                     marginBottom={5}
                     marginX={5}
                 >
-                    <FilterElements />
+                    {/* <FilterElements /> */}
                     <Button
                         leftIcon={<FiPlus />}
                         colorScheme='teal'

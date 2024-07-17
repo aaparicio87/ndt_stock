@@ -7,7 +7,7 @@ async function addWorkHours(staffId:string, workHoursData:TWorkHour) {
     try {
          await addDoc(workHoursCollectionRef, workHoursData);
     } catch (e) {
-        console.error(e);
+        throw new Error((e as Error).message)
     }
 }
 
@@ -16,18 +16,22 @@ async function editWorkHours(staffId:string, workHourId:string, updatedWorkHours
     try {
         await updateDoc(workHourDocRef, updatedWorkHoursData);
     } catch (e) {
-        console.error(e);
+        throw new Error((e as Error).message)
     }
 }
 
 async function getWorkHours(staffId:string) {
-    const workHoursCollectionRef = collection(FB_DB, `${STAFF}/${staffId}/workHours`);
-    const workHoursSnapshot = await getDocs(workHoursCollectionRef);
-    const workHoursList:TWorkHour[] = workHoursSnapshot.docs.map(doc => ({
-        uid: doc.id,
-        ...doc.data() as TWorkHour,
-    }));
-    return workHoursList
+    try {     
+        const workHoursCollectionRef = collection(FB_DB, `${STAFF}/${staffId}/workHours`);
+        const workHoursSnapshot = await getDocs(workHoursCollectionRef);
+        const workHoursList:TWorkHour[] = workHoursSnapshot.docs.map(doc => ({
+            uid: doc.id,
+            ...doc.data() as TWorkHour,
+        }));
+        return workHoursList
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 

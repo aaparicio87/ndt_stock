@@ -6,15 +6,27 @@ import FirebaseService from "./firebase.services";
 const customerService = new FirebaseService<TCustomer>(FB_DB, CLIENT);
 
 const getAllCustomers = async():Promise<TCustomer[]| undefined> =>{
-    return await customerService.getAll();
+    try {
+        return await customerService.getAll();
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const deleteCustomerElement = async (uid: string) => {
-    await customerService.delete(uid);
+    try {     
+        await customerService.delete(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 const updateCustomerElement = async (uid: string, data: TCustomer) => {
-    await customerService.update(uid, data);
+    try {
+        await customerService.update(uid, data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 export{

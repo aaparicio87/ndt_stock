@@ -181,7 +181,7 @@ const WORK_HOURS_VALIDATION_SCHEMA = z.object({
   return startMinutes < endMinutes;
 }, {
   message: "Start time must be before end time",
-  path: ["startMinutes"]
+  path: ["startTime"]
 });
 
 const PROFILE_VALIDATION_SCHEMA = z.object({

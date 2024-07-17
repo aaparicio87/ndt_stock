@@ -7,23 +7,43 @@ const workService = new FirebaseService<TWork>(FB_DB, WORKS);
 
 
 const createNewWorkElement = async(data: TWork) => {
-    await workService.create(data);
+    try {     
+        await workService.create(data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const getAllWorks = async () => {
-    return await workService.getAll();
+    try {
+        return await workService.getAll();
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const getWorkByUID = async(uid:string) => {
-    return await workService.getByUID(uid);
+    try {
+        return await workService.getByUID(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 }
 
 const updateWorkElement = async (uid: string, data: TWork) => {
-    await workService.update(uid, data);
+    try {
+        await workService.update(uid, data);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 const deleteWorkElement = async (uid: string) => {
-    await workService.delete(uid);
+    try {
+        await workService.delete(uid);
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
 };
 
 export  {

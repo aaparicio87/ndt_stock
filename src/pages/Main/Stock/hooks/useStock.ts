@@ -33,7 +33,7 @@ export const useStock = () => {
                 setData(stockData)
             }
         } catch (error) {
-            console.error(error)
+            openToast('error', (error as Error).message, "Error")
         } finally{
             setIsLoading(false)
         }

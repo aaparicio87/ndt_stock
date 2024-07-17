@@ -46,8 +46,8 @@ const INITIAL_STATE: Partial<TWork> = {
     typeWork: [],
     workers: [],
     customer: undefined,
-    startDate: "",
-    endDate: "",
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: new Date().toISOString().split("T")[0],
     description: "",
     reportNumber: "",
     reportPlace: "",
@@ -170,7 +170,7 @@ export const useWorks = ():IWorkHook => {
                 setData(dataTable)
             }
         }catch (error) {
-            console.error(error)
+            openToast('error',`${(error as Error).message}`, "Error")
         }finally{
             setIsLoading(false)
         }
@@ -184,7 +184,7 @@ export const useWorks = ():IWorkHook => {
         try{
             await Promise.allSettled([ p1, p2, p3])
         }catch(error){
-            console.error(error)
+            openToast('error',`${(error as Error).message}`, "Error")
         }finally {
             setIsLoading(false)
         }
@@ -211,7 +211,7 @@ export const useWorks = ():IWorkHook => {
         try {
           const allStaff =  await getAllStaff()
           if (!allStaff) {
-            console.error("No response from getAllStaff")
+            openToast('error',`No response from getAllStaff`, "Error")
             return
         }
         workersRemote.current = allStaff
@@ -284,7 +284,6 @@ export const useWorks = ():IWorkHook => {
               setWorkElementDetail(detailWork)
           }
         } catch (error) {
-            console.error(error)
             openToast('error', JSON.stringify(error), "Error")
         }finally{
             setIsLoading(false)
@@ -323,7 +322,7 @@ export const useWorks = ():IWorkHook => {
                setWorkersList(workersLst)
            }
        }catch (error){
-            console.error(error)
+        openToast('error',`${(error as Error).message}`, "Error")
        }
 
     }
@@ -389,7 +388,7 @@ export const useWorks = ():IWorkHook => {
                 }
             }
         }catch(error){
-            console.error(error)
+            openToast('error',`${(error as Error).message}`, "Error")
         }
     }
 

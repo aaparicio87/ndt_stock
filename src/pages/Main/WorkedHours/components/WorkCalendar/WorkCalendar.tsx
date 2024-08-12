@@ -1,9 +1,9 @@
-import { Calendar, dateFnsLocalizer, Event } from 'react-big-calendar'
-import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import enUS from 'date-fns/locale/en-US'
+import { Calendar, dateFnsLocalizer, Event, Views } from 'react-big-calendar'
+import { format } from 'date-fns/format'
+import { parse } from 'date-fns/parse'
+import { startOfWeek } from 'date-fns/startOfWeek'
+import { getDay } from 'date-fns/getDay'
+import { enUS } from 'date-fns/locale/en-US'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useWorkedHoursContext } from "../../../../../context/WorkedHoursContext.tsx";
 
@@ -20,10 +20,14 @@ const localize = dateFnsLocalizer({
     locales,
 })
 
-
 const WorkCalendar = () => {
-    const { onOpen, handleWorkHoursSelected, userWorkHours } = useWorkedHoursContext()
-
+    const {
+        onOpen,
+        handleWorkHoursSelected,
+        userWorkHours,
+        onViewChange,
+        onNavigate
+    } = useWorkedHoursContext()
 
     const handleSelectEvent = (e: Event) => {
         const { resource } = e
@@ -43,7 +47,9 @@ const WorkCalendar = () => {
                 endAccessor="end"
                 style={{ height: 500 }}
                 onSelectEvent={handleSelectEvent}
-
+                views={[Views.MONTH, Views.WEEK, Views.DAY]}
+                onView={onViewChange}
+                onNavigate={onNavigate}
             />
         </>
     )

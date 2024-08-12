@@ -8,7 +8,9 @@ import {useSelector} from "react-redux";
 import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
 import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
-import { Event } from 'react-big-calendar'
+import { Event, View, Views } from 'react-big-calendar'
+import { differenceInMinutes, endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
+
 
 const INITIAL_STATE: Partial<TWorkHour> = {
     date: new Date().toISOString().split("T")[0],
@@ -42,7 +44,10 @@ export interface IWorkedHoursHooks {
     workHourSelected: TWorkHour | undefined
     handleGetWorkHoursByUser: ()=> Promise<void>
     userWorkHours: Event[]
-    handleCloseModal: () => void
+    handleCloseModal: () => void,
+    onViewChange: (view: View) => void
+    visibleHours: string
+    onNavigate: (newDate: Date) => void
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -75,11 +80,18 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     const [customerSelected, setCustomerSelected] = React.useState("")
     const [workHourSelected, setWorkHourSelected] = React.useState<TWorkHour | undefined>(undefined)
     const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
+    const [currentView, setCurrentView] = React.useState<View>(Views.MONTH);
+    const [visibleHours, setVisibleHours] = React.useState('');
+    const [currentDate, setCurrentDate] = React.useState(new Date());
 
     useEffect(() => {
         handleGetWorkHoursByUser()
     }, [])
     
+    useEffect(() => {
+        calculateWorkedHours(userWorkHours, currentView, currentDate);
+      }, [currentView, userWorkHours, currentDate]);
+
     useEffect(()=>{
         if(workHourSelected){
           reset({
@@ -231,6 +243,60 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         setItemsCertificates([])
     }
 
+    const calculateWorkedHours = (events: Event[], view: View, date: Date) => {
+        let totalMinutes = 0;
+    
+        // Filter events that are in the visible range based on the current view and date
+        const visibleEvents = events.filter((event) => {
+          switch (view) {
+            case Views.DAY:
+              return isEventInRange(event, date, date);
+            case Views.WEEK:
+              const startOfWeekDate = startOfWeek(date);
+              const endOfWeekDate = endOfWeek(date);
+              return isEventInRange(event, startOfWeekDate, endOfWeekDate);
+            case Views.MONTH:
+              const startOfMonthDate = startOfMonth(date);
+              const endOfMonthDate = endOfMonth(date);
+              return isEventInRange(event, startOfMonthDate, endOfMonthDate);
+            default:
+              return false;
+          }
+        });
+    
+        // Calculate the total minutes for the visible events
+        visibleEvents.forEach((event) => {
+           if(event.end && event.start){
+               totalMinutes += differenceInMinutes(event.end, event.start);
+           } 
+        });
+    
+        if (totalMinutes < 60) {
+            setVisibleHours(`${totalMinutes} minutes`);
+          } else {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            setVisibleHours(`${hours} hour${hours > 1 ? 's' : ''}${minutes > 0 ? ` and ${minutes} minutes` : ''}`);
+          }
+      };
+    
+
+    const onViewChange = (view: View) => {
+        setCurrentView(view);
+    };
+
+    const onNavigate = (newDate: Date) => {
+        setCurrentDate(newDate);
+    };
+    
+    const isEventInRange = (event: Event, start: Date, end: Date) => {
+        
+        if(!event.start || !event.end){
+            return false
+        }
+        return (event.start >= start && event.start <= end) || (event.end >= start && event.end <= end);
+      };
+
     return {
         initialRef,
         finalRef,
@@ -253,6 +319,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         workHourSelected,
         handleGetWorkHoursByUser,
         userWorkHours,
-        handleCloseModal
+        handleCloseModal,
+        onViewChange,
+        visibleHours,
+        onNavigate  
     }
 }

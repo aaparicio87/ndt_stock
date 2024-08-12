@@ -23,6 +23,7 @@ import { updateStaffElement } from '../../../../../services'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectCurrentUser, updateUserData } from '../../../../../state/features/auth/authSlice'
 import { AppDispatch } from '../../../../../state/store'
+import { capitalizeFirstLetter } from '../../../../../utils/functions'
 
 type TProps = {
     onClose: () => void
@@ -65,8 +66,8 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
     React.useEffect(() => {
         if (user) {
             reset({
-                name: user.name,
-                lastName: user.lastName,
+                name: capitalizeFirstLetter(user.name),
+                lastName: capitalizeFirstLetter(user.lastName),
                 photoUrl: user.photoUrl,
                 degree: user.degree
             });
@@ -93,13 +94,19 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
             if (user?.uid) {
                 let updatedData = { ...user, ...data }
                 if (url.length > 0) {
-                    updatedData = { ...updatedData, photoUrl: url }
+                    updatedData = {
+                        ...updatedData,
+                        photoUrl: url,
+                        name: updatedData.name.toLowerCase(),
+                        lastName: updatedData.lastName.toLowerCase(),
+                    }
                 }
                 await updateStaffElement(user.uid, updatedData)
                 dispatch(updateUserData(updatedData))
                 openToast('success', "User profile updated successfully", 'Success')
             }
         } catch (error) {
+            console.error(error)
             openToast('error', JSON.stringify(error), "Error")
         }
     }

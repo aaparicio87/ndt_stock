@@ -25,6 +25,7 @@ const FilterElements = () => {
         register,
         setValue,
         handleFilterUsers,
+        resetField
     } = useStaffContext()
 
     const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>([])
@@ -41,13 +42,13 @@ const FilterElements = () => {
                 <form>
                     <VStack spacing={3}>
 
-                        <FormControl isInvalid={!!errors.fullName} isDisabled={isSubmitting}>
-                            <FormLabel>Full name</FormLabel>
+                        <FormControl isInvalid={!!errors.name} isDisabled={isSubmitting}>
+                            <FormLabel>First name</FormLabel>
                             <InputGroup mb={1}>
                                 <Input
-                                    placeholder="Jhon Doe"
+                                    placeholder="Jhon"
                                     size='md'
-                                    {...register('fullName')}
+                                    {...register('name')}
                                 />
                                 {true && (
                                     <InputRightElement>
@@ -55,38 +56,14 @@ const FilterElements = () => {
                                             aria-label="Clear filter"
                                             icon={<FiXCircle />}
                                             size="sm"
-                                            onClick={() => { }}
+                                            onClick={() => resetField('name')}
                                             variant="ghost"
                                         />
                                     </InputRightElement>
                                 )}
                             </InputGroup>
                             <FormErrorMessage>
-                                {errors.fullName && errors.fullName.message}
-                            </FormErrorMessage>
-                        </FormControl>
-                        <FormControl isInvalid={!!errors.emailFilter}>
-                            <FormLabel>E-mail</FormLabel>
-                            <InputGroup mb={1}>
-                                <Input
-                                    placeholder="jhon.doe@gmail.com"
-                                    size='md'
-                                    {...register('emailFilter')}
-                                />
-                                {true && (
-                                    <InputRightElement>
-                                        <IconButton
-                                            aria-label="Clear filter"
-                                            icon={<FiXCircle />}
-                                            size="sm"
-                                            onClick={() => { }}
-                                            variant="ghost"
-                                        />
-                                    </InputRightElement>
-                                )}
-                            </InputGroup>
-                            <FormErrorMessage>
-                                {errors.emailFilter && errors.emailFilter.message}
+                                {errors.name && errors.name.message}
                             </FormErrorMessage>
                         </FormControl>
                         <FormControl mb={2} isInvalid={!!errors.rolesFilter}>

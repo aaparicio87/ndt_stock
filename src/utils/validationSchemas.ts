@@ -119,27 +119,29 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 
 
 const FILTER_STAFF_VALIDATION_SCHEMA = z.object({
-  fullName:z.string().optional(),
+  name:z.string().optional(),
   emailFilter: z.string().optional(),
   rolesFilter: z.array(z.string()).optional()
 });
 
 const WORKS_FILTER_VALIDATION_SCHEMA = z.object({
   
-  startDate: z.string()
-  .min(1, "Can't be empty!"),
+  startDate: z.string(),
 
-  endDate: z.string()
-  .min(1, "Can't be empty!"),
+  endDate: z.string(),
 
 }).refine(data => {
+
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
-  return startDate <= endDate;
+ 
+  if(startDate && endDate){
+    return startDate <= endDate;
+  }
 }, {
   message: "Start date must be before end date",
   path: ["startDate"], // you can specify a path to set the error on a specific field
-});
+})
 
 const WORKS_VALIDATION_SCHEMA = z.object({
   typeWork: z.array(CertificateSchema)

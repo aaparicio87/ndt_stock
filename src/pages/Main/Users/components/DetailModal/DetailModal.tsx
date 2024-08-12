@@ -12,6 +12,7 @@ import {
     Stack,
     Text,
 } from '@chakra-ui/react'
+import { capitalizeFirstLetter } from '../../../../../utils/functions'
 
 type TProps = {
     onClose: () => void
@@ -41,6 +42,8 @@ const formatDataDetail = (key: string, item: TStaff) => {
         if (roles)
             return roles.join(', ')
         else return '-'
+    } else if (key === 'name' || key === 'lastName') {
+        return capitalizeFirstLetter(item[key as keyof TStaff]?.toString() ?? '')
     } else {
         return item[key as keyof TStaff]?.toString() ?? '-'
     }

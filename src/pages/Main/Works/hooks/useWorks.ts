@@ -13,7 +13,7 @@ import {
 import {useNavigate, useParams} from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
-import {FieldErrors, useForm, UseFormRegister} from "react-hook-form";
+import {FieldErrors, useForm, UseFormRegister, UseFormReset} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {WORKS_FILTER_VALIDATION_SCHEMA, WORKS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas";
 import {MultiValue} from "react-select";
@@ -46,7 +46,7 @@ export interface IDetailWork {
 
 interface IFilter {
     startDate:string,
-    endDate: string
+    endDate: string,
 }
 
 
@@ -104,6 +104,7 @@ export interface IWorkHook {
     handleFilterWorks: () => Promise<void>
     isSubmitSuccessfulFilter: boolean
     handleResetFilter: () => Promise<void>
+    resetFilter:UseFormReset<IFilter>
 }
 
 export const useWorks = ():IWorkHook => {
@@ -129,7 +130,12 @@ export const useWorks = ():IWorkHook => {
         register:registerFilter,
         isSubmitSuccessful:isSubmitSuccessfulFilter,
         reset:resetFilter,
-   } = useFilterForm<IFilter>(WORKS_FILTER_VALIDATION_SCHEMA)
+   } = useFilterForm<IFilter>(
+        WORKS_FILTER_VALIDATION_SCHEMA, {
+            startDate: new Date().toISOString().split("T")[0],
+            endDate: new Date().toISOString().split("T")[0],
+        }
+    )
 
     const [isLoading, setIsLoading] = React.useState(false)
     const [data, setData] = React.useState<IWorkTable[]>([])
@@ -422,9 +428,7 @@ export const useWorks = ():IWorkHook => {
         const {startDate, endDate} = getValuesFilter()
         try{
             const workData = await getAllWorksByDateRange(startDate, endDate)
-            console.log(workData)
             if (workData) {
-                worksRemoteRef.current = workData
                 const dataTable = workData.map((wd) => {
                     const wsTable:IWorkTable = {
                         endDate: wd.endDate,
@@ -435,6 +439,7 @@ export const useWorks = ():IWorkHook => {
                     }
                     return wsTable
             })
+                worksRemoteRef.current = []
                 setData(dataTable)
             }
         }catch (error) {
@@ -494,5 +499,6 @@ export const useWorks = ():IWorkHook => {
         handleFilterWorks,
         isSubmitSuccessfulFilter,
         handleResetFilter,
+        resetFilter,
     }
 }

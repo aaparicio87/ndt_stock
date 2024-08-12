@@ -46,7 +46,8 @@ const WorkProvider = ({ children }: Props) => {
         registerFilter,
         handleFilterWorks,
         isSubmitSuccessfulFilter,
-        handleResetFilter
+        handleResetFilter,
+        resetFilter
     } = useWorks()
 
     return (
@@ -88,7 +89,8 @@ const WorkProvider = ({ children }: Props) => {
                 registerFilter,
                 handleFilterWorks,
                 isSubmitSuccessfulFilter,
-                handleResetFilter
+                handleResetFilter,
+                resetFilter
             }}
         >
             {children}

@@ -21,8 +21,10 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 };
 
 
+
  export {
     generateRandomPassword,
      timeToMinutes,
      handleKeyDown,
+     capitalizeFirstLetter
  }

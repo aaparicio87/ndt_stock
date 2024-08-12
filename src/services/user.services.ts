@@ -22,7 +22,7 @@ interface ICreateUserResponse {
 }
 
 interface IFilter {
-    fullName?: string;
+    name?: string;
     emailFilter?: string;
     rolesFilter?: string[];
   }
@@ -127,22 +127,19 @@ const updateStaffElement = async (uid: string, data: TStaff) => {
     }
 };
 
-const filterUser = async({fullName, emailFilter, rolesFilter }:IFilter) => {
+const filterUser = async({name, emailFilter, rolesFilter }:IFilter) => {
     let constraints: QueryConstraint[] = [];
     let list: TStaff[] = [];
 
-    if (fullName) {
-        const fullNameLower = fullName.toLowerCase();
-        constraints.push(where('name', '>=', fullNameLower), where('name', '<=', fullNameLower + '\uf8ff'));
-        constraints.push(where('lastName', '>=', fullNameLower), where('lastName', '<=', fullNameLower + '\uf8ff'));
+    if (name) {
+        const nameLower = name.toLowerCase();
+        constraints.push(where('name', '>=', nameLower), where('name', '<=', nameLower + '\uf8ff'));
       }
     
-      // Si se proporciona emailFilter, filtra por coincidencia exacta en el campo email
       if (emailFilter) {
         constraints.push(where('email', '==', emailFilter));
       }
     
-      // Si se proporciona rolesFilter, filtra por coincidencia exacta en el campo roles
       if (rolesFilter && rolesFilter.length > 0) {
         constraints.push(where('roles', 'array-contains-any', rolesFilter));
       }

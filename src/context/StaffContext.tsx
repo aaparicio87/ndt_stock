@@ -34,6 +34,8 @@ const StaffProvider = ({ children }: Props) => {
         register,
         errors,
         isSubmitting,
+        isSubmitSuccessful,
+        resetField,
     } = useUser()
 
     return (
@@ -63,7 +65,8 @@ const StaffProvider = ({ children }: Props) => {
                 register,
                 errors,
                 isSubmitting,
-
+                isSubmitSuccessful,
+                resetField,
             }}
         >
             {children}

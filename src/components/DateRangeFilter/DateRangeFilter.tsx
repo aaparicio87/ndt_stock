@@ -1,4 +1,4 @@
-import { Button, Flex, FormControl, FormErrorMessage, FormLabel, HStack, Input } from '@chakra-ui/react'
+import { Button, Flex, FormControl, FormErrorMessage, FormLabel, HStack, Input, Stack, StackDirection } from '@chakra-ui/react'
 import { handleKeyDown } from '../../utils/functions'
 import { FiSearch } from 'react-icons/fi'
 import { UseFormRegister } from 'react-hook-form'
@@ -11,6 +11,7 @@ type TProps = {
     isSubmitting: boolean
     displayReset: boolean
     onReset: () => Promise<void>
+    direction?: StackDirection | undefined
 }
 
 const DateRangeFilter = ({
@@ -21,12 +22,13 @@ const DateRangeFilter = ({
     isSubmitting,
     displayReset,
     onReset,
+    direction,
 }: TProps) => {
 
 
     return (
         <form>
-            <HStack spacing={3}>
+            <Stack spacing={5} direction={direction}>
                 <FormControl isInvalid={!!startDateErrorCustom}>
                     <FormLabel >Start date</FormLabel>
                     <Flex direction={'column'}>
@@ -58,10 +60,9 @@ const DateRangeFilter = ({
                     </Flex>
                 </FormControl>
                 <Flex
-                    direction={'row'}
-                    justifyContent={'space-between'}
-                    alignSelf={(startDateErrorCustom || endDateErrorCustom) ? 'center' : 'flex-end'}
-                    width={'80%'}
+                    flexDirection={'column'}
+                    justifyContent={'center'}
+                    gap={5}
                 >
                     <Button
                         type="submit"
@@ -88,7 +89,7 @@ const DateRangeFilter = ({
                         </Button>
                     }
                 </Flex>
-            </HStack>
+            </Stack>
         </form>
     )
 }

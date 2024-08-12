@@ -41,7 +41,6 @@ const UsersMain = () => {
                     spacing={4}
                     flex={1}
                     justifyContent={'flex-end'}
-                    marginBottom={5}
                     marginX={5}
                 >
                     <Button
@@ -54,7 +53,7 @@ const UsersMain = () => {
                     </Button>
                 </Stack>
             </HeaderViewTable>
-            <Stack m={5}>
+            <Stack me={5} mb={5} >
                 <FilterElements />
             </Stack>
             <UsersTable

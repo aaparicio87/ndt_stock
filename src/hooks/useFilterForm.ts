@@ -1,9 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FieldValues } from "react-hook-form";
+import { useForm, FieldValues, DefaultValues } from "react-hook-form";
 import { ZodSchema } from "zod";
 
 export const useFilterForm = <T extends FieldValues>(
     validationSchema: ZodSchema<T>,
+    defaultValues?: DefaultValues<T> | undefined
 ) => {
     const {
         register,
@@ -11,9 +12,11 @@ export const useFilterForm = <T extends FieldValues>(
         handleSubmit,
         reset,
         setValue,
+        resetField,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<T>({
         resolver: zodResolver(validationSchema),
+        defaultValues
     });
 
     return {
@@ -24,6 +27,7 @@ export const useFilterForm = <T extends FieldValues>(
         getValues,
         isSubmitSuccessful,
         reset,
-        setValue
+        setValue,
+        resetField
     };
 };

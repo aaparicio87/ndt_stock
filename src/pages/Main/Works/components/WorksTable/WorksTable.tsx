@@ -4,10 +4,11 @@ import {
     ActionsTable,
     CustomDataTable,
     DeleteDialog,
-    HeaderViewTable
+    HeaderViewTable,
+    MenuFilter
 } from '../../../../../components'
 import { IWorkTable } from '../../hooks/useWorks'
-import { Button, Stack, useMediaQuery } from '@chakra-ui/react'
+import { Button, HStack } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../../config/firebase.conf.ts";
@@ -36,12 +37,11 @@ const WorksTable = () => {
         isSubmittingFilter,
         handleFilterWorks,
         isSubmitSuccessfulFilter,
-        handleResetFilter
+        handleResetFilter,
+        resetFilter
     } = useWorkContext()
 
     const user = useSelector(selectCurrentUser);
-
-    const [isLargerThan800] = useMediaQuery('(min-width: 800px)')
 
     if (!user) {
         return null
@@ -112,17 +112,24 @@ const WorksTable = () => {
                 </Button>
                 }
             </HeaderViewTable>
-            <Stack m={5} width={isLargerThan800 ? '50%' : '100%'}>
-                <DateRangeFilter
-                    endDateErrorCustom={errorsFilter.endDate?.message}
-                    startDateErrorCustom={errorsFilter.startDate?.message}
-                    onFilter={handleFilterWorks}
-                    register={registerFilter}
-                    isSubmitting={isSubmittingFilter}
-                    displayReset={isSubmitSuccessfulFilter}
-                    onReset={handleResetFilter}
-                />
-            </Stack>
+
+            <HStack spacing={3} mb={5} marginEnd={5} justifyContent={'flex-end'}>
+                <MenuFilter
+                    name="Filters"
+                    titleGroup="Filter by:"
+                    onClose={() => resetFilter()}
+                >
+                    <DateRangeFilter
+                        endDateErrorCustom={errorsFilter.endDate?.message}
+                        startDateErrorCustom={errorsFilter.startDate?.message}
+                        onFilter={handleFilterWorks}
+                        register={registerFilter}
+                        isSubmitting={isSubmittingFilter}
+                        displayReset={isSubmitSuccessfulFilter}
+                        onReset={handleResetFilter}
+                    />
+                </MenuFilter>
+            </HStack>
             <CustomDataTable
                 columns={columns}
                 data={data}

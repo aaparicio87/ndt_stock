@@ -18,7 +18,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useFilterForm } from "../../../../hooks/useFilterForm";
 import { FILTER_STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
-import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
+import { FieldErrors, UseFormRegister, UseFormResetField, UseFormSetValue } from "react-hook-form";
+import { capitalizeFirstLetter } from "../../../../utils/functions";
 
 
  export interface IStaffTable {
@@ -30,8 +31,7 @@ import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
  }
 
  interface IFilter {
-    fullName?: string | undefined 
-    emailFilter?: string | undefined
+    name?: string | undefined 
     rolesFilter?: string[] | undefined
 }
 
@@ -65,6 +65,8 @@ export interface IUseUser {
     register: UseFormRegister<IFilter>,
     setValue: UseFormSetValue<IFilter>,
     handleFilterUsers: (e?: React.BaseSyntheticEvent) => Promise<void>
+    resetField: UseFormResetField<IFilter>
+    isSubmitSuccessful: boolean
 }
  
  export const useUser = ():IUseUser => {
@@ -89,6 +91,7 @@ export interface IUseUser {
         isSubmitting,
         register,
         setValue,
+        resetField,
         isSubmitSuccessful,
         reset,
    } = useFilterForm<IFilter>(FILTER_STAFF_VALIDATION_SCHEMA)
@@ -109,7 +112,7 @@ export interface IUseUser {
                     const staffTableData: IStaffTable = {
                         degree: staff.degree ?? '',
                         email: staff.email,
-                        fullName: `${staff.name} ${staff.lastName}`,
+                        fullName: `${capitalizeFirstLetter(staff.name)} ${capitalizeFirstLetter(staff.lastName)}`,
                         roles: staff.roles.join(', '),
                         uid: staff.uid
                     }
@@ -158,7 +161,7 @@ export interface IUseUser {
 
     const handleEdit = async (uid: string | undefined) => {
         if (uid) {
-            const staff = await getStaffInformationByUserUID(uid)
+            let staff = await getStaffInformationByUserUID(uid)
             if(staff !== null){
                 setStaffElement(staff)
                 onOpen()
@@ -233,7 +236,7 @@ export interface IUseUser {
                     const staffTableData: IStaffTable = {
                         degree: staff.degree ?? '',
                         email: staff.email,
-                        fullName: `${staff.name} ${staff.lastName}`,
+                        fullName: `${capitalizeFirstLetter(staff.name)} ${capitalizeFirstLetter(staff.lastName)}`,
                         roles: staff.roles.join(', '),
                         uid: staff.uid
                     }
@@ -280,6 +283,8 @@ export interface IUseUser {
         isSubmitting,
         register,
         setValue,
-        handleFilterUsers
+        handleFilterUsers,
+        resetField,
+        isSubmitSuccessful,
     }
 }

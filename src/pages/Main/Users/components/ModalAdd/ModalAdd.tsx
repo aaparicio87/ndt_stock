@@ -29,6 +29,7 @@ import { FB_STORAGE } from '../../../../../config/firebase.conf'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { MultiValue } from "react-select";
 import { useStaffContext } from '../../../../../context/StaffContext'
+import { capitalizeFirstLetter } from '../../../../../utils/functions'
 
 type TProps = {
     onClose: () => void
@@ -108,7 +109,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     React.useEffect(() => {
         handleGetAllCertificates().finally(() => setLoading(false))
         if (item) {
-            reset(item);
+            reset({ ...item, name: capitalizeFirstLetter(item.name), lastName: capitalizeFirstLetter(item.lastName) });
         } else {
             reset(INITIAL_STATE);
             setItemsCertificates([]);
@@ -137,13 +138,23 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
             if (item?.uid) {
                 let updatedData = { ...data }
                 if (url.length > 0) {
-                    updatedData = { ...updatedData, photoUrl: url }
+                    updatedData = {
+                        ...updatedData,
+                        photoUrl: url,
+                        name: updatedData.name.toLowerCase(),
+                        lastName: updatedData.lastName.toLowerCase(),
+                    }
                 }
                 await updateStaffElement(item.uid, updatedData)
                 openToast('success', "User updated successfully", 'Success')
 
             } else {
-                const updatedDataCreate = { ...data, photoUrl: url }
+                const updatedDataCreate = {
+                    ...data,
+                    photoUrl: url,
+                    name: data.name.toLowerCase(),
+                    lastName: data.lastName.toLowerCase(),
+                }
                 const response = await registerUser(updatedDataCreate)
                 if (response.success) {
                     openToast('success', "New user added to the staff", 'Success')

@@ -28,6 +28,8 @@ export const MenuFilter = ({ name, titleGroup, children }: TProps) => {
                 rightIcon={<FiChevronDown />}
                 colorScheme='teal'
                 variant='outline'
+                size={'sm'}
+                fontSize={'medium'}
             >
                 {name}
             </MenuButton>

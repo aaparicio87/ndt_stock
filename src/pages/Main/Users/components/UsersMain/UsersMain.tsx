@@ -2,12 +2,12 @@
 import { Button, Stack } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import { useLocation } from "react-router-dom"
-import { useUser } from "../../hooks/useUsers"
-//import FilterElements from "../FilterElements/FilterElements"
 import { DeleteDialog, HeaderViewTable } from "../../../../../components"
 import UsersTable from "../UsersTable/UsersTable"
 import ModalAdd from "../ModalAdd/ModalAdd"
 import DetailModal from "../DetailModal/DetailModal"
+import FilterElements from "../FilterElements/FilterElements"
+import { useStaffContext } from "../../../../../context/StaffContext"
 
 
 const UsersMain = () => {
@@ -30,7 +30,7 @@ const UsersMain = () => {
         onCloseDelete,
         isLoading,
         openWorksUser
-    } = useUser()
+    } = useStaffContext()
 
     return (
         <>
@@ -44,7 +44,6 @@ const UsersMain = () => {
                     marginBottom={5}
                     marginX={5}
                 >
-                    {/* <FilterElements /> */}
                     <Button
                         leftIcon={<FiPlus />}
                         colorScheme='teal'
@@ -55,6 +54,9 @@ const UsersMain = () => {
                     </Button>
                 </Stack>
             </HeaderViewTable>
+            <Stack m={5}>
+                <FilterElements />
+            </Stack>
             <UsersTable
                 currentUser={user}
                 data={data}

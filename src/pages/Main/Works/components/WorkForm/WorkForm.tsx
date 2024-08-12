@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { Loader, MultiSelect } from "../../../../../components";
 import { useWorkContext } from "../../../../../context/WorkContext.tsx";
+import { handleKeyDown } from "../../../../../utils/functions.ts";
 
 const WorkForm = () => {
 
@@ -35,10 +36,6 @@ const WorkForm = () => {
         isSubmitting,
         handleCancel,
     } = useWorkContext()
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        e.preventDefault();
-    };
 
     return (
         <>
@@ -111,7 +108,7 @@ const WorkForm = () => {
                             <FormControl isInvalid={!!errors.endDate}>
                                 <FormLabel>End date</FormLabel>
                                 <Input
-                                    placeholder='En date'
+                                    placeholder='End date'
                                     size='md'
                                     type='date'
                                     onKeyDown={handleKeyDown}

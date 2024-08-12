@@ -22,6 +22,22 @@ const getAllWorks = async () => {
     }
 }
 
+const getAllWorksOrder = async () =>{
+    try {
+        return await workService.getAllOrder('startDate', 'desc')
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
+}
+
+const getAllWorksByDateRange = async (startDate:string, endDate:string) => {
+    try {
+        return await workService.getByDateRange(startDate, endDate)
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
+}
+
 const getWorkByUID = async(uid:string) => {
     try {
         return await workService.getByUID(uid);
@@ -46,10 +62,14 @@ const deleteWorkElement = async (uid: string) => {
     }
 };
 
+
+
 export  {
     createNewWorkElement,
     getAllWorks,
     getWorkByUID,
     updateWorkElement,
-    deleteWorkElement
+    deleteWorkElement,
+    getAllWorksOrder,
+    getAllWorksByDateRange
 }

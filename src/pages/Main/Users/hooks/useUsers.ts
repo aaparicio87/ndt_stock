@@ -8,6 +8,7 @@ import { FB_DB } from "../../../../config/firebase.conf";
 import { STAFF } from "../../../../utils/constants";
 import { 
     deleteStaffElement, 
+    filterUser, 
     getAllCertificates, 
     getAllStaff, 
     getStaffInformationByUserUID,
@@ -15,6 +16,9 @@ import {
  } from "../../../../services";
  import { Event } from 'react-big-calendar'
 import { useNavigate } from "react-router-dom";
+import { useFilterForm } from "../../../../hooks/useFilterForm";
+import { FILTER_STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
+import { FieldErrors, UseFormRegister, UseFormSetValue } from "react-hook-form";
 
 
  export interface IStaffTable {
@@ -25,12 +29,45 @@ import { useNavigate } from "react-router-dom";
     uid?: string
  }
 
+ interface IFilter {
+    fullName?: string | undefined 
+    emailFilter?: string | undefined
+    rolesFilter?: string[] | undefined
+}
+
 interface IOption {
     label: string, 
     value: string 
 }
+
+export interface IUseUser {
+    handleViewDetails:(uid: string | undefined) =>Promise<void>,
+    handleEdit: (uid: string | undefined) => Promise<void>,
+    handleDelete: (item: string | undefined) => void,
+    handleConfirmDelete: () => Promise<void>,
+    closeModalAdd: ()=>void,
+    user: TStaff | undefined,
+    isOpenDelete: boolean,
+    staffElement: TStaff | undefined,
+    data: IStaffTable[],
+    onOpen: ()=>void,
+    isOpen: boolean,
+    isOpenDetail: boolean,
+    onCloseDelete: ()=>void,
+    isLoading: boolean,
+    certificatesList: IOption[],
+    handleGetAllCertificates: () => Promise<void>,
+    handleUserHours: (uid: string ) => Promise<void>,
+    userWorkHours: Event[],
+    openWorksUser: (uid: string) => void,
+    errors: FieldErrors<IFilter>,
+    isSubmitting: boolean,
+    register: UseFormRegister<IFilter>,
+    setValue: UseFormSetValue<IFilter>,
+    handleFilterUsers: (e?: React.BaseSyntheticEvent) => Promise<void>
+}
  
- export const useUser = () => {
+ export const useUser = ():IUseUser => {
     const navigate = useNavigate()
     const { openToast } = useNotification()
     const user = useSelector(selectCurrentUser);
@@ -43,7 +80,18 @@ interface IOption {
     const [isLoading, setIsLoading] = React.useState(false)
     const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
     const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
+    const dataRef = React.useRef<IStaffTable[]>([])
 
+    const {
+        errors,
+        getValues,
+        handleSubmit,
+        isSubmitting,
+        register,
+        setValue,
+        isSubmitSuccessful,
+        reset,
+   } = useFilterForm<IFilter>(FILTER_STAFF_VALIDATION_SCHEMA)
 
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, STAFF), (_) => {
@@ -67,6 +115,7 @@ interface IOption {
                     }
                     return staffTableData
                 })
+                dataRef.current = staffDataTable
                 setData(staffDataTable)
             }
         } catch (error) {
@@ -174,6 +223,39 @@ interface IOption {
 
     const openWorksUser = (uid: string) => navigate(`workhours/${uid}`)
 
+    const handleFilterUsers = handleSubmit(async() => {
+        setIsLoading(true)
+        const data = getValues()
+        try {
+            const response = await filterUser(data)
+            if(response){
+                const staffDataTable = response.map((staff) => {
+                    const staffTableData: IStaffTable = {
+                        degree: staff.degree ?? '',
+                        email: staff.email,
+                        fullName: `${staff.name} ${staff.lastName}`,
+                        roles: staff.roles.join(', '),
+                        uid: staff.uid
+                    }
+                    return staffTableData
+                })
+                if(dataRef.current.length > 0 ){
+                    dataRef.current = []
+                }
+                setData(staffDataTable)
+            }else{
+                if(dataRef.current.length === 0){
+                    await getAllElements()
+                }
+            }
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
+        finally{
+            setIsLoading(false)
+        }
+    })
+
     return {
         handleViewDetails,
         handleEdit,
@@ -193,6 +275,11 @@ interface IOption {
         handleGetAllCertificates,
         handleUserHours,
         userWorkHours,
-        openWorksUser
+        openWorksUser,
+        errors,
+        isSubmitting,
+        register,
+        setValue,
+        handleFilterUsers
     }
 }

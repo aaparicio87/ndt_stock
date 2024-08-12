@@ -8,7 +8,6 @@ import {
 type TStaffTable = {
     fullName: string
     email: string
-    degree: string
     roles: string
     uid?: string
 }
@@ -45,11 +44,6 @@ const UsersTable = ({
             {
                 accessorKey: 'email',
                 header: () => 'Email',
-                footer: props => props.column.id,
-            },
-            {
-                accessorKey: 'degree',
-                header: 'Degree',
                 footer: props => props.column.id,
             },
             {

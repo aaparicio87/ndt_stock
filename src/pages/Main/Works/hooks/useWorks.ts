@@ -3,19 +3,21 @@ import {
     deleteWorkElement,
     getAllCustomers,
     getAllStaff,
-    getAllWorks,
     getAllCertificates,
     getWorkByUID,
     createNewWorkElement,
     updateWorkElement,
+    getAllWorksOrder,
+    getAllWorksByDateRange,
 } from "../../../../services"
 import {useNavigate, useParams} from "react-router-dom"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
 import {FieldErrors, useForm, UseFormRegister} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {WORKS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
+import {WORKS_FILTER_VALIDATION_SCHEMA, WORKS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas";
 import {MultiValue} from "react-select";
+import { useFilterForm } from "../../../../hooks/useFilterForm"
 
 
 export interface IWorkTable {
@@ -41,6 +43,12 @@ export interface IDetailWork {
     cans: number,
     needToDeliver: string,
 }
+
+interface IFilter {
+    startDate:string,
+    endDate: string
+}
+
 
 const INITIAL_STATE: Partial<TWork> = {
     typeWork: [],
@@ -90,6 +98,12 @@ export interface IWorkHook {
     handleSelectOptions: ()=> Promise<void>,
     getAllElements:()=> Promise<void>,
     workElementDetail: IDetailWork | undefined,
+    errorsFilter: FieldErrors<IFilter>,
+    isSubmittingFilter: boolean,
+    registerFilter:UseFormRegister<IFilter>
+    handleFilterWorks: () => Promise<void>
+    isSubmitSuccessfulFilter: boolean
+    handleResetFilter: () => Promise<void>
 }
 
 export const useWorks = ():IWorkHook => {
@@ -106,6 +120,17 @@ export const useWorks = ():IWorkHook => {
     } = useForm<TWork>({
         resolver: zodResolver(WORKS_VALIDATION_SCHEMA)
     });
+
+   const {
+        errors:errorsFilter,
+        getValues:getValuesFilter,
+        handleSubmit:handleSubmitFilter,
+        isSubmitting:isSubmittingFilter,
+        register:registerFilter,
+        isSubmitSuccessful:isSubmitSuccessfulFilter,
+        reset:resetFilter,
+   } = useFilterForm<IFilter>(WORKS_FILTER_VALIDATION_SCHEMA)
+
     const [isLoading, setIsLoading] = React.useState(false)
     const [data, setData] = React.useState<IWorkTable[]>([])
     const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure()
@@ -154,7 +179,7 @@ export const useWorks = ():IWorkHook => {
     const getAllElements = async () => {
         setIsLoading(true)
         try{
-            const workData = await getAllWorks();
+            const workData = await getAllWorksOrder();
             if (workData) {
                 worksRemoteRef.current = workData
                 const dataTable = workData.map((wd) => {
@@ -354,7 +379,6 @@ export const useWorks = ():IWorkHook => {
         reset()
     }
 
-
     const handleCreateUpdateWork = handleSubmit(async () =>{
             const data = getValues()
         try {
@@ -371,6 +395,7 @@ export const useWorks = ():IWorkHook => {
             openToast('error', JSON.stringify(error), "Error")
         }
     } )
+
     const getWorkToUpdate = async(uid:string) => {
         try {
             const work = await getWorkByUID(uid)
@@ -389,6 +414,45 @@ export const useWorks = ():IWorkHook => {
             }
         }catch(error){
             openToast('error',`${(error as Error).message}`, "Error")
+        }
+    }
+
+    const handleFilterWorks = handleSubmitFilter(async ()=>{
+        setIsLoading(true)
+        const {startDate, endDate} = getValuesFilter()
+        try{
+            const workData = await getAllWorksByDateRange(startDate, endDate)
+            console.log(workData)
+            if (workData) {
+                worksRemoteRef.current = workData
+                const dataTable = workData.map((wd) => {
+                    const wsTable:IWorkTable = {
+                        endDate: wd.endDate,
+                        startDate: wd.startDate,
+                        customerName: wd.customer?.name ?? '-',
+                        reportNumber: wd.reportNumber,
+                        uid: wd.uid
+                    }
+                    return wsTable
+            })
+                setData(dataTable)
+            }
+        }catch (error) {
+            openToast('error',`${(error as Error).message}`, "Error")
+        }finally{
+            setIsLoading(false)
+        }
+    })
+
+    const handleResetFilter = async() => {
+        setIsLoading(true)
+        try {
+            resetFilter()
+            await getAllElements()
+        } catch (error) {
+            openToast('error',`${(error as Error).message}`, "Error")
+        }finally{
+            setIsLoading(false)
         }
     }
 
@@ -424,5 +488,11 @@ export const useWorks = ():IWorkHook => {
         handleCreateUpdateWork,
         handleSelectOptions,
         getAllElements,
+        errorsFilter,
+        isSubmittingFilter,
+        registerFilter,
+        handleFilterWorks,
+        isSubmitSuccessfulFilter,
+        handleResetFilter,
     }
 }

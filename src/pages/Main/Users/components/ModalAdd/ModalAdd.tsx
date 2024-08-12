@@ -26,9 +26,9 @@ import { DEGREES, ROLES } from '../../../../../utils/constants'
 import { Loader, MultiSelect } from '../../../../../components'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FB_STORAGE } from '../../../../../config/firebase.conf'
-import { useUser } from '../../hooks/useUsers'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
-import {MultiValue} from "react-select";
+import { MultiValue } from "react-select";
+import { useStaffContext } from '../../../../../context/StaffContext'
 
 type TProps = {
     onClose: () => void
@@ -57,7 +57,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const {
         handleGetAllCertificates,
         certificatesList,
-    } = useUser()
+    } = useStaffContext()
 
     const [loading, setLoading] = useState(true)
     const handleItemsState = () => {
@@ -90,7 +90,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(item?.photoUrl || null);
 
 
-    const onChangeItemCertificates = (data:MultiValue<TOptions>) => {
+    const onChangeItemCertificates = (data: MultiValue<TOptions>) => {
         setItemsCertificates(data)
         const certs = data.map((d) => {
             const certificates: TCertificates = { uid: d.value as string, name: d.label }
@@ -99,7 +99,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         setValue('certificates', certs)
     }
 
-    const onChangeItemRoles = (data:MultiValue<TOptions>) => {
+    const onChangeItemRoles = (data: MultiValue<TOptions>) => {
         setItemsRoles(data)
         const roles = data.map((r) => r.label as TRole)
         setValue('roles', roles)

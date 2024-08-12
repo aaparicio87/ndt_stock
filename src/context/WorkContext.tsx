@@ -1,11 +1,11 @@
 import React, { createContext, useContext } from "react";
-import {IWorkHook, useWorks} from "../pages/Main/Works/hooks/useWorks.ts";
+import { IWorkHook, useWorks } from "../pages/Main/Works/hooks/useWorks.ts";
 type Props = {
     children: React.ReactNode
 }
 
 
-const WorkContext = createContext<IWorkHook  | null>(null)
+const WorkContext = createContext<IWorkHook | null>(null)
 
 
 const WorkProvider = ({ children }: Props) => {
@@ -41,6 +41,12 @@ const WorkProvider = ({ children }: Props) => {
         handleCreateUpdateWork,
         handleSelectOptions,
         getAllElements,
+        errorsFilter,
+        isSubmittingFilter,
+        registerFilter,
+        handleFilterWorks,
+        isSubmitSuccessfulFilter,
+        handleResetFilter
     } = useWorks()
 
     return (
@@ -77,6 +83,12 @@ const WorkProvider = ({ children }: Props) => {
                 handleCreateUpdateWork,
                 handleSelectOptions,
                 getAllElements,
+                errorsFilter,
+                isSubmittingFilter,
+                registerFilter,
+                handleFilterWorks,
+                isSubmitSuccessfulFilter,
+                handleResetFilter
             }}
         >
             {children}

@@ -24,6 +24,7 @@ import { useAuth } from "../../../../hooks/useAuth";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import { capitalizeFirstLetter } from "../../../../utils/functions";
 
 type MobileProps = FlexProps & {
     onOpen: () => void;
@@ -78,7 +79,7 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                                     alignItems="flex-start"
                                     spacing="1px"
                                     ml="2">
-                                    <Text fontSize="sm">{`${name} ${lastName}`}</Text>
+                                    <Text fontSize="sm">{`${capitalizeFirstLetter(name)} ${capitalizeFirstLetter(lastName)}`}</Text>
                                 </VStack>
                                 <Box display={{ base: 'none', md: 'flex' }}>
                                     <FiChevronDown />

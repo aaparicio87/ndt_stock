@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../../state/features/auth/authSlice";
 import { COLORS_DEGREE } from "../../../../../utils/constants";
 import ModalEditProfile from "../ModalEditProfile/ModalEditProfile";
+import { capitalizeFirstLetter } from "../../../../../utils/functions";
 
 const General = () => {
 
@@ -23,11 +24,11 @@ const General = () => {
             <Box boxShadow='sm' p='5' rounded='xl' width="100%" as={Flex} justifyContent={'space-between'} direction={'row'}>
                 <Flex direction="row" alignItems="center">
                     <WrapItem>
-                        <Avatar size='xl' name={`${user.name} ${user.lastName}`} src={user.photoUrl} />
+                        <Avatar size='xl' name={`${capitalizeFirstLetter(user.name)} ${capitalizeFirstLetter(user.lastName)}`} src={user.photoUrl} />
                     </WrapItem>
 
                     <Flex direction="column" justifyContent="space-between" ml={5}>
-                        <Text fontWeight='bold' fontSize='xl'>{`${user.name} ${user.lastName}`}</Text>
+                        <Text fontWeight='bold' fontSize='xl'>{`${capitalizeFirstLetter(user.name)} ${capitalizeFirstLetter(user.lastName)}`}</Text>
                     </Flex>
                 </Flex>
                 <Button

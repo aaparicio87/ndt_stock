@@ -10,8 +10,8 @@ import ModalAdd from "./components/ModalAdd/ModalAdd"
 import DetailModal from "./components/DetailModal/DetailModal"
 import StockTable from "./components/StockTable/StockTable"
 import { useStock } from "./hooks/useStock"
-import {useSelector} from "react-redux";
-import {selectCurrentUser} from "../../../state/features/auth/authSlice.tsx";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../state/features/auth/authSlice.tsx";
 
 
 export const Stock = () => {
@@ -33,9 +33,9 @@ export const Stock = () => {
         isLoading
     } = useStock()
 
-    const user = useSelector(selectCurrentUser);
+    const user = useSelector(selectCurrentUser) as TStaff
 
-    if(!user){
+    if (!user) {
         return null
     }
 
@@ -46,7 +46,7 @@ export const Stock = () => {
             <HeaderViewTable
                 name="Stock"
             >
-                {currentUserAdminManager &&    <Button
+                {currentUserAdminManager && <Button
                     leftIcon={<FiPlus />}
                     colorScheme='teal'
                     variant='solid'

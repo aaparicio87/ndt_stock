@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "ndt_stcok",
+    "productName": "ndt_stock",
     "version": "0.0.0"
   },
   "tauri": {
@@ -19,7 +19,7 @@
     },
     "windows": [
       {
-        "title": "ndt_stcok",
+        "title": "ndt_stock",
         "width": 800,
         "height": 600
       }

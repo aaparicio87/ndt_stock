@@ -18,7 +18,7 @@ const slice = createSlice({
             state.user = user
             state.token = token
         },
-        updateUserData: (state, action: PayloadAction< TStaff>) => {
+        updateUserData: (state, action: PayloadAction<TStaff>) => {
             state.user = action.payload
         },
         clearAuth: () => INITIAL_STATE

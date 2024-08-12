@@ -26,9 +26,10 @@ import { DEGREES, ROLES } from '../../../../../utils/constants'
 import { Loader, MultiSelect } from '../../../../../components'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FB_STORAGE } from '../../../../../config/firebase.conf'
-import { useUser } from '../../hooks/useUsers'
 import { STAFF_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
-import {MultiValue} from "react-select";
+import { MultiValue } from "react-select";
+import { useStaffContext } from '../../../../../context/StaffContext'
+import { capitalizeFirstLetter } from '../../../../../utils/functions'
 
 type TProps = {
     onClose: () => void
@@ -57,7 +58,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const {
         handleGetAllCertificates,
         certificatesList,
-    } = useUser()
+    } = useStaffContext()
 
     const [loading, setLoading] = useState(true)
     const handleItemsState = () => {
@@ -90,7 +91,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(item?.photoUrl || null);
 
 
-    const onChangeItemCertificates = (data:MultiValue<TOptions>) => {
+    const onChangeItemCertificates = (data: MultiValue<TOptions>) => {
         setItemsCertificates(data)
         const certs = data.map((d) => {
             const certificates: TCertificates = { uid: d.value as string, name: d.label }
@@ -99,7 +100,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
         setValue('certificates', certs)
     }
 
-    const onChangeItemRoles = (data:MultiValue<TOptions>) => {
+    const onChangeItemRoles = (data: MultiValue<TOptions>) => {
         setItemsRoles(data)
         const roles = data.map((r) => r.label as TRole)
         setValue('roles', roles)
@@ -108,7 +109,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
     React.useEffect(() => {
         handleGetAllCertificates().finally(() => setLoading(false))
         if (item) {
-            reset(item);
+            reset({ ...item, name: capitalizeFirstLetter(item.name), lastName: capitalizeFirstLetter(item.lastName) });
         } else {
             reset(INITIAL_STATE);
             setItemsCertificates([]);
@@ -137,13 +138,23 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
             if (item?.uid) {
                 let updatedData = { ...data }
                 if (url.length > 0) {
-                    updatedData = { ...updatedData, photoUrl: url }
+                    updatedData = {
+                        ...updatedData,
+                        photoUrl: url,
+                        name: updatedData.name.toLowerCase(),
+                        lastName: updatedData.lastName.toLowerCase(),
+                    }
                 }
                 await updateStaffElement(item.uid, updatedData)
                 openToast('success', "User updated successfully", 'Success')
 
             } else {
-                const updatedDataCreate = { ...data, photoUrl: url }
+                const updatedDataCreate = {
+                    ...data,
+                    photoUrl: url,
+                    name: data.name.toLowerCase(),
+                    lastName: data.lastName.toLowerCase(),
+                }
                 const response = await registerUser(updatedDataCreate)
                 if (response.success) {
                     openToast('success', "New user added to the staff", 'Success')

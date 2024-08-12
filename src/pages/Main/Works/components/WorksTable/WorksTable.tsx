@@ -1,15 +1,22 @@
 import React from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ActionsTable, CustomDataTable, DeleteDialog, HeaderViewTable } from '../../../../../components'
+import {
+    ActionsTable,
+    CustomDataTable,
+    DeleteDialog,
+    HeaderViewTable,
+    MenuFilter
+} from '../../../../../components'
 import { IWorkTable } from '../../hooks/useWorks'
-import { Button } from '@chakra-ui/react'
+import { Button, HStack } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
-import {collection, onSnapshot} from "firebase/firestore";
-import {FB_DB} from "../../../../../config/firebase.conf.ts";
-import {WORKS} from "../../../../../utils/constants.ts";
-import {useWorkContext} from "../../../../../context/WorkContext.tsx";
-import {useSelector} from "react-redux";
-import {selectCurrentUser} from "../../../../../state/features/auth/authSlice.tsx";
+import { collection, onSnapshot } from "firebase/firestore";
+import { FB_DB } from "../../../../../config/firebase.conf.ts";
+import { WORKS } from "../../../../../utils/constants.ts";
+import { useWorkContext } from "../../../../../context/WorkContext.tsx";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../../../../state/features/auth/authSlice.tsx";
+import DateRangeFilter from '../../../../../components/DateRangeFilter/DateRangeFilter.tsx'
 
 
 const WorksTable = () => {
@@ -24,16 +31,23 @@ const WorksTable = () => {
         onCloseDelete,
         handleConfirmDelete,
         openViewDetail,
-        getAllElements
+        getAllElements,
+        errorsFilter,
+        registerFilter,
+        isSubmittingFilter,
+        handleFilterWorks,
+        isSubmitSuccessfulFilter,
+        handleResetFilter,
+        resetFilter
     } = useWorkContext()
 
     const user = useSelector(selectCurrentUser);
 
-    if(!user){
+    if (!user) {
         return null
     }
 
-    const currentUserAdminManager = user.roles.some((rol) =>  rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
+    const currentUserAdminManager = user.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
 
     const columns = React.useMemo<ColumnDef<IWorkTable>[]>(
         () => [
@@ -76,7 +90,7 @@ const WorksTable = () => {
     )
 
     React.useEffect(() => {
-        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async(_) => {
+        const unsubscribe = onSnapshot(collection(FB_DB, WORKS), async (_) => {
             await getAllElements()
         })
         return () => unsubscribe();
@@ -87,6 +101,7 @@ const WorksTable = () => {
             <HeaderViewTable
                 name="Works"
             >
+
                 {currentUserAdminManager && <Button
                     leftIcon={<FiPlus />}
                     colorScheme='teal'
@@ -94,8 +109,27 @@ const WorksTable = () => {
                     onClick={openAddWork}
                 >
                     Add
-                </Button>}
+                </Button>
+                }
             </HeaderViewTable>
+
+            <HStack spacing={3} mb={5} marginEnd={5} justifyContent={'flex-end'}>
+                <MenuFilter
+                    name="Filters"
+                    titleGroup="Filter by:"
+                    onClose={() => resetFilter()}
+                >
+                    <DateRangeFilter
+                        endDateErrorCustom={errorsFilter.endDate?.message}
+                        startDateErrorCustom={errorsFilter.startDate?.message}
+                        onFilter={handleFilterWorks}
+                        register={registerFilter}
+                        isSubmitting={isSubmittingFilter}
+                        displayReset={isSubmitSuccessfulFilter}
+                        onReset={handleResetFilter}
+                    />
+                </MenuFilter>
+            </HStack>
             <CustomDataTable
                 columns={columns}
                 data={data}

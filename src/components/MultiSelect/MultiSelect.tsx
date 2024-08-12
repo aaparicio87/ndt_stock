@@ -1,15 +1,16 @@
-import Select, { MultiValue} from 'react-select';
+import Select, { MenuPlacement, MultiValue } from 'react-select';
 import makeAnimated from 'react-select/animated';
 
 const animatedComponents = makeAnimated();
 
 interface IProps {
-    options:TOptions[]
+    options: TOptions[]
     onChange: (newValue: MultiValue<TOptions>) => void
     value: MultiValue<TOptions>
+    menuPlacement?: MenuPlacement | undefined
 }
 
-export const MultiSelect = ({options, onChange, value}:IProps) => {
+export const MultiSelect = ({ options, onChange, value, menuPlacement }: IProps) => {
     return (
         <Select
             closeMenuOnSelect={false}
@@ -18,6 +19,7 @@ export const MultiSelect = ({options, onChange, value}:IProps) => {
             options={options}
             onChange={onChange}
             value={value}
+            menuPlacement={menuPlacement}
         />
     )
 }

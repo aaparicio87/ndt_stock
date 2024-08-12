@@ -17,17 +17,25 @@ type TProps = {
     name: string
     titleGroup: string
     children: React.ReactNode;
+    onClose?: () => void
 }
 
-export const MenuFilter = ({ name, titleGroup, children }: TProps) => {
+export const MenuFilter = ({
+    name,
+    titleGroup,
+    children,
+    onClose = () => { }
+}: TProps) => {
     return (
-        <Menu autoSelect={false}>
+        <Menu autoSelect={false} onClose={onClose}>
             <MenuButton
                 as={Button}
                 leftIcon={<FiFilter />}
                 rightIcon={<FiChevronDown />}
                 colorScheme='teal'
                 variant='outline'
+                size={'sm'}
+                fontSize={'medium'}
             >
                 {name}
             </MenuButton>

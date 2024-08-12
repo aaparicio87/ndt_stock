@@ -117,6 +117,32 @@ const STAFF_VALIDATION_SCHEMA = z.object({
   })
 })
 
+
+const FILTER_STAFF_VALIDATION_SCHEMA = z.object({
+  name:z.string().optional(),
+  emailFilter: z.string().optional(),
+  rolesFilter: z.array(z.string()).optional()
+});
+
+const WORKS_FILTER_VALIDATION_SCHEMA = z.object({
+  
+  startDate: z.string(),
+
+  endDate: z.string(),
+
+}).refine(data => {
+
+  const startDate = new Date(data.startDate);
+  const endDate = new Date(data.endDate);
+ 
+  if(startDate && endDate){
+    return startDate <= endDate;
+  }
+}, {
+  message: "Start date must be before end date",
+  path: ["startDate"], // you can specify a path to set the error on a specific field
+})
+
 const WORKS_VALIDATION_SCHEMA = z.object({
   typeWork: z.array(CertificateSchema)
                  .nonempty({message: "Can't be empty!"}),
@@ -205,5 +231,7 @@ export {
     WORKS_VALIDATION_SCHEMA,
     CHANGE_PASSWORD_SCHEMA,
     WORK_HOURS_VALIDATION_SCHEMA,
-    PROFILE_VALIDATION_SCHEMA
+    PROFILE_VALIDATION_SCHEMA,
+    WORKS_FILTER_VALIDATION_SCHEMA,
+    FILTER_STAFF_VALIDATION_SCHEMA,
 }

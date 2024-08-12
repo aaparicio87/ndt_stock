@@ -1,13 +1,13 @@
 import React from 'react'
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar'
-import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import enUS from 'date-fns/locale/en-US'
-import { useUser } from '../../hooks/useUsers'
+import { format } from 'date-fns/format'
+import { parse } from 'date-fns/parse'
+import { startOfWeek } from 'date-fns/startOfWeek'
+import { getDay } from 'date-fns/getDay'
+import { enUS } from 'date-fns/locale/en-US'
 import { useParams } from 'react-router-dom'
 import { Loader } from '../../../../../components'
+import { useStaffContext } from '../../../../../context/StaffContext'
 
 const locales = {
   'en-US': enUS,
@@ -30,7 +30,7 @@ const WorkHours = () => {
     isLoading,
     handleUserHours,
     userWorkHours
-  } = useUser()
+  } = useStaffContext()
 
   React.useEffect(() => {
     if (id) {

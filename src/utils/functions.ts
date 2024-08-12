@@ -16,8 +16,15 @@ const timeToMinutes = (time: string): number => {
     return hours * 60 + minutes;
 };
 
+const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+};
+
+
 
  export {
     generateRandomPassword,
      timeToMinutes,
+     handleKeyDown,
+     capitalizeFirstLetter
  }

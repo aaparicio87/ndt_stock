@@ -12,6 +12,7 @@ import { FB_AUTH, FB_DB } from "../config/firebase.conf"
 import { STAFF } from "../utils/constants"
 import FirebaseService from "./firebase.services";
 import { FirebaseError } from "firebase/app";
+import { collection, getDocs, query, QueryConstraint, where } from "firebase/firestore";
 
 
 interface ICreateUserResponse {
@@ -19,6 +20,12 @@ interface ICreateUserResponse {
     uid?: string;
     error?: string;
 }
+
+interface IFilter {
+    name?: string;
+    emailFilter?: string;
+    rolesFilter?: string[];
+  }
 
 const usersService = new FirebaseService<TStaff>(FB_DB, STAFF);
 
@@ -120,6 +127,40 @@ const updateStaffElement = async (uid: string, data: TStaff) => {
     }
 };
 
+const filterUser = async({name, emailFilter, rolesFilter }:IFilter) => {
+    let constraints: QueryConstraint[] = [];
+    let list: TStaff[] = [];
+
+    if (name) {
+        const nameLower = name.toLowerCase();
+        constraints.push(where('name', '>=', nameLower), where('name', '<=', nameLower + '\uf8ff'));
+      }
+    
+      if (emailFilter) {
+        constraints.push(where('email', '==', emailFilter));
+      }
+    
+      if (rolesFilter && rolesFilter.length > 0) {
+        constraints.push(where('roles', 'array-contains-any', rolesFilter));
+      }
+      if (constraints.length === 0) {
+        return false;
+      }
+      const q = query(collection(FB_DB, STAFF), ...constraints);
+    try {
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach((doc) => {
+                const uid = doc.id;
+                const data = doc.data() as TStaff;
+                list.push({ ...data, uid } as TStaff);
+            });  
+        return list    
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
+}
+
 export{
     registerUser,
     logoutUser,
@@ -128,5 +169,6 @@ export{
     getAllStaff,
     deleteStaffElement,
     updateStaffElement,
-    changePassword
+    changePassword,
+    filterUser
 }

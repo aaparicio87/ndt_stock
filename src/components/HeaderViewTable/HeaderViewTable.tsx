@@ -7,7 +7,8 @@ type TProps = {
 
 export const HeaderViewTable = ({ name, children }: TProps) => {
     return (
-        <Stack direction='row'
+        <Stack
+            direction='row'
             spacing={4}
             flex={1}
             justifyContent={'space-between'}

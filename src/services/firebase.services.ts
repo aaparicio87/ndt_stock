@@ -8,7 +8,10 @@ import {
     updateDoc, 
     Firestore, 
     WithFieldValue,
-    DocumentData
+    DocumentData,
+    query,
+    orderBy,
+    where
 } from "firebase/firestore";
 
 class FirebaseService<T> {
@@ -33,6 +36,27 @@ class FirebaseService<T> {
         try {
             const list: T[] = [];
             const querySnapshot = await getDocs(collection(this.db, this.collectionName));
+            querySnapshot.forEach((doc) => {
+                const uid = doc.id;
+                const data = doc.data() as T;
+                list.push({ ...data, uid } as T);
+            });
+            return list;
+        } catch (error) {
+            throw new Error(`Error getting documents from ${this.collectionName}: ${(error as Error).message}`)
+        }
+    }
+
+    async getAllOrder(orderByField?: string, orderDirection: 'asc' | 'desc' = 'asc'): Promise<T[]> {
+        try {
+            let list: T[] = [];
+            let q;
+            if (orderByField) {
+                q = query(collection(this.db, this.collectionName), orderBy(orderByField, orderDirection));
+            } else {
+                q = collection(this.db, this.collectionName);
+            }
+            const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
                 const uid = doc.id;
                 const data = doc.data() as T;
@@ -74,6 +98,31 @@ class FirebaseService<T> {
             await deleteDoc(docRef);
         } catch (error) {
             throw new Error(`Error deleting document from ${this.collectionName}: ${(error as Error).message}`)
+        }
+    }
+
+    async getByDateRange(startDate: string, endDate: string): Promise<T[]> {
+        try {
+            const list: T[] = [];
+            
+            const q = query(
+                collection(this.db, this.collectionName),
+                where('startDate', '>=', startDate),
+                where('endDate', '<=', endDate),
+                orderBy('startDate', 'desc')
+            );
+
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach((doc) => {
+                const uid = doc.id;
+                const data = doc.data() as T;
+                list.push({ ...data, uid } as T);
+            });
+
+            return list;
+        } catch (error) {
+            throw new Error(`Error getting documents from ${this.collectionName}: ${(error as Error).message}`);
         }
     }
 }

@@ -93,7 +93,6 @@ export interface IUseUser {
         setValue,
         resetField,
         isSubmitSuccessful,
-        reset,
    } = useFilterForm<IFilter>(FILTER_STAFF_VALIDATION_SCHEMA)
 
     React.useEffect(() => {

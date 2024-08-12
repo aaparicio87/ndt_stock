@@ -1,4 +1,13 @@
-import { Button, Flex, FormControl, FormErrorMessage, FormLabel, HStack, Input, Stack, StackDirection } from '@chakra-ui/react'
+import {
+    Button,
+    Flex,
+    FormControl,
+    FormErrorMessage,
+    FormLabel,
+    Input,
+    Stack,
+    StackDirection
+} from '@chakra-ui/react'
 import { handleKeyDown } from '../../utils/functions'
 import { FiSearch } from 'react-icons/fi'
 import { UseFormRegister } from 'react-hook-form'

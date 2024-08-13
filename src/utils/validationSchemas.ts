@@ -145,36 +145,66 @@ const WORKS_FILTER_VALIDATION_SCHEMA = z.object({
 
 const WORKS_VALIDATION_SCHEMA = z.object({
   typeWork: z.array(CertificateSchema)
-                 .nonempty({message: "Can't be empty!"}),
+    .nonempty({message: "Can't be empty!"}),
 
   workers: z.array(STAFF_VALIDATION_SCHEMA)
-             .nonempty({message: "Can't be empty!"}),
+    .nonempty({message: "Can't be empty!"}),
 
   customer: CustomerSchema,
 
   startDate: z.string()
-  .min(1, "Can't be empty!"),
+    .min(1, "Can't be empty!"),
 
   endDate: z.string()
-  .min(1, "Can't be empty!"),
+    .min(1, "Can't be empty!"),
 
   reportNumber: z.string()
-  .min(1, "Can't be empty!"),
+    .min(1, "Can't be empty!"),
 
   reportPlace: z.string()
-  .min(1, "Can't be empty!"),
+    .min(1, "Can't be empty!"),
 
   invoiceNumber: z.string()
-  .min(1, "Can't be empty!"),
+    .min(1, "Can't be empty!"),
 
+  distance: z.any().transform(value => Number(value)).optional(),
+  startTimeTravel: z.string().optional(),
+  stopTimeTravel: z.string().optional(),
+  carPlate: z.string().optional(),
+  travelFrom: z.string().optional(),
+  travelTo: z.string().optional(),
+  traveling: z.boolean().optional()
 }).refine(data => {
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
   return startDate <= endDate;
 }, {
   message: "Start date must be before end date",
-  path: ["startDate"], // you can specify a path to set the error on a specific field
-});
+  path: ["startTimeTravel"], 
+}).refine(data => {
+  if (data.traveling && data.startTimeTravel && data.stopTimeTravel) {
+    const startMinutes = timeToMinutes(data.startTimeTravel);
+    let endMinutes = timeToMinutes(data.stopTimeTravel);
+
+    // Si endMinutes es menor que startMinutes, significa que el viaje cruza la medianoche
+    if (endMinutes < startMinutes) {
+      endMinutes += 1440; // 1440 minutos = 24 horas
+    }
+
+    return startMinutes < endMinutes;
+  }
+  return true;
+}, {
+  message: "Start time must be before end time",
+  path: ["startTimeTravel"] // Asegúrate de que esta ruta sea la correcta
+}).refine(value => {
+  if(value.distance){
+    return !isNaN(value.distance)
+  }
+  return true
+}, {
+  message: "Distance must be a valid number",
+})
 
 const CHANGE_PASSWORD_SCHEMA = z.object({
   currentPassword: z.string().min(1, 'Current password is required'),
@@ -203,7 +233,11 @@ const WORK_HOURS_VALIDATION_SCHEMA = z.object({
   })
 }).refine(data => {
   const startMinutes = timeToMinutes(data.startTime);
-  const endMinutes = timeToMinutes(data.endTime);
+  let endMinutes = timeToMinutes(data.endTime);
+  if (endMinutes < startMinutes) {
+    endMinutes += 1440; // 1440 minutos = 24 horas
+  }
+
   return startMinutes < endMinutes;
 }, {
   message: "Start time must be before end time",

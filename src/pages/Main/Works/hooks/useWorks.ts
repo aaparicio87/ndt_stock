@@ -18,6 +18,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {WORKS_FILTER_VALIDATION_SCHEMA, WORKS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas";
 import {MultiValue} from "react-select";
 import { useFilterForm } from "../../../../hooks/useFilterForm"
+import { capitalizeFirstLetter } from "../../../../utils/functions"
 
 
 export interface IWorkTable {
@@ -63,7 +64,15 @@ const INITIAL_STATE: Partial<TWork> = {
     invoiceNumber: "",
     films: 0,
     cans: 0,
+    maxWorkedHours:0,
     needToDeliver: false,
+    traveling: false,
+    distance: 0,
+    startTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
+    stopTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
+    carPlate: "",
+    travelFrom: "",
+    travelTo: ""
 }
 
 export interface IWorkHook {
@@ -105,6 +114,8 @@ export interface IWorkHook {
     isSubmitSuccessfulFilter: boolean
     handleResetFilter: () => Promise<void>
     resetFilter:UseFormReset<IFilter>
+    handleToogleTraveling: () => void
+    showTraveling: boolean
 }
 
 export const useWorks = ():IWorkHook => {
@@ -152,13 +163,15 @@ export const useWorks = ():IWorkHook => {
     const customersRemote = React.useRef<TCustomer[]>([])
     const certificatesRemote = React.useRef<TCertificates[]>([])
     const worksRemoteRef = React.useRef<TWork[]>([])
+    const [showTraveling, setShowTraveling] = React.useState(false)
 
     React.useEffect(() => {
         if (isSubmitSuccessful) {
-            reset()
+            reset(INITIAL_STATE)
             setItemsCertificates([])
             setWorkersSelected([])
             setCustomerSelected("")
+            setShowTraveling(false)
         }
     }, [isSubmitSuccessful])
 
@@ -249,7 +262,7 @@ export const useWorks = ():IWorkHook => {
         const lstWorkers = allStaff
             .filter((res) => res.roles.some((role) => role === 'USER'))
             .map((res) => ({
-                label: `${res.name} ${res.lastName}`,
+                label: `${capitalizeFirstLetter(res.name)} ${capitalizeFirstLetter(res.lastName)}`,
                 value: `${res.uid}`
             }));
         setWorkersList(lstWorkers)
@@ -333,7 +346,7 @@ export const useWorks = ():IWorkHook => {
            const workersLst = workersRemote.current
                .filter((wr) => wr.certificates?.some((cert) => typeWorkIds.includes(cert.uid)))
                .map((res) => ({
-                   label: `${res.name} ${res.lastName}`,
+                   label: `${capitalizeFirstLetter(res.name)} ${capitalizeFirstLetter(res.lastName)}`,
                    value: `${res.uid}`
                }));
            setValue('typeWork', typeWork)
@@ -381,15 +394,16 @@ export const useWorks = ():IWorkHook => {
     const openViewDetail = (uid: string) => navigate(`detail/${uid}`)
 
     const handleCancel = () => {
+        setShowTraveling(false)
         openWorksTable()
-        reset()
+        reset(INITIAL_STATE)
     }
 
     const handleCreateUpdateWork = handleSubmit(async () =>{
-            const data = getValues()
+        const data = getValues()
         try {
             if(id){
-                await  updateWorkElement(id, data)
+                await updateWorkElement(id, data)
                 openToast('success', "Work updated", 'Success')
                 openWorksTable()
             }else{
@@ -406,10 +420,12 @@ export const useWorks = ():IWorkHook => {
         try {
             const work = await getWorkByUID(uid)
             if(work){
-                reset({
+                const data = {
+                    ...INITIAL_STATE,
                     ...work
-                })
-
+                }
+                reset(data)
+                setShowTraveling(data.traveling)
                 const tWork = work.typeWork.map(w => ({ label: w.name, value: w.uid }))
                 const workers = work.workers.map((w) => ({ label: w.name, value: w.uid ?? '' }))
                 setItemsCertificates(tWork)
@@ -461,6 +477,20 @@ export const useWorks = ():IWorkHook => {
         }
     }
 
+    const handleToogleTraveling = () => {
+        setShowTraveling((prev) => !prev)
+        
+        reset({
+            ...getValues(),
+            distance: 0,
+            startTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
+            stopTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
+            carPlate: "",
+            travelFrom: "",
+            travelTo: ""
+        })
+    }
+
     return {
         isLoading,
         data,
@@ -500,5 +530,7 @@ export const useWorks = ():IWorkHook => {
         isSubmitSuccessfulFilter,
         handleResetFilter,
         resetFilter,
+        handleToogleTraveling,
+        showTraveling
     }
 }

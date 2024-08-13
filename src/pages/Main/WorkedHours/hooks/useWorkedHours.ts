@@ -9,7 +9,7 @@ import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
 import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 import { Event, View, Views } from 'react-big-calendar'
-import { differenceInMinutes, endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
+import { endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
 import { calculateEventDuration } from "../../../../utils/functions.ts";
 
 

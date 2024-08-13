@@ -35,6 +35,8 @@ const WorkForm = () => {
         register,
         isSubmitting,
         handleCancel,
+        showTraveling,
+        handleToogleTraveling
     } = useWorkContext()
 
     return (
@@ -180,7 +182,25 @@ const WorkForm = () => {
                             </FormControl>
                         </HStack>
 
-                        <HStack spacing={5} py={3}>
+                        <HStack spacing={4} py={3}>
+                            <FormControl>
+                                <FormLabel>Max worked hrs</FormLabel>
+                                <NumberInput
+                                    min={0}
+                                    defaultValue={0}
+                                >
+                                    <NumberInputField
+                                        {...register('maxWorkedHours')}
+                                    />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                                <FormErrorMessage>
+                                    {errors.maxWorkedHours && errors.maxWorkedHours.message}
+                                </FormErrorMessage>
+                            </FormControl>
                             <FormControl>
                                 <FormLabel>Films</FormLabel>
                                 <NumberInput
@@ -229,6 +249,106 @@ const WorkForm = () => {
                                 />
                             </FormControl>
                         </HStack>
+
+                        <HStack spacing={3} py={3}>
+                            <FormControl width={'auto'} mb={2}>
+                                <FormLabel>
+                                    Traveling
+                                </FormLabel>
+                                <Switch
+                                    colorScheme='teal'
+                                    size='lg'
+                                    alignSelf={'center'}
+                                    {...register('traveling', {
+                                        onChange: () => handleToogleTraveling()
+                                    })}
+                                />
+                            </FormControl>
+                            {
+                                showTraveling && <>
+                                    <FormControl isInvalid={!!errors.travelFrom}>
+                                        <FormLabel>From:</FormLabel>
+                                        <Input
+                                            placeholder='Enter start place from'
+                                            {...register('travelFrom')}
+                                        />
+                                        <FormErrorMessage>
+                                            {errors.travelFrom && errors.travelFrom.message}
+                                        </FormErrorMessage>
+                                    </FormControl>
+                                    <FormControl isInvalid={!!errors.travelTo}>
+                                        <FormLabel>To:</FormLabel>
+                                        <Input
+                                            placeholder='Enter end place to'
+                                            {...register('travelTo')}
+                                        />
+                                        <FormErrorMessage>
+                                            {errors.travelTo && errors.travelTo.message}
+                                        </FormErrorMessage>
+                                    </FormControl>
+                                    <FormControl isInvalid={!!errors.distance}>
+                                        <FormLabel>Distance(Km)</FormLabel>
+                                        <NumberInput
+                                            min={0}
+                                            defaultValue={0}
+                                        >
+                                            <NumberInputField
+                                                {...register('distance')}
+                                            />
+                                            <NumberInputStepper>
+                                                <NumberIncrementStepper />
+                                                <NumberDecrementStepper />
+                                            </NumberInputStepper>
+                                        </NumberInput>
+                                        <FormErrorMessage>
+                                            {errors.distance && errors.distance.message}
+                                        </FormErrorMessage>
+                                    </FormControl>
+                                </>
+                            }
+                        </HStack>
+                        {
+                            showTraveling &&
+                            <HStack spacing={4} py={3}>
+                                <FormControl>
+                                    <FormLabel>Plate</FormLabel>
+                                    <Input
+                                        placeholder='Enter the vehicle plate'
+                                        {...register('carPlate')}
+                                    />
+                                    <FormErrorMessage>
+                                        {errors.carPlate && errors.carPlate.message}
+                                    </FormErrorMessage>
+                                </FormControl>
+                                <FormControl isInvalid={!!errors.startTimeTravel}>
+                                    <FormLabel>Start time</FormLabel>
+                                    <Input
+                                        placeholder='Select start time'
+                                        size='md'
+                                        type='time'
+                                        onKeyDown={handleKeyDown}
+                                        {...register('startTimeTravel')}
+                                    />
+                                    <FormErrorMessage>
+                                        {errors.startTimeTravel && errors.startTimeTravel.message}
+                                    </FormErrorMessage>
+                                </FormControl>
+                                <FormControl isInvalid={!!errors.stopTimeTravel}>
+                                    <FormLabel>End time</FormLabel>
+                                    <Input
+                                        placeholder='Select stop time'
+                                        size='md'
+                                        type='time'
+                                        onKeyDown={handleKeyDown}
+                                        {...register('stopTimeTravel')}
+                                    />
+                                    <FormErrorMessage>
+                                        {errors.stopTimeTravel && errors.stopTimeTravel.message}
+                                    </FormErrorMessage>
+                                </FormControl>
+                            </HStack>
+                        }
+
 
                         <Flex justifyContent={'flex-end'} mt={4} gap={4}>
                             <Button

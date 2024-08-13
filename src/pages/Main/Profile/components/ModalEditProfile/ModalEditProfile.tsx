@@ -106,7 +106,6 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
                 openToast('success', "User profile updated successfully", 'Success')
             }
         } catch (error) {
-            console.error(error)
             openToast('error', JSON.stringify(error), "Error")
         }
     }

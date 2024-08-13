@@ -10,6 +10,7 @@ import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 import { Event, View, Views } from 'react-big-calendar'
 import { differenceInMinutes, endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
+import { calculateEventDuration } from "../../../../utils/functions.ts";
 
 
 const INITIAL_STATE: Partial<TWorkHour> = {
@@ -243,44 +244,6 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         setItemsCertificates([])
     }
 
-    const calculateWorkedHours = (events: Event[], view: View, date: Date) => {
-        let totalMinutes = 0;
-    
-        // Filter events that are in the visible range based on the current view and date
-        const visibleEvents = events.filter((event) => {
-          switch (view) {
-            case Views.DAY:
-              return isEventInRange(event, date, date);
-            case Views.WEEK:
-              const startOfWeekDate = startOfWeek(date);
-              const endOfWeekDate = endOfWeek(date);
-              return isEventInRange(event, startOfWeekDate, endOfWeekDate);
-            case Views.MONTH:
-              const startOfMonthDate = startOfMonth(date);
-              const endOfMonthDate = endOfMonth(date);
-              return isEventInRange(event, startOfMonthDate, endOfMonthDate);
-            default:
-              return false;
-          }
-        });
-    
-        // Calculate the total minutes for the visible events
-        visibleEvents.forEach((event) => {
-           if(event.end && event.start){
-               totalMinutes += differenceInMinutes(event.end, event.start);
-           } 
-        });
-    
-        if (totalMinutes < 60) {
-            setVisibleHours(`${totalMinutes} minutes`);
-          } else {
-            const hours = Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-            setVisibleHours(`${hours} hour${hours > 1 ? 's' : ''}${minutes > 0 ? ` and ${minutes} minutes` : ''}`);
-          }
-      };
-    
-
     const onViewChange = (view: View) => {
         setCurrentView(view);
     };
@@ -288,14 +251,62 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     const onNavigate = (newDate: Date) => {
         setCurrentDate(newDate);
     };
+
+    const calculateWorkedHours = (events: Event[], view: View, date: Date) => {
+        let totalMinutes = 0;
+    
+        // Filter events that are in the visible range based on the current view and date
+        const visibleEvents = events.filter((event) => {
+            switch (view) {
+                case Views.DAY:
+                    return isEventInRange(event, date, date);
+                case Views.WEEK:
+                    const startOfWeekDate = startOfWeek(date);
+                    const endOfWeekDate = endOfWeek(date);
+                    return isEventInRange(event, startOfWeekDate, endOfWeekDate);
+                case Views.MONTH:
+                    const startOfMonthDate = startOfMonth(date);
+                    const endOfMonthDate = endOfMonth(date);
+                    return isEventInRange(event, startOfMonthDate, endOfMonthDate);
+                default:
+                    return false;
+            }
+        });
+    
+        // Calculate the total minutes for the visible events
+        visibleEvents.forEach((event) => {
+            if (event.end && event.start) {
+                totalMinutes += calculateEventDuration(event.start, event.end);
+            }
+        });
+    
+        // Convert total minutes to hours and minutes
+        if (totalMinutes < 60) {
+            setVisibleHours(`${totalMinutes} minutes`);
+        } else {
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            setVisibleHours(`${hours} hour${hours > 1 ? 's' : ''}${minutes > 0 ? ` and ${minutes} minutes` : ''}`);
+        }
+    };
+    
     
     const isEventInRange = (event: Event, start: Date, end: Date) => {
-        
-        if(!event.start || !event.end){
-            return false
+        if (!event.start || !event.end) {
+            return false;
         }
-        return (event.start >= start && event.start <= end) || (event.end >= start && event.end <= end);
-      };
+    
+        // Ajuste para eventos que cruzan la medianoche
+        const eventStart = new Date(event.start);
+        const eventEnd = new Date(event.end);
+    
+        // Si el evento cruza la medianoche
+        if (eventEnd < eventStart) {
+            return (eventStart >= start && eventStart <= end) || (eventEnd.getTime() + 86400000 >= start.getTime() && eventEnd.getTime() + 86400000 <= end.getTime());
+        }
+    
+        return (eventStart >= start && eventStart <= end) || (eventEnd >= start && eventEnd <= end);
+    };
 
     return {
         initialRef,

@@ -20,7 +20,7 @@ const WorkedHours = () => {
             <HeaderViewTable
                 name="Worked Hours"
             >
-                <Heading as="h3" size="lg" mb={4}>
+                <Heading as="h2" size="md" mb={4}>
                     Total: {visibleHours}
                 </Heading>
                 <Button

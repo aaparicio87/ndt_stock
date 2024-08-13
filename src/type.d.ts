@@ -88,6 +88,14 @@ type TWork = {
     documentationTime?:number
     reportPlace?:string
     billed?: string
+    maxWorkedHours: number
+    traveling:boolean
+    distance?:number
+    travelFrom?:string
+    travelTo?:string
+    carPlate?:string
+    startTimeTravel?:string 
+    stopTimeTravel?:string
 }
 
 type TOptions = {

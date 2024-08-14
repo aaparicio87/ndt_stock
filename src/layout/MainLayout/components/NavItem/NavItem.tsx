@@ -1,8 +1,7 @@
 import React from "react";
 import { Flex, FlexProps, Icon, Link as ChakraLink } from "@chakra-ui/react";
 import { IconType } from "react-icons";
-import { Link as ReactRouterLink, useLocation, } from "react-router-dom";
-import { ROUTES } from "../../../../utils/constants";
+import { Link as ReactRouterLink } from "react-router-dom";
 
 
 type NavItemProps = FlexProps & {

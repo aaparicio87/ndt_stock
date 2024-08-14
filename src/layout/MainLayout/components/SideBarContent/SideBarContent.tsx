@@ -16,7 +16,7 @@ import { NavItem } from "../NavItem/NavItem";
 import { LogoCompany } from "../../../../components";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
-import {NAMES, ROUTES} from "../../../../utils/constants.ts";
+import { NAMES, ROUTES } from "../../../../utils/constants.ts";
 
 interface LinkItemProps {
     name: string
@@ -49,7 +49,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     return (
         <Box
             transition="3s ease"
-            bg={useColorModeValue('white', 'gray.900')}
+            bg={useColorModeValue('#29363c', 'gray.900')}
             borderRight="1px"
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             w={{ base: 'full', md: 60 }}
@@ -58,7 +58,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             {...rest}>
             <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
                 <LogoCompany route="/" />
-                <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+                <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} color={'white'} />
             </Flex>
             {LINKS_PERMISSIONS.map((link) => {
                 if (!link.visible) return
@@ -67,6 +67,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                         key={link.name}
                         icon={link.icon}
                         route={link.route}
+                        color={'white'}
                     >
                         {link.name}
                     </NavItem>

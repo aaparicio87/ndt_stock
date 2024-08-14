@@ -43,6 +43,14 @@ export interface IDetailWork {
     films: number,
     cans: number,
     needToDeliver: string,
+    distance?: number,
+    startTimeTravel?: string,
+    stopTimeTravel?: string,
+    carPlate?: string,
+    travelFrom?: string,
+    travelTo?: string,
+    maxWorkedHours:number,
+    traveling: string,
 }
 
 interface IFilter {
@@ -307,10 +315,11 @@ export const useWorks = ():IWorkHook => {
 
     const handleGetElementDetail = async(uid:string) => {
         setIsLoading(true)
+        let detailWork:IDetailWork | undefined
         try {
           const work =  await getWorkByUID(uid)
           if(work !== null){
-            const detailWork:IDetailWork = {
+            detailWork = {
                 name: work.typeWork.map((tw) => tw.name).join(", "),
                 address: work.address ? work.address.length > 0 ? work.address : '-': '-',
                 cans: work.cans ?? 0,
@@ -323,8 +332,21 @@ export const useWorks = ():IWorkHook => {
                 needToDeliver: work.needToDeliver ? "Yes" : "No",
                 reportNumber: work.reportNumber,
                 reportPlace: work.reportPlace ?? '-',
-                workers: work.workers.map((ws) => `${ws.name} ${ws.lastName}`).join(', ')
+                workers: work.workers.map((ws) => `${ws.name} ${ws.lastName}`).join(', '),
+                traveling: work.traveling ? "Yes" : "No",
+                maxWorkedHours: Number(work.maxWorkedHours)
             }
+             if(work.traveling){
+                detailWork = {
+                    ...detailWork,
+                    distance: Number(work.distance) ?? 0,
+                    startTimeTravel: work.startTimeTravel ?? '-',
+                    stopTimeTravel: work.stopTimeTravel ?? '-',
+                    carPlate: work.carPlate ?? '-',
+                    travelFrom: work.travelFrom ?? '-',
+                    travelTo: work.travelTo ?? '-',
+                }
+             }
               setWorkElementDetail(detailWork)
           }
         } catch (error) {

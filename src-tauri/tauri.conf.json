@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "ndt_stock",
-    "version": "0.0.0"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -19,9 +19,10 @@
     },
     "windows": [
       {
-        "title": "ndt_stock",
-        "width": 800,
-        "height": 600
+        "title": "NDT Stock",
+        "width": 1280,
+        "height": 800,
+        "resizable": false
       }
     ],
     "security": {

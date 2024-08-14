@@ -36,7 +36,7 @@ export function SidebarWithHeader({ children }: Tprops) {
       </Drawer>
       {/* mobilenav */}
       <MobileNav onOpen={onOpen} />
-      <Flex flex="1" backgroundColor="white" overflowX="auto">
+      <Flex flex="1" backgroundColor="gray.50" overflowX="auto">
         <Box ml={{ base: 0, md: 60 }} p="4" background={'white'} width="100%" >
           {children}
         </Box>

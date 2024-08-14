@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 import { IDetailWork } from '../../hooks/useWorks';
 import { Loader } from '../../../../../components';
 import { FiInbox } from "react-icons/fi"
-import {useWorkContext} from "../../../../../context/WorkContext.tsx";
+import { useWorkContext } from "../../../../../context/WorkContext.tsx";
 
 
 const ELEMENTS_DISPLAY: { [key: string]: string } = {
@@ -32,14 +32,22 @@ const ELEMENTS_DISPLAY: { [key: string]: string } = {
     films: "Films",
     cans: "Cans",
     needToDeliver: "Need to deliver",
+    traveling: "Traveling",
+    maxWorkedHours: "Max worked hours",
+    distance: "Distance",
+    startTimeTravel: "Start time travel",
+    stopTimeTravel: "Stop time travel",
+    carPlate: "Plate",
+    travelFrom: "From",
+    travelTo: "To",
 }
 
 const DetailWork = () => {
     const { id } = useParams<{ id: string }>();
     const { isLoading,
-            handleGetElementDetail,
-            workElementDetail
-            } = useWorkContext()
+        handleGetElementDetail,
+        workElementDetail
+    } = useWorkContext()
 
     React.useEffect(() => {
         (async () => {
@@ -73,14 +81,41 @@ const DetailWork = () => {
                 mt={5}
             >
                 <SimpleGrid columns={[1, null, 2]} spacing={4}>
-                    {workElementDetail ?
+                    {workElementDetail ? (
                         Object.keys(ELEMENTS_DISPLAY).map((key) => {
-                            if (workElementDetail.hasOwnProperty(key)) {
+                            // Verifica si el campo traveling es "Yes"
+                            if (key === 'traveling' && workElementDetail[key as keyof IDetailWork] === 'Yes') {
+                                // Si es "Yes", muestra los campos adicionales relacionados con el viaje
+                                return (
+                                    <>
+                                        <FormControl key={key} isReadOnly>
+                                            <HStack align={'baseline'}>
+                                                <FormLabel fontWeight="bold">{`${ELEMENTS_DISPLAY[key]}:`}</FormLabel>
+                                                <Text>
+                                                    {workElementDetail[key as keyof IDetailWork]}
+                                                </Text>
+                                            </HStack>
+                                        </FormControl>
+                                        {['distance', 'startTimeTravel', 'stopTimeTravel', 'carPlate', 'travelFrom', 'travelTo'].map((travelKey) => (
+                                            <FormControl key={travelKey} isReadOnly>
+                                                <HStack align={'baseline'}>
+                                                    <FormLabel fontWeight="bold">{`${ELEMENTS_DISPLAY[travelKey]}:`}</FormLabel>
+                                                    <Text>
+                                                        {workElementDetail[travelKey as keyof IDetailWork]}
+                                                    </Text>
+                                                </HStack>
+                                            </FormControl>
+                                        ))}
+                                    </>
+                                );
+                            }
+                            // Si traveling es "No" o no es "traveling", muestra solo ese campo
+                            if (key === 'traveling' || workElementDetail.hasOwnProperty(key)) {
                                 return (
                                     <FormControl key={key} isReadOnly>
                                         <HStack align={'baseline'}>
-                                            <FormLabel fontWeight="bold" >{`${ELEMENTS_DISPLAY[key]}:`}</FormLabel>
-                                            <Text >
+                                            <FormLabel fontWeight="bold">{`${ELEMENTS_DISPLAY[key]}:`}</FormLabel>
+                                            <Text>
                                                 {workElementDetail[key as keyof IDetailWork]}
                                             </Text>
                                         </HStack>
@@ -88,13 +123,13 @@ const DetailWork = () => {
                                 );
                             }
                             return null;
-                        }) : (
-                            <Center py={10}>
-                                <Icon as={FiInbox} w={10} h={10} mr={2} />
-                                No data available
-                            </Center>
-                        )
-                    }
+                        })
+                    ) : (
+                        <Center py={10}>
+                            <Icon as={FiInbox} w={10} h={10} mr={2} />
+                            No data available
+                        </Center>
+                    )}
                 </SimpleGrid>
             </Box>
         </Container>

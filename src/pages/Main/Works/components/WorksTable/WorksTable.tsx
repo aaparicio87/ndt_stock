@@ -8,7 +8,7 @@ import {
     MenuFilter
 } from '../../../../../components'
 import { IWorkTable } from '../../hooks/useWorks'
-import { Box, Button, HStack, Stack } from '@chakra-ui/react'
+import { Box, Button, Stack } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../../config/firebase.conf.ts";

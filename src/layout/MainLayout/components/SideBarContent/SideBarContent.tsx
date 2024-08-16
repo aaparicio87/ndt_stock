@@ -1,6 +1,5 @@
 import {
     Box,
-    Tooltip,
     useColorModeValue,
 } from "@chakra-ui/react";
 import { IconType } from 'react-icons';

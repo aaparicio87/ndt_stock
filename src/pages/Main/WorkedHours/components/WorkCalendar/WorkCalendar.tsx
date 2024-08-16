@@ -6,6 +6,8 @@ import { getDay } from 'date-fns/getDay'
 import { enUS } from 'date-fns/locale/en-US'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useWorkedHoursContext } from "../../../../../context/WorkedHoursContext.tsx";
+import { Box } from '@chakra-ui/react'
+
 
 
 const locales = {
@@ -39,19 +41,27 @@ const WorkCalendar = () => {
     }
 
     return (
-        <>
+        <Box
+            maxW={{ xl: '120vw', lg: '90vw', md: '95vw', sm: '80' }}
+            minWidth={{ xl: '90vw', lg: '80vw', md: '80vw', sm: '75vw' }}
+            overflowX={'auto'}
+            overflowY={'auto'}
+            height={'70vh'}
+        >
             <Calendar
                 localizer={localize}
                 events={userWorkHours}
                 startAccessor="start"
                 endAccessor="end"
-                style={{ height: 500 }}
+
                 onSelectEvent={handleSelectEvent}
                 views={[Views.MONTH, Views.WEEK, Views.DAY]}
                 onView={onViewChange}
                 onNavigate={onNavigate}
+
             />
-        </>
+        </Box>
+
     )
 }
 export default WorkCalendar

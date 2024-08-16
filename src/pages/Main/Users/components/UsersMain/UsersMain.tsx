@@ -1,5 +1,5 @@
 
-import { Button, Stack } from "@chakra-ui/react"
+import { Box, Button, Container, Divider, Stack } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import { useLocation } from "react-router-dom"
 import { DeleteDialog, HeaderViewTable } from "../../../../../components"
@@ -33,7 +33,7 @@ const UsersMain = () => {
     } = useStaffContext()
 
     return (
-        <>
+        <Box borderWidth='1px' borderRadius='lg' overflow='hidden' padding={10} m={10}>
             <HeaderViewTable
                 name="Users"
             >
@@ -43,29 +43,31 @@ const UsersMain = () => {
                     justifyContent={'flex-end'}
                     marginX={5}
                 >
+                    <FilterElements />
                     <Button
                         leftIcon={<FiPlus />}
                         colorScheme='teal'
                         variant='solid'
                         onClick={onOpen}
+                        px={6}
                     >
                         Add
                     </Button>
                 </Stack>
             </HeaderViewTable>
-            <Stack me={5} mb={5} >
-                <FilterElements />
+
+            <Stack alignItems={'center'}>
+                <UsersTable
+                    currentUser={user}
+                    data={data}
+                    onDelete={handleDelete}
+                    onDetails={handleViewDetails}
+                    onEdit={handleEdit}
+                    onHours={openWorksUser}
+                    loading={isLoading}
+                    visibleHours={location.pathname === "/users"}
+                />
             </Stack>
-            <UsersTable
-                currentUser={user}
-                data={data}
-                onDelete={handleDelete}
-                onDetails={handleViewDetails}
-                onEdit={handleEdit}
-                onHours={openWorksUser}
-                loading={isLoading}
-                visibleHours={location.pathname === "/users"}
-            />
             {isOpen && <ModalAdd
                 isOpen={isOpen}
                 onClose={closeModalAdd}
@@ -81,7 +83,7 @@ const UsersMain = () => {
                 onCancel={onCloseDelete}
                 onDelete={handleConfirmDelete}
             />
-        </>
+        </Box>
     )
 }
 

@@ -43,7 +43,7 @@ const WorkForm = () => {
         <>
             {
                 !isLoading
-                    ? <Box as={"form"} onSubmit={handleCreateUpdateWork} mt={5}>
+                    ? <form onSubmit={handleCreateUpdateWork}>
                         <HStack py={3} >
                             <FormControl isInvalid={!!errors.typeWork}>
                                 <FormLabel>Type of work</FormLabel>
@@ -364,7 +364,7 @@ const WorkForm = () => {
                             </Button>
 
                         </Flex>
-                    </Box>
+                    </form>
                     : <Loader />
             }
         </>

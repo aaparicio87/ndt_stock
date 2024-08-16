@@ -1,21 +1,23 @@
 import React from "react";
-import {Container, Heading
+import {
+    Box,
+    Heading
 } from '@chakra-ui/react'
 import WorkForm from "../WorkForm/WorkForm.tsx";
-import {useWorkContext} from "../../../../../context/WorkContext.tsx";
+import { useWorkContext } from "../../../../../context/WorkContext.tsx";
 
 
 const CreateWork = () => {
     const { handleSelectOptions } = useWorkContext()
 
     React.useEffect(() => {
-        (async() => {
+        (async () => {
             await handleSelectOptions()
         })()
     }, []);
 
     return (
-        <Container maxW={'3xl'}>
+        <Box borderWidth='1px' borderRadius='lg' overflow='hidden' padding={10} m={10}>
             <Heading
                 as='h3'
                 size='lg'
@@ -24,8 +26,8 @@ const CreateWork = () => {
                 Create a new work
             </Heading>
 
-            <WorkForm/>
-        </Container>
+            <WorkForm />
+        </Box>
     )
 }
 

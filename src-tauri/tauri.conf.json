@@ -20,9 +20,9 @@
     "windows": [
       {
         "title": "NDT Stock",
-        "width": 1280,
-        "height": 800,
-        "resizable": false
+        "width": 1024,
+        "height": 768,
+        "resizable": true
       }
     ],
     "security": {

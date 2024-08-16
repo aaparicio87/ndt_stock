@@ -8,7 +8,7 @@ import {
     MenuFilter
 } from '../../../../../components'
 import { IWorkTable } from '../../hooks/useWorks'
-import { Button, HStack } from '@chakra-ui/react'
+import { Box, Button, HStack, Stack } from '@chakra-ui/react'
 import { FiPlus } from 'react-icons/fi'
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../../config/firebase.conf.ts";
@@ -97,50 +97,56 @@ const WorksTable = () => {
     }, [])
 
     return (
-        <>
+        <Box borderWidth='1px' borderRadius='lg' overflow='hidden' padding={10} m={10}>
             <HeaderViewTable
                 name="Works"
             >
-
-                {currentUserAdminManager && <Button
-                    leftIcon={<FiPlus />}
-                    colorScheme='teal'
-                    variant='solid'
-                    onClick={openAddWork}
+                <Stack direction='row'
+                    spacing={4}
+                    flex={1}
+                    justifyContent={'flex-end'}
+                    marginX={5}
                 >
-                    Add
-                </Button>
-                }
+                    <MenuFilter
+                        name="Filters"
+                        titleGroup="Filter by:"
+                        onClose={() => resetFilter()}
+                    >
+                        <DateRangeFilter
+                            endDateErrorCustom={errorsFilter.endDate?.message}
+                            startDateErrorCustom={errorsFilter.startDate?.message}
+                            onFilter={handleFilterWorks}
+                            register={registerFilter}
+                            isSubmitting={isSubmittingFilter}
+                            displayReset={isSubmitSuccessfulFilter}
+                            onReset={handleResetFilter}
+                        />
+                    </MenuFilter>
+
+                    {currentUserAdminManager && <Button
+                        leftIcon={<FiPlus />}
+                        colorScheme='teal'
+                        variant='solid'
+                        onClick={openAddWork}
+                    >
+                        Add
+                    </Button>
+                    }
+                </Stack>
             </HeaderViewTable>
-
-            <HStack spacing={3} mb={5} marginEnd={5} justifyContent={'flex-end'}>
-                <MenuFilter
-                    name="Filters"
-                    titleGroup="Filter by:"
-                    onClose={() => resetFilter()}
-                >
-                    <DateRangeFilter
-                        endDateErrorCustom={errorsFilter.endDate?.message}
-                        startDateErrorCustom={errorsFilter.startDate?.message}
-                        onFilter={handleFilterWorks}
-                        register={registerFilter}
-                        isSubmitting={isSubmittingFilter}
-                        displayReset={isSubmitSuccessfulFilter}
-                        onReset={handleResetFilter}
-                    />
-                </MenuFilter>
-            </HStack>
-            <CustomDataTable
-                columns={columns}
-                data={data}
-                loading={isLoading}
-            />
+            <Stack alignItems={'center'}>
+                <CustomDataTable
+                    columns={columns}
+                    data={data}
+                    loading={isLoading}
+                />
+            </Stack>
             <DeleteDialog
                 isOpen={isOpenDelete}
                 onCancel={onCloseDelete}
                 onDelete={handleConfirmDelete}
             />
-        </>
+        </Box>
     )
 }
 

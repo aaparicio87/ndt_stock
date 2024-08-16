@@ -15,7 +15,7 @@ const NAMES = {
     STOCK: 'Stock',
     USERS: 'Users',
     WORKS: 'Works',
-    WORKED_HOURS: 'Worked Hours',
+    WORKED_HOURS: 'Hours',
 };
 
 //const REGEX_EMAIL = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/

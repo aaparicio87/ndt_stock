@@ -13,12 +13,12 @@ export const HeaderViewTable = ({ name, children }: TProps) => {
             flex={1}
             justifyContent={'space-between'}
             marginBottom={5}
-            marginX={5}
         >
             <Heading
                 as='h3'
                 size='lg'
                 noOfLines={1}
+                ml={5}
             >
                 {name}
             </Heading>

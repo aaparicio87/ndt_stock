@@ -1,6 +1,6 @@
 import WorkCalendar from "./components/WorkCalendar/WorkCalendar.tsx";
 import { HeaderViewTable } from "../../../components";
-import { Button, Heading } from "@chakra-ui/react";
+import { Box, Button, Heading, Stack } from "@chakra-ui/react";
 import { FiPlus } from "react-icons/fi";
 import ModalEdit from "./components/ModalEdit/ModalEdit.tsx";
 import { useWorkedHoursContext } from "../../../context/WorkedHoursContext.tsx";
@@ -16,7 +16,7 @@ const WorkedHours = () => {
     } = useWorkedHoursContext()
 
     return (
-        <>
+        <Box overflow='hidden' m={10} padding={10} >
             <HeaderViewTable
                 name="Worked Hours"
             >
@@ -32,12 +32,14 @@ const WorkedHours = () => {
                     Add
                 </Button>
             </HeaderViewTable>
-            <WorkCalendar />
+            <Stack alignItems={'center'}>
+                <WorkCalendar />
+            </Stack>
             {isOpen && <ModalEdit
                 onClose={handleCloseModal}
                 isOpen={isOpen}
             />}
-        </>
+        </Box>
     )
 }
 

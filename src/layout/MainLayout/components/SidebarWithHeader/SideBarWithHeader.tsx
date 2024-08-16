@@ -1,7 +1,5 @@
 import {
   Box,
-  Drawer,
-  DrawerContent,
   Flex,
   useColorModeValue,
   useDisclosure
@@ -15,31 +13,13 @@ type Tprops = {
 
 export function SidebarWithHeader({ children }: Tprops) {
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { onOpen, } = useDisclosure();
   return (
-    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
-      <SidebarContent
-        onClose={() => onClose}
-        display={{ base: 'none', md: 'block' }}
-      />
-      <Drawer
-        autoFocus={false}
-        isOpen={isOpen}
-        placement="left"
-        onClose={onClose}
-        returnFocusOnClose={false}
-        onOverlayClick={onClose}
-        size="full">
-        <DrawerContent>
-          <SidebarContent onClose={onClose} />
-        </DrawerContent>
-      </Drawer>
-      {/* mobilenav */}
+    <Box minH="95vh" bg={useColorModeValue('white', 'gray.50')}>
+      <SidebarContent />
       <MobileNav onOpen={onOpen} />
-      <Flex flex="1" backgroundColor="gray.50" overflowX="auto">
-        <Box ml={{ base: 0, md: 60 }} p="4" background={'white'} width="100%" >
-          {children}
-        </Box>
+      <Flex justifyContent={'center'} ml={50}>
+        {children}
       </Flex>
     </Box>
   );

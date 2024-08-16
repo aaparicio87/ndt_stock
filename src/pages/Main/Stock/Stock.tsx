@@ -3,7 +3,9 @@ import {
     HeaderViewTable
 } from "../../../components"
 import {
+    Box,
     Button,
+    Stack,
 } from "@chakra-ui/react"
 import { FiPlus } from "react-icons/fi"
 import ModalAdd from "./components/ModalAdd/ModalAdd"
@@ -42,7 +44,7 @@ export const Stock = () => {
     const currentUserAdminManager = user.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
 
     return (
-        <>
+        <Box borderWidth='1px' borderRadius='lg' overflow='hidden' padding={10} m={10}>
             <HeaderViewTable
                 name="Stock"
             >
@@ -55,13 +57,15 @@ export const Stock = () => {
                     Add
                 </Button>}
             </HeaderViewTable>
-            <StockTable
-                data={data}
-                onDelete={handleDelete}
-                onDetails={handleViewDetails}
-                onEdit={handleEdit}
-                isLoading={isLoading}
-            />
+            <Stack alignItems={'center'}>
+                <StockTable
+                    data={data}
+                    onDelete={handleDelete}
+                    onDetails={handleViewDetails}
+                    onEdit={handleEdit}
+                    isLoading={isLoading}
+                />
+            </Stack>
             <ModalAdd
                 isOpen={isOpen}
                 onClose={onClose}
@@ -79,6 +83,6 @@ export const Stock = () => {
                 onCancel={onCloseDelete}
                 onDelete={handleConfirmDelete}
             />
-        </>
+        </Box>
     )
 }

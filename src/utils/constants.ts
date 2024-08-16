@@ -56,6 +56,13 @@ const COLORS_DEGREE: Record<string, string> = {
     'Engineer': 'green',
 }
 
+const CAPITALIZED_ROLES: Record<TRole, string> = {
+    ['ADMINISTRATOR']: "Administrator",
+    ['DATA_MANAGER']: "Data manager",
+    ['USER']: "User"
+  };
+
+
 export {
     AUTH_SLICE_NAME,
     STAFF,
@@ -72,5 +79,6 @@ export {
     CLIENT,
     ROUTES,
     NAMES,
-    COLORS_DEGREE
+    COLORS_DEGREE,
+    CAPITALIZED_ROLES
 }

@@ -1,16 +1,19 @@
 import { ColumnDef } from "@tanstack/react-table"
 import React from "react"
 import { ActionsTable, CustomDataTable } from "../../../../../components"
+import { useStockContext } from "../../../../../context/StockContext"
 
-type TProps = {
-    data: TStock[]
-    onDelete: (item: TStock) => void
-    onDetails: (item: TStock) => void
-    onEdit: (item: TStock) => void
-    isLoading: boolean
-}
 
-const StockTable = ({ data, onDelete, onDetails, onEdit, isLoading }: TProps) => {
+
+const StockTable = () => {
+
+    const {
+        data,
+        handleDelete,
+        handleViewDetails,
+        handleEdit,
+        isLoading
+    } = useStockContext()
 
     const columns = React.useMemo<ColumnDef<TStock>[]>(
         () => [
@@ -35,17 +38,12 @@ const StockTable = ({ data, onDelete, onDetails, onEdit, isLoading }: TProps) =>
                 footer: props => props.column.id,
             },
             {
-                accessorKey: 'qualityOfService',
-                header: 'QoS',
-                footer: props => props.column.id,
-            },
-            {
                 header: 'Actions',
                 cell: (props) => (
                     <ActionsTable
-                        onDelete={() => onDelete(props.row.original)}
-                        onDetails={() => onDetails(props.row.original)}
-                        onEdit={() => onEdit(props.row.original)}
+                        onDelete={() => handleDelete(props.row.original)}
+                        onDetails={() => handleViewDetails(props.row.original)}
+                        onEdit={() => handleEdit(props.row.original)}
                         iconEditProps={{ "mr": 2 }}
                         iconDetailsProps={{ "mr": 2 }}
                     />

@@ -12,6 +12,8 @@ import CreateWork from "../pages/Main/Works/components/CreateWork/CreateWork.tsx
 import { WorkedHoursProvider } from "../context/WorkedHoursContext.tsx";
 import WorkHours from '../pages/Main/Users/components/WorkHours/WorkHours.tsx'
 import UsersMain from '../pages/Main/Users/components/UsersMain/UsersMain.tsx'
+import { StockProvider } from '../context/StockContext.tsx'
+
 
 
 const MainRoutes = () => {
@@ -23,7 +25,11 @@ const MainRoutes = () => {
             </Route>
             <Route path="*" element={<PrivateOutlet />}>
                 <Route element={<MainLayout />}>
-                    <Route index element={<Stock />} />
+                    <Route index element={
+                        <StockProvider>
+                            <Stock />
+                        </StockProvider>
+                    } />
                     <Route path="profile" element={<Profile />} />
                     <Route path="users" element={<Users />} >
                         <Route index element={<UsersMain />} />

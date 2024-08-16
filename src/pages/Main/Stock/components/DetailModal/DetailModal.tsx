@@ -11,12 +11,8 @@ import {
     ModalOverlay,
     Stack,
 } from '@chakra-ui/react'
+import { useStockContext } from '../../../../../context/StockContext'
 
-type TProps = {
-    onClose: () => void
-    isOpen: boolean
-    item: TStock
-}
 
 const ELEMENTS_DISPLAY = {
     serialNumber: "Serial number",
@@ -29,7 +25,14 @@ const ELEMENTS_DISPLAY = {
     remarks: "Remarks",
 }
 
-const DetailModal = ({ isOpen, onClose, item }: TProps) => {
+const DetailModal = () => {
+
+    const {
+        isOpenDetail: isOpen,
+        onCloseDetail: onClose,
+        stockElement: item,
+    } = useStockContext()
+
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />

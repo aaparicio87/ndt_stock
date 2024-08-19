@@ -35,7 +35,7 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
     return (
         <Flex
             px={{ base: 4, md: 4 }}
-            height="20"
+            height={20}
             alignItems="center"
             bg={useColorModeValue('white', 'gray.900')}
             borderBottomWidth="1px"
@@ -44,7 +44,8 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             position={'sticky'}
             top={0}
             zIndex={50}
-            {...rest}>
+            {...rest}
+        >
 
             <LogoCompany route="/" />
 

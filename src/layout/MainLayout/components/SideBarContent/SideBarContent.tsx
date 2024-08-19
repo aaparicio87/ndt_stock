@@ -41,13 +41,13 @@ export const SidebarContent = () => {
 
     return (
         <Box
-            bg={useColorModeValue('#29363c', 'gray.900')}
+            bg={useColorModeValue('#4c616b', 'gray.900')}
             borderRight="1px"
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
             pos="fixed"
             h="full"
-            mt={20}
-            pt={10}
+            mt={10}
+            pt={20}
         >
             {LINKS_PERMISSIONS.map((link) => {
                 if (!link.visible) return

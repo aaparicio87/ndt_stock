@@ -20,6 +20,8 @@ const NAMES = {
 
 //const REGEX_EMAIL = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 const REGEX_PASSWORD = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,64}$/
+const REGEX_SERIAL = /^[a-zA-Z0-9/().\- ]+$/
+const REGEX_NAME = /^[a-zA-ZÀ-ÖÙ-öù-ÿĀ-žḀ-ỿ\s\-\/.]+$/
 
 const TYPE_EQUIPMENTS = [
     "Printer",
@@ -80,5 +82,7 @@ export {
     ROUTES,
     NAMES,
     COLORS_DEGREE,
-    CAPITALIZED_ROLES
+    CAPITALIZED_ROLES,
+    REGEX_SERIAL,
+    REGEX_NAME,
 }

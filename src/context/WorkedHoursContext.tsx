@@ -35,6 +35,8 @@ const WorkedHoursProvider = ({ children }: Props) => {
         onViewChange,
         visibleHours,
         onNavigate,
+        showTraveling,
+        handleToogleTraveling,
     } = useWorkedHours()
 
     return (
@@ -64,7 +66,9 @@ const WorkedHoursProvider = ({ children }: Props) => {
                 handleCloseModal,
                 onViewChange,
                 visibleHours,
-                onNavigate
+                onNavigate,
+                showTraveling,
+                handleToogleTraveling
             }}
         >
             {children}

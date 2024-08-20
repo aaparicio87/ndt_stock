@@ -49,6 +49,8 @@ export interface IWorkedHoursHooks {
     onViewChange: (view: View) => void
     visibleHours: string
     onNavigate: (newDate: Date) => void
+    showTraveling: boolean
+    handleToogleTraveling:() => void
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -84,6 +86,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     const [currentView, setCurrentView] = React.useState<View>(Views.MONTH);
     const [visibleHours, setVisibleHours] = React.useState('');
     const [currentDate, setCurrentDate] = React.useState(new Date());
+    const [showTraveling, setShowTraveling] = React.useState(false)
 
     useEffect(() => {
         handleGetWorkHoursByUser()
@@ -113,6 +116,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
             reset(INITIAL_STATE)
             setCustomerSelected("")
             setItemsCertificates([])
+            setShowTraveling(false)
         }
     }, [isSubmitSuccessful])
 
@@ -208,6 +212,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         }finally {
             handleGetWorkHoursByUser()
             onClose()
+            if(showTraveling){
+                setShowTraveling(false)
+            }
         }
     } )
 
@@ -241,10 +248,11 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     }
 
     const handleCloseModal = () => {
-        onClose()
         reset(INITIAL_STATE)
         setCustomerSelected("")
         setItemsCertificates([])
+        setShowTraveling(false)
+        onClose()
     }
 
     const onViewChange = (view: View) => {
@@ -314,6 +322,18 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         return (eventStart >= start && eventStart <= end) || (eventEnd >= start && eventEnd <= end);
     };
 
+    const handleToogleTraveling = () => {
+        setShowTraveling((prev) => !prev)
+        
+        reset({
+            ...getValues(),
+            distance: 0,
+            carPlate: "",
+            travelFrom: "",
+            travelTo: ""
+        })
+    }
+
     return {
         initialRef,
         finalRef,
@@ -339,6 +359,8 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         handleCloseModal,
         onViewChange,
         visibleHours,
-        onNavigate  
+        onNavigate,
+        showTraveling,
+        handleToogleTraveling  
     }
 }

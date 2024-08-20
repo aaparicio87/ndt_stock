@@ -37,6 +37,11 @@ type TWorkHour = {
     startTime: string
     endTime: string
     note?: string
+    traveling:boolean
+    distance?:number
+    travelFrom?:string
+    travelTo?:string
+    carPlate?:string
 }
 
 type TStaff = TSignUp & {

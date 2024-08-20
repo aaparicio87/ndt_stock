@@ -14,7 +14,7 @@ export const Stock = () => {
     const {
         stockElement,
         isOpenDelete,
-        onCloseDelete,
+        handleCancelDelete,
         handleConfirmDelete,
     } = useStockContext()
 
@@ -42,7 +42,7 @@ export const Stock = () => {
             {stockElement && <DetailModal />}
             <DeleteDialog
                 isOpen={isOpenDelete}
-                onCancel={onCloseDelete}
+                onCancel={handleCancelDelete}
                 onDelete={handleConfirmDelete}
             />
         </Box>

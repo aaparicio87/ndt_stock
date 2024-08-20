@@ -43,8 +43,6 @@ const ModalAdd = () => {
         e.preventDefault();
     };
 
-    console.log(isOpen, 'isOpen')
-
     return (
         <Modal
             initialFocusRef={initialRef}
@@ -59,9 +57,8 @@ const ModalAdd = () => {
                 <ModalContent>
                     <ModalHeader>{stockElement ? "Edit product" : "Create product"}</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody pb={6}>
-
-                        <HStack spacing={4} py={4}>
+                    <ModalBody>
+                        <HStack spacing={4}>
                             <FormControl isInvalid={!!errors.serialNumber}>
                                 <FormLabel>Serial number</FormLabel>
                                 <Input
@@ -84,7 +81,7 @@ const ModalAdd = () => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={4}>
+                        <HStack spacing={4} py={2}>
                             <FormControl isInvalid={!!errors.typeEquipment}>
                                 <FormLabel>Type of equipment</FormLabel>
                                 <Select
@@ -107,7 +104,7 @@ const ModalAdd = () => {
 
 
 
-                            <FormControl isInvalid={!!errors.otherTrademark || !!errors.tradeMark}>
+                            <FormControl isInvalid={!!errors.tradeMark} py={2}>
                                 <FormLabel>Trademark</FormLabel>
                                 <Select
                                     placeholder='Select option'
@@ -124,7 +121,6 @@ const ModalAdd = () => {
                                 </Select>
 
                                 <FormErrorMessage>
-                                    {errors.otherTrademark && errors.otherTrademark.message}
                                     {errors.tradeMark && errors.tradeMark.message}
                                 </FormErrorMessage>
                             </FormControl>
@@ -132,7 +128,7 @@ const ModalAdd = () => {
                         {
                             (isOtherTypeSelected ||
                                 isOtherTradeMarkSelected) &&
-                            <HStack spacing={4} py={1} width={'100%'} flex={1}>
+                            <HStack spacing={4} py={2} width={'100%'} flex={1}>
                                 {isOtherTypeSelected && (
                                     <FormControl w={'50%'} isInvalid={!!errors.otherTypeEquipment}>
                                         <Input
@@ -146,16 +142,19 @@ const ModalAdd = () => {
                                 )}
 
                                 {isOtherTradeMarkSelected && (
-                                    <FormControl w={'50%'} ml={isOtherTradeMarkSelected ? 'auto' : '0'}>
+                                    <FormControl w={'50%'} ml={isOtherTradeMarkSelected ? 'auto' : '0'} isInvalid={!!errors.otherTrademark}>
                                         <Input
                                             placeholder='Other trademark'
                                             {...register('otherTrademark')}
                                         />
+                                        <FormErrorMessage>
+                                            {errors.otherTrademark && errors.otherTrademark.message}
+                                        </FormErrorMessage>
                                     </FormControl>
                                 )}
                             </HStack>
                         }
-                        <HStack spacing={4} py={4}>
+                        <HStack spacing={4} py={2}>
                             <FormControl isInvalid={!!errors.store}>
                                 <FormLabel>Store</FormLabel>
                                 <Input
@@ -181,7 +180,8 @@ const ModalAdd = () => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={4}>
+
+                        <HStack spacing={4} pb={2}>
                             <FormControl isInvalid={!!errors.qualityOfService}>
                                 <FormLabel>QoS</FormLabel>
                                 <Select

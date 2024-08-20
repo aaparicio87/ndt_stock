@@ -7,7 +7,8 @@ import {
     FiUsers,
     FiFileText,
     FiWatch,
-    FiBriefcase
+    FiBriefcase,
+    FiAward,
 } from "react-icons/fi";
 import { NavItem } from "../NavItem/NavItem";
 import { useSelector } from "react-redux";
@@ -25,6 +26,7 @@ const LinkItems: Array<LinkItemProps> = [
     { name: NAMES.USERS, icon: FiUsers, route: ROUTES.USERS, visible: true },
     { name: NAMES.WORKS, icon: FiBriefcase, route: ROUTES.WORKS, visible: true },
     { name: NAMES.WORKED_HOURS, icon: FiWatch, route: ROUTES.WORKED_HOURS, visible: true },
+    { name: NAMES.CERTIFICATES, icon: FiAward, route: ROUTES.CERTIFICATES, visible: true },
 ];
 
 
@@ -33,7 +35,7 @@ export const SidebarContent = () => {
 
     const LINKS_PERMISSIONS = LinkItems.map((link) => {
         //Only Admins and Data Managers can manage Users
-        if (link.name === NAMES.USERS) {
+        if (link.name === NAMES.USERS && link.name === NAMES.CERTIFICATES) {
             return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER') }
         }
         return link

@@ -248,9 +248,10 @@ export const useWorks = ():IWorkHook => {
             if(certificates){
                 certificatesRemote.current = certificates
                 const list = certificates
+                    .filter((cert) => cert.uid)
                     .map((res) => ({
                         label: res.name,
-                        value: res.uid
+                        value: res.uid as string
                     }));
                 setCertificatesList(list)
             }
@@ -448,7 +449,7 @@ export const useWorks = ():IWorkHook => {
                 }
                 reset(data)
                 setShowTraveling(data.traveling)
-                const tWork = work.typeWork.map(w => ({ label: w.name, value: w.uid }))
+                const tWork = work.typeWork.filter((tw) => tw.uid).map(w => ({ label: w.name, value: w.uid as string }))
                 const workers = work.workers.map((w) => ({ label: w.name, value: w.uid ?? '' }))
                 setItemsCertificates(tWork)
                 setWorkersSelected(workers)

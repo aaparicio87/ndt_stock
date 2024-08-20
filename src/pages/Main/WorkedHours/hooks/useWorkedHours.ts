@@ -9,7 +9,7 @@ import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
 import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 import { Event, View, Views } from 'react-big-calendar'
-import { endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek} from 'date-fns'
 import { calculateEventDuration } from "../../../../utils/functions.ts";
 
 
@@ -259,7 +259,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         const visibleEvents = events.filter((event) => {
             switch (view) {
                 case Views.DAY:
-                    return isEventInRange(event, date, date);
+                    const startOfDayDate = startOfDay(date);
+                    const endOfDayDate = endOfDay(date);
+                    return isEventInRange(event, startOfDayDate, endOfDayDate);
                 case Views.WEEK:
                     const startOfWeekDate = startOfWeek(date);
                     const endOfWeekDate = endOfWeek(date);
@@ -292,6 +294,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     
     
     const isEventInRange = (event: Event, start: Date, end: Date) => {
+        
         if (!event.start || !event.end) {
             return false;
         }

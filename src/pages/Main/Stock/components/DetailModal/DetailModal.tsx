@@ -29,12 +29,12 @@ const DetailModal = () => {
 
     const {
         isOpenDetail: isOpen,
-        onCloseDetail: onClose,
+        closeDetails,
         stockElement: item,
     } = useStockContext()
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpen} onClose={closeDetails}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Element detail</ModalHeader>
@@ -54,7 +54,7 @@ const DetailModal = () => {
                     )}
                 </ModalBody>
                 <ModalFooter>
-                    <Button colorScheme="blue" onClick={onClose}>
+                    <Button colorScheme="teal" onClick={closeDetails}>
                         Cerrar
                     </Button>
                 </ModalFooter>

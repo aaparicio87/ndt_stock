@@ -60,8 +60,9 @@ interface ILocation {
 }
 
 type TCertificates = {
-    uid: string
+    uid?: string
     name: string
+    description?:string
 }
 
 type TCustomer = {

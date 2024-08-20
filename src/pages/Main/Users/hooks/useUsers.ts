@@ -133,10 +133,12 @@ export interface IUseUser {
             const certificates = await getAllCertificates()
             if(certificates){
                 const list = certificates
-                    .map((res) => ({
-                        label: res.name,
-                        value: res.uid
-                    }));
+                .filter((li) => li.uid !== undefined)
+                .map((res) => ({
+                    label: res.name,
+                    value: res.uid as string
+                }));
+                  
                 setCertificatesList(list)
             }
         } catch (error) {

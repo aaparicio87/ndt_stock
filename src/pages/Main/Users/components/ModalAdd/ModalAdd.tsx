@@ -212,7 +212,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                 <ModalContent>
                     <ModalHeader>{item ? "Edit user" : "Create user"}</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody pb={6}>
+                    <ModalBody>
                         <HStack spacing={4} width="100%" my={4}>
                             <Avatar size="xl" src={selectedImage as string} />
                             <VStack alignItems={'start'} gap={2}>
@@ -230,7 +230,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </Button>
                             </VStack>
                         </HStack>
-                        <HStack spacing={4} py={3}>
+                        <HStack spacing={4} py={2}>
                             <FormControl isInvalid={!!errors.name}>
                                 <FormLabel>Name</FormLabel>
                                 <Input
@@ -253,7 +253,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={3}>
+                        <HStack spacing={4} py={2}>
                             <FormControl isInvalid={!!errors.email}>
                                 <FormLabel>Email</FormLabel>
                                 <Input
@@ -297,7 +297,7 @@ const ModalAdd = ({ onClose, isOpen, item }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={4} >
+                        <HStack spacing={4} py={3} >
                             <FormControl isInvalid={!!errors.roles}>
                                 <FormLabel>Roles</FormLabel>
                                 <MultiSelect

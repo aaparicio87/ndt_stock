@@ -41,6 +41,8 @@ export interface IUseStock {
     isOtherTypeSelected: boolean
     isOtherTradeMarkSelected: boolean
     handleCancelAdd: () => void
+    closeDetails: () => void
+    handleCancelDelete: () => void
 }
 
 type TInitialState = TStock & {
@@ -95,8 +97,6 @@ export const useStock = (): IUseStock => {
 
     React.useEffect(() => {
         reset(INITIAL_STATE)
-        setIsOtherTypeSelected(false)
-        setIsOtherTradeMarkSelected(false)
     }, [isSubmitSuccessful])
 
     const getAllElements = async () => {
@@ -128,8 +128,27 @@ export const useStock = (): IUseStock => {
     }
 
     const handleCancelAdd = () =>{
+        if(stockElement){
+            setStockElement(undefined)
+        }
+        if(isOtherTradeMarkSelected){
+            setIsOtherTradeMarkSelected(false)
+        }
+        if(isOtherTypeSelected){
+            setIsOtherTypeSelected(false)
+        }
         reset(INITIAL_STATE)
         onClose()
+    }
+
+    const closeDetails = () =>{
+        setStockElement(undefined)
+        onCloseDetail()
+    }
+
+    const handleCancelDelete = () =>{
+        setStockElementDelete(undefined)
+        onCloseDelete()
     }
 
     const handleViewDetails = (item: TStock) => {
@@ -169,6 +188,7 @@ export const useStock = (): IUseStock => {
         } catch (error) {
             openToast('error',(error as Error).message, "Error")
         } finally{
+            setStockElementDelete(undefined)
             onCloseDelete()
         }
     }
@@ -191,6 +211,11 @@ export const useStock = (): IUseStock => {
         } catch (error) {
             openToast('error',(error as Error).message, "Error")
         } finally {
+            if(stockElement?.uid){
+                setStockElement(undefined)
+            }
+            setIsOtherTypeSelected(false)
+            setIsOtherTradeMarkSelected(false)
             onClose()
         }
     })
@@ -217,6 +242,8 @@ export const useStock = (): IUseStock => {
         handleChangeTrademark,
         isOtherTypeSelected,
         isOtherTradeMarkSelected,
-        handleCancelAdd
+        handleCancelAdd,
+        closeDetails,
+        handleCancelDelete
     }
 }

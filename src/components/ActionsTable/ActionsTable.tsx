@@ -15,7 +15,7 @@ import { selectCurrentUser } from "../../state/features/auth/authSlice.tsx";
 import { CiMenuKebab } from "react-icons/ci";
 
 type TProps = {
-    onDetails: <Type>(item: Type) => void
+    onDetails?: <Type>(item: Type) => void
     onEdit: <Type>(item: Type) => void
     onDelete: <Type>(item: Type) => void
     onHours?: <Type>(item: Type) => void
@@ -57,7 +57,7 @@ export const ActionsTable = ({
     const currentUserAdminManager = user.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER')
 
     const tooltipList: IToolTips[] = [
-        { action: onDetails, icon: FiEye, label: 'Show details', iconProps: { ...iconDetailsProps, "aria-label": "Show details" }, visible: true },
+        { action: onDetails ? onDetails : () => { }, icon: FiEye, label: 'Show details', iconProps: { ...iconDetailsProps, "aria-label": "Show details" }, visible: !!onDetails },
         { action: onDelete, icon: FiTrash2, label: 'Delete', iconProps: { ...iconDeleteProps, "aria-label": "Delete" }, visible: currentUserAdminManager },
         { action: onHours ? onHours : () => { }, icon: FiWatch, label: 'Work hours', iconProps: { ...iconHoursProps, "aria-label": "Work hours" }, visible: currentUserAdminManager && visibleHours }
     ]

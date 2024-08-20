@@ -8,9 +8,10 @@ interface IProps {
     onChange: (newValue: MultiValue<TOptions>) => void
     value: MultiValue<TOptions>
     menuPlacement?: MenuPlacement | undefined
+    isDisabled?: boolean
 }
 
-export const MultiSelect = ({ options, onChange, value, menuPlacement }: IProps) => {
+export const MultiSelect = ({ options, onChange, value, menuPlacement, isDisabled = false }: IProps) => {
     return (
         <Select
             closeMenuOnSelect={false}
@@ -20,6 +21,7 @@ export const MultiSelect = ({ options, onChange, value, menuPlacement }: IProps)
             onChange={onChange}
             value={value}
             menuPlacement={menuPlacement}
+            isDisabled={isDisabled}
         />
     )
 }

@@ -1,7 +1,7 @@
 import React from "react";
-import {Container, Heading} from "@chakra-ui/react";
+import { Box, Heading } from "@chakra-ui/react";
 import WorkForm from "../WorkForm/WorkForm.tsx";
-import {useWorkContext} from "../../../../../context/WorkContext.tsx";
+import { useWorkContext } from "../../../../../context/WorkContext.tsx";
 
 
 
@@ -12,11 +12,11 @@ const EditWork = () => {
     } = useWorkContext()
 
     React.useEffect(() => {
-        (async() => await handleSelectOptions())()
+        (async () => await handleSelectOptions())()
     }, []);
 
     return (
-        <Container maxW={'3xl'}>
+        <Box borderWidth='1px' borderRadius='lg' overflow='hidden' padding={10} m={10}>
             <Heading
                 as='h3'
                 size='lg'
@@ -25,8 +25,8 @@ const EditWork = () => {
                 Edit work
             </Heading>
 
-            <WorkForm/>
-        </Container>
+            <WorkForm />
+        </Box>
     )
 }
 

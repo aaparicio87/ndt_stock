@@ -54,7 +54,14 @@ export const CustomDataTable = <T extends object>({ data, columns, loading }: TP
     })
 
     return (
-        <TableContainer>
+        <TableContainer
+            maxW={{ xl: '90vw', lg: '80vw', md: '75vw', sm: '70vw' }}
+            minW={{ xl: '80vw', lg: '75vw', md: '65vw', sm: '60vw' }}
+            overflowX="auto"
+            overflowY="auto"
+            maxH={{ xl: '122vh', lg: '128vh', md: '172vh', sm: '50vh' }}
+            minH={{ xl: '64vh', lg: '75vh', md: '70vh', sm: '45vh' }}
+        >
             {loading
                 ? <Loader />
                 : <>
@@ -91,10 +98,11 @@ export const CustomDataTable = <T extends object>({ data, columns, loading }: TP
                                     <Tr
                                         key={row.id}
                                         textAlign={'center'}
+
                                     >
                                         {row.getVisibleCells().map(cell => {
                                             return (
-                                                <Td key={cell.id}>
+                                                <Td key={cell.id} py={2}>
                                                     {flexRender(
                                                         cell.column.columnDef.cell,
                                                         cell.getContext()

@@ -20,8 +20,7 @@ export const NavItem = ({ icon, route, children, ...rest }: NavItemProps) => {
         >
             <Flex
                 align="center"
-                p="2"
-                m="4"
+                p="3"
                 borderRadius="md"
                 role="group"
                 cursor="pointer"
@@ -30,15 +29,18 @@ export const NavItem = ({ icon, route, children, ...rest }: NavItemProps) => {
                     color: 'white',
                 }}
                 {...rest}
+                direction={'column'}
+                fontSize={'sm'}
             >
+
                 {icon && (
                     <Icon
-                        mr="4"
-                        fontSize="16"
+                        fontSize="22"
                         _groupHover={{
                             color: 'white',
                         }}
                         as={icon}
+                        mb={2}
                     />
                 )}
                 {children}

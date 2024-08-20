@@ -5,7 +5,7 @@ import { useDisclosure } from "@chakra-ui/react";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { collection, onSnapshot } from "firebase/firestore";
 import { FB_DB } from "../../../../config/firebase.conf";
-import { STAFF } from "../../../../utils/constants";
+import { CAPITALIZED_ROLES, STAFF } from "../../../../utils/constants";
 import { 
     deleteStaffElement, 
     filterUser, 
@@ -112,7 +112,7 @@ export interface IUseUser {
                         degree: staff.degree ?? '',
                         email: staff.email,
                         fullName: `${capitalizeFirstLetter(staff.name)} ${capitalizeFirstLetter(staff.lastName)}`,
-                        roles: staff.roles.join(', '),
+                        roles: staff.roles.map((role) => CAPITALIZED_ROLES[role]).join(', '),
                         uid: staff.uid
                     }
                     return staffTableData
@@ -133,10 +133,12 @@ export interface IUseUser {
             const certificates = await getAllCertificates()
             if(certificates){
                 const list = certificates
-                    .map((res) => ({
-                        label: res.name,
-                        value: res.uid
-                    }));
+                .filter((li) => li.uid !== undefined)
+                .map((res) => ({
+                    label: res.name,
+                    value: res.uid as string
+                }));
+                  
                 setCertificatesList(list)
             }
         } catch (error) {

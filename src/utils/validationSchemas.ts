@@ -1,4 +1,4 @@
-import { REGEX_PASSWORD } from './constants'
+import { REGEX_NAME, REGEX_PASSWORD, REGEX_SERIAL } from './constants'
 import { z } from "zod";
 import {timeToMinutes} from "./functions.ts";
 
@@ -36,10 +36,12 @@ const RESET_PASSWORD_VALIDATION_SCHEMA = z.object({
 
 const SIGN_UP_VALIDATION_SCHEMA = z.object({
   name:z.string()
-  .min(1, "Name is required"),
+  .min(1, "Name is required")
+  .regex(REGEX_NAME, 'Name can only contain letters'),
 
   lastName:z.string()
-  .min(1, "Last name is required"),
+  .min(1, "Last name is required")
+  .regex(REGEX_NAME, 'Last name can only contain letters'),
 
   email: z.string()
   .min(1, "E-mail is required")
@@ -58,16 +60,29 @@ const SIGN_UP_VALIDATION_SCHEMA = z.object({
   })
 
 const STOCK_VALIDATION_SCHEMA = z.object({
-  serialNumber: z.string().min(1, "Serial number is required"),
-  model: z.string().min(1, "Model is required"),
-  typeEquipment: z.string().min(1, "Required field"),
-  tradeMark: z.string().min(1,"Trademark is required"),
-  store: z.string().min(1, "Store is required"),
+  serialNumber: z.string()
+                 .min(1, "Serial number is required")
+                 .regex(REGEX_SERIAL, 'Only numbers, letters, and ().- allowed'),
+  model: z
+          .string()
+          .min(1, "Model is required")
+          .regex(REGEX_SERIAL, 'Only numbers, letters, and ().- allowed'),
+  typeEquipment: z.string().min(1, "Type of equipment required"),
+  tradeMark: z.string().min(1,"Trademark required"),
+  store: z.string().min(1, "Store is required").regex(REGEX_SERIAL, 'Only numbers, letters, and ().- allowed'),
   calibrationDate: z.string(),
   qualityOfService: z.string().min(1, "QoS is required"),
-  remarks: z.string(),
-  otherTypeEquipment: z.string().optional(),
-  otherTrademark: z.string().optional(),
+  remarks: z.string().optional().refine((value) => {
+    if (value) {
+      console.log(REGEX_SERIAL.test(value))
+        return REGEX_SERIAL.test(value)
+    }
+    return true;
+  }, {
+    message: "Only numbers, letters, and ().- allowed",
+  }),
+  otherTypeEquipment: z.string().regex(REGEX_SERIAL, 'Only numbers, letters, and ().- allowed').optional(),
+  otherTrademark: z.string().regex(REGEX_SERIAL, 'Only numbers, letters, and ().- allowed').optional(),
 }).refine((data) => {
   if (data.typeEquipment === 'others') {
       return data.otherTypeEquipment?.trim() !== '';
@@ -84,28 +99,33 @@ const STOCK_VALIDATION_SCHEMA = z.object({
 }, {
   message: "Please specify other trademark",
   path: ["otherTrademark"],
-});
+})
 
 const CertificateSchema = z.object({
-  uid: z.string().min(1, "UID is required" ),
-  name: z.string().min(1, "Name is required"),
+  name: z.string()
+          .min(1, "Name is required")
+          .regex(REGEX_NAME, 'Only letters'),
+  uid: z.string()
+        .min(1, "UID is required" ),
 });
 
 const CustomerSchema = z.object({
   uid: z.string().min(1, "UID is required" ),
-  name: z.string().min(1, "Name is required"),
+  name: z.string().regex(REGEX_NAME, 'Only letters').min(1, "Name is required"),
 });
 
 const STAFF_VALIDATION_SCHEMA = z.object({
   name:z.string()
-  .min(1, "Name is required"),
+        .min(1, "Name is required")
+        .regex(REGEX_NAME, 'Name can only contain letters'),
 
   lastName:z.string()
-  .min(1, "Last name is required"),
+            .min(1, "Last name is required")
+            .regex(REGEX_NAME, 'Name can only contain letters'),
 
   email: z.string()
-  .min(1, "E-mail is required")
-  .email({ message: "Invalid email address" }),
+          .min(1, "E-mail is required")
+          .email({ message: "Invalid email address" }),
 
   degree: z.string().min(1, "Degree is required"),
 
@@ -119,17 +139,14 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 
 
 const FILTER_STAFF_VALIDATION_SCHEMA = z.object({
-  name:z.string().optional(),
+  name:z.string().regex(REGEX_NAME, 'Name can only contain letters').optional(),
   emailFilter: z.string().optional(),
   rolesFilter: z.array(z.string()).optional()
 });
 
 const WORKS_FILTER_VALIDATION_SCHEMA = z.object({
-  
   startDate: z.string(),
-
   endDate: z.string(),
-
 }).refine(data => {
 
   const startDate = new Date(data.startDate);
@@ -212,9 +229,8 @@ const CHANGE_PASSWORD_SCHEMA = z.object({
                 .min(1, 'Password is required')
               .regex(REGEX_PASSWORD, 'Password must contain Upper case, lower case, special character and min length 6'),
 
-  confirm: z
-          .string()
-          .min(1, 'Confirm password is required')
+  confirm: z.string()
+            .min(1, 'Confirm password is required')
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords must match",
@@ -246,10 +262,12 @@ const WORK_HOURS_VALIDATION_SCHEMA = z.object({
 
 const PROFILE_VALIDATION_SCHEMA = z.object({
   name:z.string()
-  .min(1, "Name is required"),
+        .min(1, "Name is required")
+        .regex(REGEX_NAME, 'Name can only contain letters'),  
 
   lastName:z.string()
-  .min(1, "Last name is required"),
+            .min(1, "Last name is required")
+            .regex(REGEX_NAME, 'Last name can only contain letters'),
 
   degree: z.string().min(1, "Degree is required"),
 })

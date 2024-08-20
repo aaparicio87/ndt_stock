@@ -9,7 +9,7 @@ import {selectCurrentUser} from "../../../../state/features/auth/authSlice.tsx";
 import {useDisclosure} from "@chakra-ui/react";
 import {WORK_HOURS_VALIDATION_SCHEMA} from "../../../../utils/validationSchemas.ts";
 import { Event, View, Views } from 'react-big-calendar'
-import { endOfMonth, endOfWeek, startOfMonth, startOfWeek} from 'date-fns'
+import { endOfDay, endOfMonth, endOfWeek, startOfDay, startOfMonth, startOfWeek} from 'date-fns'
 import { calculateEventDuration } from "../../../../utils/functions.ts";
 
 
@@ -49,6 +49,8 @@ export interface IWorkedHoursHooks {
     onViewChange: (view: View) => void
     visibleHours: string
     onNavigate: (newDate: Date) => void
+    showTraveling: boolean
+    handleToogleTraveling:() => void
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -84,6 +86,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     const [currentView, setCurrentView] = React.useState<View>(Views.MONTH);
     const [visibleHours, setVisibleHours] = React.useState('');
     const [currentDate, setCurrentDate] = React.useState(new Date());
+    const [showTraveling, setShowTraveling] = React.useState(false)
 
     useEffect(() => {
         handleGetWorkHoursByUser()
@@ -99,7 +102,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
               ...workHourSelected
           })
             if( workHourSelected.ndtMethods){
-                const tWork = workHourSelected.ndtMethods.map(w => ({ label: w.name, value: w.uid }))
+                const tWork = workHourSelected.ndtMethods
+                                    .filter((ndt) => ndt)
+                                    .map(w => ({ label: w.name, value: w.uid  as string}))
                 setItemsCertificates(tWork)
             }
             setCustomerSelected(workHourSelected.client.uid)
@@ -111,6 +116,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
             reset(INITIAL_STATE)
             setCustomerSelected("")
             setItemsCertificates([])
+            setShowTraveling(false)
         }
     }, [isSubmitSuccessful])
 
@@ -137,9 +143,10 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
             if(certificates){
                 certificatesRemote.current = certificates
                 const list = certificates
+                    .filter((ndt) => ndt)
                     .map((res) => ({
                         label: res.name,
-                        value: res.uid
+                        value: res.uid as string
                     }));
                 setCertificatesList(list)
             }
@@ -205,6 +212,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         }finally {
             handleGetWorkHoursByUser()
             onClose()
+            if(showTraveling){
+                setShowTraveling(false)
+            }
         }
     } )
 
@@ -238,10 +248,11 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     }
 
     const handleCloseModal = () => {
-        onClose()
         reset(INITIAL_STATE)
         setCustomerSelected("")
         setItemsCertificates([])
+        setShowTraveling(false)
+        onClose()
     }
 
     const onViewChange = (view: View) => {
@@ -259,7 +270,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         const visibleEvents = events.filter((event) => {
             switch (view) {
                 case Views.DAY:
-                    return isEventInRange(event, date, date);
+                    const startOfDayDate = startOfDay(date);
+                    const endOfDayDate = endOfDay(date);
+                    return isEventInRange(event, startOfDayDate, endOfDayDate);
                 case Views.WEEK:
                     const startOfWeekDate = startOfWeek(date);
                     const endOfWeekDate = endOfWeek(date);
@@ -292,6 +305,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     
     
     const isEventInRange = (event: Event, start: Date, end: Date) => {
+        
         if (!event.start || !event.end) {
             return false;
         }
@@ -307,6 +321,18 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     
         return (eventStart >= start && eventStart <= end) || (eventEnd >= start && eventEnd <= end);
     };
+
+    const handleToogleTraveling = () => {
+        setShowTraveling((prev) => !prev)
+        
+        reset({
+            ...getValues(),
+            distance: 0,
+            carPlate: "",
+            travelFrom: "",
+            travelTo: ""
+        })
+    }
 
     return {
         initialRef,
@@ -333,6 +359,8 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         handleCloseModal,
         onViewChange,
         visibleHours,
-        onNavigate  
+        onNavigate,
+        showTraveling,
+        handleToogleTraveling  
     }
 }

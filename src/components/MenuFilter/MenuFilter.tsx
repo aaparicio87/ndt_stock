@@ -34,8 +34,9 @@ export const MenuFilter = ({
                 rightIcon={<FiChevronDown />}
                 colorScheme='teal'
                 variant='outline'
-                size={'sm'}
+                size={'md'}
                 fontSize={'medium'}
+                p={2}
             >
                 {name}
             </MenuButton>

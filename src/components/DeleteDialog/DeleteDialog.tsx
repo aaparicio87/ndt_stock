@@ -1,5 +1,13 @@
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button } from "@chakra-ui/react"
 import React from "react"
+import {
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    Button
+} from "@chakra-ui/react"
 
 type TProps = {
     isOpen: boolean
@@ -8,6 +16,7 @@ type TProps = {
 }
 
 export function DeleteDialog({ isOpen, onCancel, onDelete }: TProps) {
+
 
     const cancelRef = React.useRef<any>()
 

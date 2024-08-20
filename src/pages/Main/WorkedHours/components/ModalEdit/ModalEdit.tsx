@@ -16,6 +16,7 @@ import {
 import { MultiSelect } from "../../../../../components";
 import React from "react";
 import { useWorkedHoursContext } from "../../../../../context/WorkedHoursContext.tsx";
+import TravelingForm from "../../../../../components/Travelign/Traveling.tsx";
 
 
 type TProps = {
@@ -42,6 +43,8 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
         handleGetAllCertificates,
         openToast,
         workHourSelected,
+        showTraveling,
+        handleToogleTraveling
     } = useWorkedHoursContext()
 
     React.useEffect(() => {
@@ -62,16 +65,17 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
             finalFocusRef={finalRef}
             isOpen={isOpen}
             onClose={onClose}
-            size={'xl'}
+            size={'2xl'}
             closeOnOverlayClick={false}
+
         >
             <ModalOverlay />
             <form onSubmit={handleCreateWorkHour}>
                 <ModalContent>
                     <ModalHeader>{workHourSelected ? "Edit event" : "Create event"}</ModalHeader>
                     <ModalCloseButton />
-                    <ModalBody pb={6}>
-                        <HStack spacing={4} py={3}>
+                    <ModalBody pb={1}>
+                        <HStack spacing={4}>
                             <FormControl isInvalid={!!errors.date}>
                                 <FormLabel>Date</FormLabel>
                                 <Input
@@ -104,7 +108,7 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack spacing={4} py={3}>
+                        <HStack spacing={4} py={2}>
                             <FormControl isInvalid={!!errors.location}>
                                 <FormLabel>Location</FormLabel>
                                 <Input
@@ -116,12 +120,13 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
 
-                            <FormControl isInvalid={!!errors.ndtMethods}>
+                            <FormControl isInvalid={!!errors.ndtMethods} isDisabled={showTraveling}>
                                 <FormLabel>Ndt methods</FormLabel>
                                 <MultiSelect
                                     options={certificatesList}
                                     value={itemsCertificates}
                                     onChange={handleChangeItemCertificates}
+                                    isDisabled={showTraveling}
                                 />
                                 <FormErrorMessage>
                                     {errors.ndtMethods && errors.ndtMethods.message}
@@ -130,7 +135,7 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
 
                         </HStack>
 
-                        <HStack spacing={4} py={3}>
+                        <HStack spacing={4} py={1}>
                             <FormControl isInvalid={!!errors.startTime}>
                                 <FormLabel>Start time</FormLabel>
                                 <Input
@@ -158,7 +163,14 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
                                 </FormErrorMessage>
                             </FormControl>
                         </HStack>
-                        <HStack py={3}>
+                        <TravelingForm
+                            errors={errors}
+                            register={register}
+                            onToogleSwitch={handleToogleTraveling}
+                            showTraveling={showTraveling}
+                            isWork={false}
+                        />
+                        <HStack pt={1}>
                             <FormControl>
                                 <FormLabel>Note</FormLabel>
                                 <Textarea

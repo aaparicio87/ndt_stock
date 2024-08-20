@@ -1,8 +1,5 @@
 import {
     Box,
-    BoxProps,
-    CloseButton,
-    Flex,
     useColorModeValue,
 } from "@chakra-ui/react";
 import { IconType } from 'react-icons';
@@ -10,10 +7,10 @@ import {
     FiUsers,
     FiFileText,
     FiWatch,
-    FiBriefcase
+    FiBriefcase,
+    FiAward,
 } from "react-icons/fi";
 import { NavItem } from "../NavItem/NavItem";
-import { LogoCompany } from "../../../../components";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { NAMES, ROUTES } from "../../../../utils/constants.ts";
@@ -29,18 +26,16 @@ const LinkItems: Array<LinkItemProps> = [
     { name: NAMES.USERS, icon: FiUsers, route: ROUTES.USERS, visible: true },
     { name: NAMES.WORKS, icon: FiBriefcase, route: ROUTES.WORKS, visible: true },
     { name: NAMES.WORKED_HOURS, icon: FiWatch, route: ROUTES.WORKED_HOURS, visible: true },
+    { name: NAMES.CERTIFICATES, icon: FiAward, route: ROUTES.CERTIFICATES, visible: true },
 ];
 
-type SidebarProps = BoxProps & {
-    onClose: () => void;
-}
 
-export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
+export const SidebarContent = () => {
     const user = useSelector(selectCurrentUser);
 
     const LINKS_PERMISSIONS = LinkItems.map((link) => {
         //Only Admins and Data Managers can manage Users
-        if (link.name === NAMES.USERS) {
+        if (link.name === NAMES.USERS && link.name === NAMES.CERTIFICATES) {
             return { ...link, visible: user?.roles.some((rol) => rol === 'ADMINISTRATOR' || rol === 'DATA_MANAGER') }
         }
         return link
@@ -48,18 +43,14 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
 
     return (
         <Box
-            transition="3s ease"
-            bg={useColorModeValue('#29363c', 'gray.900')}
+            bg={useColorModeValue('#4c616b', 'gray.900')}
             borderRight="1px"
             borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-            w={{ base: 'full', md: 60 }}
             pos="fixed"
             h="full"
-            {...rest}>
-            <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
-                <LogoCompany route="/" />
-                <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} color={'white'} />
-            </Flex>
+            mt={10}
+            pt={20}
+        >
             {LINKS_PERMISSIONS.map((link) => {
                 if (!link.visible) return
                 return (

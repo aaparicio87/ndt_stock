@@ -99,7 +99,9 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
               ...workHourSelected
           })
             if( workHourSelected.ndtMethods){
-                const tWork = workHourSelected.ndtMethods.map(w => ({ label: w.name, value: w.uid }))
+                const tWork = workHourSelected.ndtMethods
+                                    .filter((ndt) => ndt)
+                                    .map(w => ({ label: w.name, value: w.uid  as string}))
                 setItemsCertificates(tWork)
             }
             setCustomerSelected(workHourSelected.client.uid)
@@ -137,9 +139,10 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
             if(certificates){
                 certificatesRemote.current = certificates
                 const list = certificates
+                    .filter((ndt) => ndt)
                     .map((res) => ({
                         label: res.name,
-                        value: res.uid
+                        value: res.uid as string
                     }));
                 setCertificatesList(list)
             }

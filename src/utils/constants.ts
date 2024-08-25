@@ -4,6 +4,7 @@ const STOCK = 'stock'
 const WORKS = 'works'
 const CERTIFICATE = 'certificates'
 const CLIENT = 'clients'
+const LEVEL = 'levels'
 
 const ROUTES = {
     STOCK: '/',
@@ -56,6 +57,12 @@ const ROLES: TRole[]  = [
     "USER"
 ]
 
+const LEVELS: TLevel[]  = [
+    "Level 1",
+    "Level 2",
+    "Level 3"
+]
+
 const COLORS_DEGREE: Record<string, string> = {
     'Technical': 'red',
     'Engineer': 'green',
@@ -88,4 +95,6 @@ export {
     CAPITALIZED_ROLES,
     REGEX_SERIAL,
     REGEX_NAME,
+    LEVELS,
+    LEVEL,
 }

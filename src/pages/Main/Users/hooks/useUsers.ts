@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useFilterForm } from "../../../../hooks/useFilterForm";
 import { FILTER_STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
 import { FieldErrors, UseFormRegister, UseFormResetField, UseFormSetValue } from "react-hook-form";
-import { capitalizeFirstLetter } from "../../../../utils/functions";
+import { capitalizeFirstLetter, handleGetCertificates } from "../../../../utils/functions";
 
 
  export interface IStaffTable {
@@ -33,11 +33,6 @@ import { capitalizeFirstLetter } from "../../../../utils/functions";
  interface IFilter {
     name?: string | undefined 
     rolesFilter?: string[] | undefined
-}
-
-interface IOption {
-    label: string, 
-    value: string 
 }
 
 export interface IUseUser {
@@ -55,7 +50,7 @@ export interface IUseUser {
     isOpenDetail: boolean,
     onCloseDelete: ()=>void,
     isLoading: boolean,
-    certificatesList: IOption[],
+    certificatesList: TOptions[],
     handleGetAllCertificates: () => Promise<void>,
     handleUserHours: (uid: string ) => Promise<void>,
     userWorkHours: Event[],
@@ -80,7 +75,7 @@ export interface IUseUser {
     const [staffElementDelete, setStaffElementDelete] = React.useState<string | undefined>(undefined)
     const [data, setData] = React.useState<IStaffTable[]>([])
     const [isLoading, setIsLoading] = React.useState(false)
-    const [certificatesList, setCertificatesList] = React.useState<IOption[]>([])
+    const [certificatesList, setCertificatesList] = React.useState<TOptions[]>([])
     const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
     const dataRef = React.useRef<IStaffTable[]>([])
 
@@ -128,18 +123,12 @@ export interface IUseUser {
         }
     }
 
+
     const handleGetAllCertificates = async() => {
         try {
-            const certificates = await getAllCertificates()
+            const certificates = await handleGetCertificates()
             if(certificates){
-                const list = certificates
-                .filter((li) => li.uid !== undefined)
-                .map((res) => ({
-                    label: res.name,
-                    value: res.uid as string
-                }));
-                  
-                setCertificatesList(list)
+                setCertificatesList(certificates)
             }
         } catch (error) {
             openToast('error',`Error fetching staff: ${(error as Error).message}`, "Error")

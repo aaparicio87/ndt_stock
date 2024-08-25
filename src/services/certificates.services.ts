@@ -1,5 +1,6 @@
+import { collection, getDocs } from "firebase/firestore";
 import {  FB_DB } from "../config/firebase.conf"
-import { CERTIFICATE } from "../utils/constants";
+import { CERTIFICATE, LEVEL } from "../utils/constants";
 import FirebaseService from "./firebase.services";
 
 
@@ -7,7 +8,18 @@ const certificateService = new FirebaseService<TCertificates>(FB_DB, CERTIFICATE
 
 const getAllCertificates = async():Promise<TCertificates[]| undefined> =>{
     try {
-        return await certificateService.getAllOrder('name', 'asc');
+        const certificates = await certificateService.getAllOrder('name', 'asc');
+        const result = certificates.map(async(certificate) => {
+            const path = `${CERTIFICATE}/${certificate.uid}/${LEVEL}`
+            const levels = await getLevelsByCertificate(path)
+            return {
+                ...certificate,
+                levels,
+            } as  TCertificates
+        })
+
+        return Promise.all(result)
+        
     } catch (error) {
         throw new Error((error as Error).message)
     }
@@ -44,6 +56,15 @@ const updateCertificateElement = async (uid: string, data: TCertificates) => {
         throw new Error((error as Error).message)
     }
 };
+
+const getLevelsByCertificate = async (path:string) => {
+    try {
+        const levelsSnapshot  = await getDocs(collection(FB_DB, path))
+        return levelsSnapshot.docs.map((levels) =>({uid: levels.id, ...levels.data()})) as ILevel[]
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
+}
 
 export{
     getAllCertificates,

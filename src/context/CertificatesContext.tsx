@@ -25,7 +25,10 @@ const CertificatesProvider = ({ children }: Props) => {
         handleSubmitCertificate,
         onCloseEdit,
         onCloseDeleteDialog,
-        onOpen
+        onOpen,
+        levelsCert,
+        onChangeLevels,
+        itemsLevelCert
     } = useCertificates()
 
     return (
@@ -45,7 +48,10 @@ const CertificatesProvider = ({ children }: Props) => {
                 handleSubmitCertificate,
                 onCloseEdit,
                 onCloseDeleteDialog,
-                onOpen
+                onOpen,
+                levelsCert,
+                onChangeLevels,
+                itemsLevelCert
             }}
         >
             {children}

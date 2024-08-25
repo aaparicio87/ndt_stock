@@ -15,6 +15,8 @@ type TSignUp = {
 type TRole = 'ADMINISTRATOR' | 'DATA_MANAGER' | 'USER'
 type TToastStatus = 'success' | 'error' | 'warning' | 'info'
 type TWorkState = "Completed"| "In progress" | "Published" | "Unpublished"
+type TLevel = "Level 1" | "Level 2" | "Level 3"
+type TLevelKey = "level_1" | "level_2" | "level_3"
 
 type TStock = {
     uid?:string
@@ -64,10 +66,16 @@ interface ILocation {
     longitude: number
 }
 
+interface ILevel {
+    uid: TLevelKey
+    name: TLevel
+}
+
 type TCertificates = {
     uid?: string
     name: string
     description?:string
+    levels: ILevel[]
 }
 
 type TCustomer = {

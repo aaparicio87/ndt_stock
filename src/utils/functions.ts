@@ -1,3 +1,4 @@
+import { getAllCertificates } from "../services";
 
 function generateRandomPassword (name:string, lastName:string) {
     const formattedName = capitalizeFirstLetter(name);
@@ -37,6 +38,31 @@ const calculateEventDuration = (start: Date, end: Date) => {
     return endMinutes - startMinutes;
 };
 
+const getNameCertificate = (name:string, level:TLevelKey) => {
+    const number = level.split('_').at(1)
+    return `${name}${number}`
+}
+
+
+const handleGetCertificates = async() => {
+    try {
+        const certificates = await getAllCertificates()
+        if(certificates){
+            return certificates
+            .filter((li) => li.uid !== undefined)
+            .map((res) => {
+               return res.levels.map((level) =>{
+                const levelName = getNameCertificate(res.name, level.uid)
+                return { label: level.uid === 'level_1'? res.name : levelName , value: res.uid ?? ''}
+               }) 
+            })
+            .reduce((acc, curr) => acc.concat(curr), []);
+        }
+    } catch (error) {
+        throw new Error((error as Error).message)
+    }
+}
+
 
 
 
@@ -45,5 +71,6 @@ const calculateEventDuration = (start: Date, end: Date) => {
      timeToMinutes,
      handleKeyDown,
      capitalizeFirstLetter,
-     calculateEventDuration
+     calculateEventDuration,
+     handleGetCertificates
  }

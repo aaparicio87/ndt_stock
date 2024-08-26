@@ -48,7 +48,7 @@ const QOS = [
 const DEGREES = [
     'Technical',
     'Engineer',
-    'inspector',
+    'Inspector',
 ]
 
 const ROLES: TRole[]  = [

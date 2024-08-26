@@ -1,19 +1,24 @@
 import React, { useState } from "react"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
-import { addCertificate, deleteCertificateElement, getAllCertificates, updateCertificateElement } from "../../../../services"
+import {
+    addCertificate,
+    deleteCertificateElement,
+    getAllCertificates,
+    updateCertificateElement
+} from "../../../../services"
 import { FieldErrors, useForm, UseFormRegister } from "react-hook-form"
 import { collection, onSnapshot } from "firebase/firestore"
 import { FB_DB } from "../../../../config/firebase.conf"
 import { CERTIFICATE, LEVELS } from "../../../../utils/constants"
 import { MultiValue } from "react-select"
 
+
 type TInitialState = {
     name: string
     description: string
     levels: ILevel[]
 }
-
 
 const INITIAL_STATE: TInitialState = {
     name: '',
@@ -65,7 +70,6 @@ export const useCertificates = (): IUsecertificates => {
         defaultValues: INITIAL_STATE
     });
 
-
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, CERTIFICATE), (_) => {
             handleGetAllCertificates()
@@ -77,7 +81,6 @@ export const useCertificates = (): IUsecertificates => {
     React.useEffect(() => {
         reset()
     }, [isSubmitSuccessful])
-
 
     const handleGetAllCertificates = async () => {
         setIsLoading((prev) => !prev)
@@ -166,7 +169,6 @@ export const useCertificates = (): IUsecertificates => {
         })
         setValue('levels', certs)
     }
-
 
     return {
         data,

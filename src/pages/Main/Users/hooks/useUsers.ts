@@ -1,10 +1,10 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { ChangeEvent } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNotification } from "../../../../hooks/useNotification";
 import { useDisclosure } from "@chakra-ui/react";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
 import { collection, onSnapshot } from "firebase/firestore";
-import { FB_DB } from "../../../../config/firebase.conf";
+import { FB_DB, FB_STORAGE } from "../../../../config/firebase.conf";
 import { CAPITALIZED_ROLES, STAFF } from "../../../../utils/constants";
 import { 
     deleteStaffElement, 
@@ -12,14 +12,21 @@ import {
     getAllCertificates, 
     getAllStaff, 
     getStaffInformationByUserUID,
-    getWorkHours
+    getWorkHours,
+    registerUser,
+    updateStaffElement
  } from "../../../../services";
  import { Event } from 'react-big-calendar'
 import { useNavigate } from "react-router-dom";
 import { useFilterForm } from "../../../../hooks/useFilterForm";
-import { FILTER_STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
-import { FieldErrors, UseFormRegister, UseFormResetField, UseFormSetValue } from "react-hook-form";
+import { FILTER_STAFF_VALIDATION_SCHEMA, STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
+import { FieldErrors, useForm, UseFormRegister, UseFormResetField, UseFormSetValue } from "react-hook-form";
 import { capitalizeFirstLetter, handleGetCertificates } from "../../../../utils/functions";
+import { MultiValue } from "react-select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { AppDispatch } from "../../../../state/store";
+import { createListCertificatesAction } from "../../../../state/features/auth/thunk";
 
 
  export interface IStaffTable {
@@ -35,9 +42,25 @@ import { capitalizeFirstLetter, handleGetCertificates } from "../../../../utils/
     rolesFilter?: string[] | undefined
 }
 
+type TInitialState = TStaff & {
+    profileImage: File | null;
+}
+
+const INITIAL_STATE: TInitialState = {
+    email: "",
+    lastName: "",
+    name: "",
+    roles: [],
+    degree: "",
+    photoUrl: "",
+    certificates: [],
+    profileImage: null
+}
+
+
 export interface IUseUser {
     handleViewDetails:(uid: string | undefined) =>Promise<void>,
-    handleEdit: (uid: string | undefined) => Promise<void>,
+    handleEdit: (uid?: string) => Promise<void>,
     handleDelete: (item: string | undefined) => void,
     handleConfirmDelete: () => Promise<void>,
     closeModalAdd: ()=>void,
@@ -55,18 +78,29 @@ export interface IUseUser {
     handleUserHours: (uid: string ) => Promise<void>,
     userWorkHours: Event[],
     openWorksUser: (uid: string) => void,
-    errors: FieldErrors<IFilter>,
-    isSubmitting: boolean,
-    register: UseFormRegister<IFilter>,
-    setValue: UseFormSetValue<IFilter>,
+    isSubmitingFilter: boolean,
+    errorsFilter: FieldErrors<IFilter>,
+    registerFilter: UseFormRegister<IFilter>,
+    setValueFilter: UseFormSetValue<IFilter>,
+    resetFieldFilter: UseFormResetField<IFilter>
     handleFilterUsers: (e?: React.BaseSyntheticEvent) => Promise<void>
-    resetField: UseFormResetField<IFilter>
-    isSubmitSuccessful: boolean
+    isSubmitSuccessful: boolean,
+    handleImageChange: (event: ChangeEvent<HTMLInputElement>) => void
+    loading: boolean
+    itemsCertificates: MultiValue<TOptions>
+    itemsRoles: MultiValue<TOptions>
+    selectedImage: string | ArrayBuffer | null
+    onSubmitUser: (e?: React.BaseSyntheticEvent) => Promise<void>
+    register: UseFormRegister<TInitialState>
+    errors: FieldErrors<TInitialState>
+    isSubmitting: boolean
+    onChangeItemCertificates: (data: MultiValue<TOptions>) => void
+    onChangeItemRoles: (data: MultiValue<TOptions>) => void
 }
  
  export const useUser = ():IUseUser => {
+    const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate()
-    const { openToast } = useNotification()
     const user = useSelector(selectCurrentUser);
     const { isOpen, onOpen, onClose } = useDisclosure()
     const { isOpen: isOpenDetail, onOpen: onOpenDetail, onClose: onCloseDetail } = useDisclosure()
@@ -78,16 +112,37 @@ export interface IUseUser {
     const [certificatesList, setCertificatesList] = React.useState<TOptions[]>([])
     const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([])
     const dataRef = React.useRef<IStaffTable[]>([])
+    const certificatesRef = React.useRef<TCertificates[] | undefined>(undefined)
+    const [loading, setLoading] = React.useState(true)
+    const [itemsCertificates, setItemsCertificates] = React.useState<MultiValue<TOptions>>([])
+    const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>([])
+    const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(null);
+    const { openToast } = useNotification()
+
+    const { 
+        register, 
+        handleSubmit, 
+        reset, 
+        setValue, 
+        getValues, 
+        formState: { 
+            errors, 
+            isSubmitting,
+            isSubmitSuccessful 
+        } } = useForm<TInitialState>({
+        defaultValues: INITIAL_STATE,
+        resolver: zodResolver(STAFF_VALIDATION_SCHEMA)
+    });
 
     const {
-        errors,
-        getValues,
-        handleSubmit,
-        isSubmitting,
-        register,
-        setValue,
-        resetField,
-        isSubmitSuccessful,
+        errors: errorsFilter,
+        getValues: getValuesFilter,
+        handleSubmit: handleSubmitFilter,
+        isSubmitting: isSubmitingFilter,
+        register: registerFilter,
+        setValue: setValueFilter,
+        resetField: resetFieldFilter,
+        isSubmitSuccessful: isSubmitSuccessfulFilter,
    } = useFilterForm<IFilter>(FILTER_STAFF_VALIDATION_SCHEMA)
 
     React.useEffect(() => {
@@ -97,8 +152,17 @@ export interface IUseUser {
         return () => unsubscribe();
     }, [])
 
+    React.useEffect(() => {
+        if (isSubmitSuccessfulFilter) {
+            reset()
+            setItemsCertificates([])
+            setItemsRoles([])
+            onClose()
+        }
+    }, [isSubmitSuccessfulFilter])
+
     const getAllElements = async () => {
-        setIsLoading(true)
+        setIsLoading((prev) => !prev)
         try {
             const staffData = await getAllStaff();
             if (staffData) {
@@ -123,12 +187,13 @@ export interface IUseUser {
         }
     }
 
-
     const handleGetAllCertificates = async() => {
         try {
-            const certificates = await handleGetCertificates()
+            const certificates = await getAllCertificates()
+            certificatesRef.current = certificates
             if(certificates){
-                setCertificatesList(certificates)
+                const listCerts = handleGetCertificates(certificates)
+                setCertificatesList(listCerts)
             }
         } catch (error) {
             openToast('error',`Error fetching staff: ${(error as Error).message}`, "Error")
@@ -140,6 +205,7 @@ export interface IUseUser {
             if (uid) {
                 const staff = await getStaffInformationByUserUID(uid)
                 if(staff !== null){
+                    dispatch(createListCertificatesAction())
                     setStaffElement(staff)
                     onOpenDetail()
                 }
@@ -149,15 +215,34 @@ export interface IUseUser {
         }
     }
 
-    const handleEdit = async (uid: string | undefined) => {
-        if (uid) {
-            let staff = await getStaffInformationByUserUID(uid)
-            if(staff !== null){
-                setStaffElement(staff)
-                onOpen()
+    const handleEdit = async (uid?: string) => {
+        setLoading((prev) => !prev)
+        try {
+            await handleGetAllCertificates()
+            if (uid) {
+                let staff = await getStaffInformationByUserUID(uid)
+                if(staff !== null){
+                    setStaffElement(staff)
+                    const roles = staff.roles.map(rol => ({ label: rol, value: rol.toLowerCase() }))
+                    setItemsRoles(roles)
+                    reset({ 
+                        ...staff, 
+                        name: capitalizeFirstLetter(staff.name), 
+                        lastName: capitalizeFirstLetter(staff.lastName), 
+                    });
+                }
+            } else {
+                reset(INITIAL_STATE);
+                setItemsCertificates([]);
+                setItemsRoles([]);
             }
+           
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        } finally{
+            onOpen()
+            setLoading(false)
         }
-        onOpen()
     }
 
     const handleUserHours = async (uid: string ) => {
@@ -216,9 +301,9 @@ export interface IUseUser {
 
     const openWorksUser = (uid: string) => navigate(`workhours/${uid}`)
 
-    const handleFilterUsers = handleSubmit(async() => {
+    const handleFilterUsers = handleSubmitFilter(async() => {
         setIsLoading(true)
-        const data = getValues()
+        const data = getValuesFilter()
         try {
             const response = await filterUser(data)
             if(response){
@@ -249,6 +334,130 @@ export interface IUseUser {
         }
     })
 
+    const onSubmitUser = handleSubmit( async () => {
+        try {
+
+            let url = ""
+            const data = getValues()
+            if (data.profileImage && data.profileImage !== null) {
+                const storageRef = ref(FB_STORAGE, `images/${data.profileImage.name}`);
+                const result = await uploadBytes(storageRef, data.profileImage)
+                url = await getDownloadURL(result.ref);
+            }
+            if (staffElement?.uid) {
+                let updatedData = { ...data }
+                if (url.length > 0) {
+                    updatedData = {
+                        ...updatedData,
+                        photoUrl: url,
+                        name: updatedData.name.toLowerCase(),
+                        lastName: updatedData.lastName.toLowerCase(),
+                    }
+                }
+                await updateStaffElement(staffElement.uid, updatedData)
+                openToast('success', "User updated successfully", 'Success')
+
+            } else {
+                const updatedDataCreate = {
+                    ...data,
+                    photoUrl: url,
+                    name: data.name.toLowerCase(),
+                    lastName: data.lastName.toLowerCase(),
+                }
+                const response = await registerUser(updatedDataCreate)
+                if (response.success) {
+                    openToast('success', "New user added to the staff", 'Success')
+                } else {
+                    openToast('error', response.error ?? 'Internal server Error', "Error")
+
+                }
+            }
+        } catch (error) {
+            openToast('error', JSON.stringify(error), "Error")
+        }
+    }) 
+
+    const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const validImageTypes = ['image/jpeg', 'image/png'];
+            const maxSizeInMB = 2;
+            const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+            if (!validImageTypes.includes(file.type)) {
+                openToast('error', 'Only JPG and PNG images are allowed', 'Invalid file type');
+                return;
+            }
+
+            if (file.size > maxSizeInBytes) {
+                openToast('error', `Image size should not exceed ${maxSizeInMB} MB`, 'File too large');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+                setValue('profileImage', file);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function transformSelectedElements(
+        certificates:TCertificates[], 
+        selectedElements: {
+            certId: string;
+            levelId: string;
+        }[]
+    ): IUserCertificate[] {
+        
+        const userCertificatesMap: Record<string, IUserCertificate> = {};
+    
+        selectedElements.forEach(selection => {
+            const { certId, levelId } = selection;
+            
+            const cert = certificates.find(cert => cert.uid === certId);
+            if (!cert) return;
+    
+            const level = cert.levels.find(level => level.uid === levelId);
+            if (!level) return;
+    
+            if (!userCertificatesMap[certId]) {
+                userCertificatesMap[certId] = {
+                    uid: certId,
+                    levels: []
+                };
+            }
+
+            userCertificatesMap[certId].levels.push(level);
+        });
+        
+        return Object.values(userCertificatesMap);
+    }
+
+    const onChangeItemCertificates = (data: MultiValue<TOptions>) => {
+        setItemsCertificates(data) 
+        if(certificatesRef.current){
+            console.log(certificatesRef.current)
+            const certsSelecetd = data
+                            .map((d) => {
+                                const ids = d.value.split('-')
+                                return {
+                                    certId:ids[0],
+                                    levelId:ids[1]
+                                }
+                            })
+                            .filter((d) => d !== undefined)
+            const dataTransformed =  transformSelectedElements(certificatesRef.current, certsSelecetd)               
+            setValue('certificates',dataTransformed)                
+        }
+    }
+
+    const onChangeItemRoles = (data: MultiValue<TOptions>) => {
+        setItemsRoles(data)
+        const roles = data.map((r) => r.label as TRole)
+        setValue('roles', roles)
+    }
+
     return {
         handleViewDetails,
         handleEdit,
@@ -269,12 +478,23 @@ export interface IUseUser {
         handleUserHours,
         userWorkHours,
         openWorksUser,
+        errorsFilter,
+        isSubmitingFilter,
+        registerFilter,
+        setValueFilter,
+        handleFilterUsers,
+        isSubmitSuccessful,
+        resetFieldFilter,
+        loading,
+        itemsCertificates,
+        handleImageChange,
+        itemsRoles,
+        selectedImage,
+        onSubmitUser,
         errors,
         isSubmitting,
         register,
-        setValue,
-        handleFilterUsers,
-        resetField,
-        isSubmitSuccessful,
+        onChangeItemCertificates,
+        onChangeItemRoles,
     }
 }

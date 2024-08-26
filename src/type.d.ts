@@ -46,12 +46,17 @@ type TWorkHour = {
     carPlate?:string
 }
 
+interface IUserCertificate {
+    uid: string; 
+    levels: ILevel[]; 
+}
+
 type TStaff = TSignUp & {
     uid?:string
     degree?:string
     photoUrl?:string
     roles:TRole[]
-    certificates?:TCertificates[]
+    certificates?:IUserCertificate[]
     createdAt?:string
     wHours?: TWorkHour[]
 }
@@ -59,6 +64,10 @@ type TStaff = TSignUp & {
 type UserResponse = {
     user: TStaff | undefined
     token: string | null
+    listCertificates?: string[]
+    loading?: boolean
+    error?:string
+    status?: 'idle'| 'succeeded' | 'failed' | 'loading'
 }
 
 interface ILocation {

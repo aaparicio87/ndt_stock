@@ -13,6 +13,8 @@ import {
     Text,
 } from '@chakra-ui/react'
 import { capitalizeFirstLetter } from '../../../../../utils/functions'
+import { useSelector } from 'react-redux'
+import { selectCurrUserCert } from '../../../../../state/features/auth/authSlice'
 
 type TProps = {
     onClose: () => void
@@ -29,11 +31,10 @@ const ELEMENTS_DISPLAY = {
     roles: "Roles",
 }
 
-const formatDataDetail = (key: string, item: TStaff) => {
+const formatDataDetail = (key: string, item: TStaff, certificates: string[] | undefined) => {
     if (key === 'certificates') {
-        let certificates = item[key as keyof TStaff] as TCertificates[]
         if (certificates) {
-            return certificates.map((cert) => cert.name).join(', ')
+            return certificates.map((cert) => cert).join(', ')
         } else {
             return '-'
         }
@@ -50,6 +51,7 @@ const formatDataDetail = (key: string, item: TStaff) => {
 }
 
 const DetailModal = ({ isOpen, onClose, item }: TProps) => {
+    const certificates = useSelector(selectCurrUserCert)
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
@@ -61,7 +63,7 @@ const DetailModal = ({ isOpen, onClose, item }: TProps) => {
                         <Stack spacing={4}>
                             {Object.entries(ELEMENTS_DISPLAY).map(([key, label]) => (
                                 <Box key={key}>
-                                    <strong>{label}:</strong> <Text>{formatDataDetail(key, item)}</Text>
+                                    <strong>{label}:</strong> <Text>{formatDataDetail(key, item, certificates)}</Text>
                                     <Divider mt={2} />
                                 </Box>
                             ))}

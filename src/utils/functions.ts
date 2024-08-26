@@ -1,4 +1,3 @@
-import { getAllCertificates } from "../services";
 
 function generateRandomPassword (name:string, lastName:string) {
     const formattedName = capitalizeFirstLetter(name);
@@ -43,27 +42,46 @@ const getNameCertificate = (name:string, level:TLevelKey) => {
     return `${name}${number}`
 }
 
-
-const handleGetCertificates = async() => {
-    try {
-        const certificates = await getAllCertificates()
-        if(certificates){
-            return certificates
-            .filter((li) => li.uid !== undefined)
-            .map((res) => {
-               return res.levels.map((level) =>{
-                const levelName = getNameCertificate(res.name, level.uid)
-                return { label: level.uid === 'level_1'? res.name : levelName , value: res.uid ?? ''}
-               }) 
-            })
-            .reduce((acc, curr) => acc.concat(curr), []);
-        }
-    } catch (error) {
-        throw new Error((error as Error).message)
-    }
+const handleGetCertificates = (certificates: TCertificates[]) => {
+        return certificates
+                .filter((li) => li.uid !== undefined)
+                .map((res) => {
+                return res.levels.map((level) =>{
+                    const levelName = getNameCertificate(res.name, level.uid)
+                    const valueSelect = `${res.uid}-${level.uid}`
+                    return { label: level.uid === 'level_1'? res.name : levelName , value: valueSelect}
+                }) 
+                })
+                .reduce((acc, curr) => acc.concat(curr), []);
 }
 
+const getUserCertificatesName = (userCertifications: IUserCertificate[], certificates:TCertificates[] ) => {
+    const result = userCertifications.reduce((res, userCert) => {
+        const cert = certificates.find(c => c.uid === userCert.uid);
+        
+        if (cert) {
+            const nombresConNivel = userCert.levels.map(level => {
+                const levelIndex = cert.levels.findIndex(l => l.uid === level.uid);
+                return levelIndex === 0 
+                    ? cert.name  
+                    : `${cert.name}${levelIndex + 1}`;
+            });
+            
+            return res.concat(nombresConNivel);
+        }
+        
+        return res;
+    }, [] as string[]);
 
+    return result
+}
+
+const handleThunkError = (error: unknown, rejectWithValue: (value: { message: string }) => any) => {
+    if (error instanceof Error) {
+      return rejectWithValue({ message: error.message });
+    }
+    return rejectWithValue({ message: 'Unknown error' });
+};
 
 
  export {
@@ -72,5 +90,8 @@ const handleGetCertificates = async() => {
      handleKeyDown,
      capitalizeFirstLetter,
      calculateEventDuration,
-     handleGetCertificates
+     handleGetCertificates,
+     handleThunkError,
+     getUserCertificatesName
  }
+ 

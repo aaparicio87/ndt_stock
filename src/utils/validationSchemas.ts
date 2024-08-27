@@ -101,12 +101,27 @@ const STOCK_VALIDATION_SCHEMA = z.object({
   path: ["otherTrademark"],
 })
 
+const LevelCertificatesSchema = z.object({
+  name: z.string()
+          .min(1, "Name is required"),
+  uid: z.string()
+        .min(1, "UID is required" )
+})
+
+const userCertificatesSchema = z.object({
+  uid: z.string()
+          .min(1, "UID is required" ),
+  levels: z.array(LevelCertificatesSchema)
+          .nonempty({message: "Can't be empty!"}),    
+});
+
 const CertificateSchema = z.object({
   name: z.string()
-          .min(1, "Name is required")
-          .regex(REGEX_NAME, 'Only letters'),
+          .min(1, "Name is required"),
   uid: z.string()
-        .min(1, "UID is required" ),
+          .min(1, "UID is required" ),
+  levels: z.array(LevelCertificatesSchema)
+          .nonempty({message: "Can't be empty!"}),    
 });
 
 const CustomerSchema = z.object({
@@ -129,14 +144,13 @@ const STAFF_VALIDATION_SCHEMA = z.object({
 
   degree: z.string().min(1, "Degree is required"),
 
-  certificates: z.array(CertificateSchema)
+  certificates: z.array(userCertificatesSchema)
                  .nonempty({message: "Can't be empty!"}),
 
   roles: z.string().array().nonempty({
     message: "Can't be empty!",
   })
 })
-
 
 const FILTER_STAFF_VALIDATION_SCHEMA = z.object({
   name:z.string().regex(REGEX_NAME, 'Name can only contain letters').optional(),

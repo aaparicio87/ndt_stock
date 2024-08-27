@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {  useSelector } from "react-redux";
 import { useNotification } from "../../../../hooks/useNotification";
 import { useDisclosure } from "@chakra-ui/react";
 import { selectCurrentUser } from "../../../../state/features/auth/authSlice";
@@ -20,13 +20,22 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useFilterForm } from "../../../../hooks/useFilterForm";
 import { FILTER_STAFF_VALIDATION_SCHEMA, STAFF_VALIDATION_SCHEMA } from "../../../../utils/validationSchemas";
-import { FieldErrors, useForm, UseFormRegister, UseFormResetField, UseFormSetValue } from "react-hook-form";
-import { capitalizeFirstLetter, handleGetCertificates } from "../../../../utils/functions";
+import { 
+    FieldErrors, 
+    useForm, 
+    UseFormRegister,
+    UseFormResetField, 
+    UseFormSetValue 
+} from "react-hook-form";
+import { 
+    capitalizeFirstLetter, 
+    getUserCertificatesEdit, 
+    getUserCertificatesName, 
+    handleGetCertificates 
+} from "../../../../utils/functions";
 import { MultiValue } from "react-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { AppDispatch } from "../../../../state/store";
-import { createListCertificatesAction } from "../../../../state/features/auth/thunk";
 
 
  export interface IStaffTable {
@@ -96,10 +105,11 @@ export interface IUseUser {
     isSubmitting: boolean
     onChangeItemCertificates: (data: MultiValue<TOptions>) => void
     onChangeItemRoles: (data: MultiValue<TOptions>) => void
+    certificatesDetails: string[]
+    
 }
  
  export const useUser = ():IUseUser => {
-    const dispatch: AppDispatch = useDispatch();
     const navigate = useNavigate()
     const user = useSelector(selectCurrentUser);
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -117,6 +127,7 @@ export interface IUseUser {
     const [itemsCertificates, setItemsCertificates] = React.useState<MultiValue<TOptions>>([])
     const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>([])
     const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(null);
+    const [certificatesDetails, setCertificatesDetails] = React.useState<string[]>([])
     const { openToast } = useNotification()
 
     const { 
@@ -151,6 +162,7 @@ export interface IUseUser {
         })
         return () => unsubscribe();
     }, [])
+
 
     React.useEffect(() => {
         if (isSubmitSuccessfulFilter) {
@@ -201,17 +213,24 @@ export interface IUseUser {
     }
 
     const handleViewDetails = async (uid: string | undefined) => {
+        setLoading((prev) => !prev)
         try {
             if (uid) {
                 const staff = await getStaffInformationByUserUID(uid)
                 if(staff !== null){
-                    dispatch(createListCertificatesAction())
+                    const certificates = await getAllCertificates()
+                    if(certificates && staff.certificates){
+                        const result = getUserCertificatesName(staff.certificates, certificates)
+                        setCertificatesDetails(result)
+                    }
                     setStaffElement(staff)
                     onOpenDetail()
                 }
             }
         } catch (error) {
             openToast('error',`${(error as Error).message}`, "Error")
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -225,6 +244,12 @@ export interface IUseUser {
                     setStaffElement(staff)
                     const roles = staff.roles.map(rol => ({ label: rol, value: rol.toLowerCase() }))
                     setItemsRoles(roles)
+                    if(staff.certificates && certificatesRef.current){
+                        const response = getUserCertificatesEdit(staff.certificates, certificatesRef.current)
+                        console.log(response)
+                        setItemsCertificates(response)
+                    }
+                    setItemsCertificates
                     reset({ 
                         ...staff, 
                         name: capitalizeFirstLetter(staff.name), 
@@ -335,10 +360,9 @@ export interface IUseUser {
     })
 
     const onSubmitUser = handleSubmit( async () => {
+        let url = ""
+        const data = getValues()
         try {
-
-            let url = ""
-            const data = getValues()
             if (data.profileImage && data.profileImage !== null) {
                 const storageRef = ref(FB_STORAGE, `images/${data.profileImage.name}`);
                 const result = await uploadBytes(storageRef, data.profileImage)
@@ -374,6 +398,9 @@ export interface IUseUser {
             }
         } catch (error) {
             openToast('error', JSON.stringify(error), "Error")
+        }
+        finally{
+            closeModalAdd()
         }
     }) 
 
@@ -437,7 +464,6 @@ export interface IUseUser {
     const onChangeItemCertificates = (data: MultiValue<TOptions>) => {
         setItemsCertificates(data) 
         if(certificatesRef.current){
-            console.log(certificatesRef.current)
             const certsSelecetd = data
                             .map((d) => {
                                 const ids = d.value.split('-')
@@ -496,5 +522,6 @@ export interface IUseUser {
         register,
         onChangeItemCertificates,
         onChangeItemRoles,
+        certificatesDetails
     }
 }

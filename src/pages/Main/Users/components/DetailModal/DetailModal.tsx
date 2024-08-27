@@ -13,14 +13,10 @@ import {
     Text,
 } from '@chakra-ui/react'
 import { capitalizeFirstLetter } from '../../../../../utils/functions'
-import { useSelector } from 'react-redux'
-import { selectCurrUserCert } from '../../../../../state/features/auth/authSlice'
+import { useStaffContext } from '../../../../../context/StaffContext'
+import { Loader } from '../../../../../components'
+import { CAPITALIZED_ROLES } from '../../../../../utils/constants'
 
-type TProps = {
-    onClose: () => void
-    isOpen: boolean
-    item: TStaff
-}
 
 const ELEMENTS_DISPLAY = {
     name: "Name",
@@ -31,9 +27,9 @@ const ELEMENTS_DISPLAY = {
     roles: "Roles",
 }
 
-const formatDataDetail = (key: string, item: TStaff, certificates: string[] | undefined) => {
+const formatDataDetail = (key: string, item: TStaff, certificates: string[]) => {
     if (key === 'certificates') {
-        if (certificates) {
+        if (certificates.length > 0) {
             return certificates.map((cert) => cert).join(', ')
         } else {
             return '-'
@@ -41,7 +37,7 @@ const formatDataDetail = (key: string, item: TStaff, certificates: string[] | un
     } else if (key === 'roles') {
         let roles = item[key as keyof TStaff] as TRole[] | undefined
         if (roles)
-            return roles.join(', ')
+            return roles.map((role) => CAPITALIZED_ROLES[role]).join(', ')
         else return '-'
     } else if (key === 'name' || key === 'lastName') {
         return capitalizeFirstLetter(item[key as keyof TStaff]?.toString() ?? '')
@@ -50,30 +46,43 @@ const formatDataDetail = (key: string, item: TStaff, certificates: string[] | un
     }
 }
 
-const DetailModal = ({ isOpen, onClose, item }: TProps) => {
-    const certificates = useSelector(selectCurrUserCert)
+const DetailModal = () => {
+
+    const {
+        staffElement,
+        isOpenDetail,
+        closeModalAdd,
+        certificatesDetails,
+        isLoading,
+    } = useStaffContext()
+
     return (
-        <Modal isOpen={isOpen} onClose={onClose}>
+        <Modal isOpen={isOpenDetail} onClose={closeModalAdd}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Staff element detail</ModalHeader>
                 <ModalCloseButton />
-                <ModalBody>
-                    {item ? (
-                        <Stack spacing={4}>
-                            {Object.entries(ELEMENTS_DISPLAY).map(([key, label]) => (
-                                <Box key={key}>
-                                    <strong>{label}:</strong> <Text>{formatDataDetail(key, item, certificates)}</Text>
-                                    <Divider mt={2} />
-                                </Box>
-                            ))}
-                        </Stack>
-                    ) : (
-                        <Box>No item selected</Box>
-                    )}
-                </ModalBody>
+                {!isLoading ?
+                    <>
+                        <ModalBody>
+                            {staffElement ? (
+                                <Stack spacing={4}>
+                                    {Object.entries(ELEMENTS_DISPLAY).map(([key, label]) => (
+                                        <Box key={key}>
+                                            <strong>{label}:</strong> <Text>{formatDataDetail(key, staffElement, certificatesDetails)}</Text>
+                                            <Divider mt={2} />
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            ) : (
+                                <Box>No item selected</Box>
+                            )}
+                        </ModalBody>
+                    </> :
+                    <Loader />
+                }
                 <ModalFooter>
-                    <Button colorScheme="blue" onClick={onClose}>
+                    <Button colorScheme="blue" onClick={closeModalAdd}>
                         Cerrar
                     </Button>
                 </ModalFooter>

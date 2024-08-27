@@ -70,7 +70,13 @@ const ModalAdd = () => {
                                     <VStack alignItems={'start'} gap={2}>
                                         <Text fontSize={'large'} as='b'>Profile Image</Text>
                                         <Text fontSize={'small'}> PNG or JPEG</Text>
-                                        <Button as="label" htmlFor="profile-image" cursor="pointer" size={'sm'}>
+                                        <Button
+                                            as="label"
+                                            htmlFor="profile-image"
+                                            cursor="pointer"
+                                            size={'sm'}
+                                            isDisabled={isSubmitting}
+                                        >
                                             Select
                                             <Input
                                                 type="file"
@@ -84,7 +90,7 @@ const ModalAdd = () => {
                                 </HStack>
 
                                 <HStack spacing={4} py={2}>
-                                    <FormControl isInvalid={!!errors.name}>
+                                    <FormControl isInvalid={!!errors.name} isDisabled={isSubmitting}>
                                         <FormLabel>Name</FormLabel>
                                         <Input
                                             placeholder='Name'
@@ -95,7 +101,7 @@ const ModalAdd = () => {
                                         </FormErrorMessage>
                                     </FormControl>
 
-                                    <FormControl isInvalid={!!errors.lastName}>
+                                    <FormControl isInvalid={!!errors.lastName} isDisabled={isSubmitting}>
                                         <FormLabel>Last name</FormLabel>
                                         <Input
                                             placeholder='Last name'
@@ -108,7 +114,7 @@ const ModalAdd = () => {
                                 </HStack>
 
                                 <HStack spacing={4} py={2}>
-                                    <FormControl isInvalid={!!errors.email}>
+                                    <FormControl isInvalid={!!errors.email} isDisabled={isSubmitting}>
                                         <FormLabel>Email</FormLabel>
                                         <Input
                                             placeholder='Email'
@@ -139,12 +145,13 @@ const ModalAdd = () => {
                                 </HStack>
 
                                 <HStack spacing={4} py={3} >
-                                    <FormControl isInvalid={!!errors.certificates}>
+                                    <FormControl isInvalid={!!errors.certificates} isDisabled={isSubmitting}>
                                         <FormLabel>Certificates</FormLabel>
                                         <MultiSelect
                                             options={certificatesList}
                                             value={itemsCertificates}
                                             onChange={onChangeItemCertificates}
+                                            menuPlacement='auto'
                                         />
                                         <FormErrorMessage>
                                             {errors.certificates && errors.certificates.message}
@@ -153,12 +160,13 @@ const ModalAdd = () => {
                                 </HStack>
 
                                 <HStack spacing={4} py={3} >
-                                    <FormControl isInvalid={!!errors.roles}>
+                                    <FormControl isInvalid={!!errors.roles} isDisabled={isSubmitting}>
                                         <FormLabel>Roles</FormLabel>
                                         <MultiSelect
                                             options={_optionsRoles}
                                             value={itemsRoles}
                                             onChange={onChangeItemRoles}
+                                            menuPlacement='auto'
                                         />
                                         <FormErrorMessage>
                                             {errors.roles && errors.roles.message}

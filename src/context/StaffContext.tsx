@@ -47,6 +47,7 @@ const StaffProvider = ({ children }: Props) => {
         register,
         onChangeItemCertificates,
         onChangeItemRoles,
+        certificatesDetails
     } = useUser()
 
     return (
@@ -89,6 +90,7 @@ const StaffProvider = ({ children }: Props) => {
                 register,
                 onChangeItemCertificates,
                 onChangeItemRoles,
+                certificatesDetails
             }}
         >
             {children}

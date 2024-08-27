@@ -11,9 +11,20 @@ interface IProps {
     isDisabled?: boolean
 }
 
+
+
 export const MultiSelect = ({ options, onChange, value, menuPlacement, isDisabled = false }: IProps) => {
+
+
     return (
         <Select
+            styles={{
+                multiValueLabel: (baseStyles) => ({
+                    ...baseStyles,
+                    whiteSpace: 'nowrap',
+                    minWidth: '6vw',
+                }),
+            }}
             closeMenuOnSelect={false}
             components={animatedComponents}
             isMulti

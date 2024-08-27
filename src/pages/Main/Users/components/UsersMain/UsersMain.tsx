@@ -15,14 +15,12 @@ const UsersMain = () => {
     let location = useLocation();
 
     const {
-        closeModalAdd,
         data,
         handleConfirmDelete,
         handleDelete,
         handleEdit,
         handleViewDetails,
         isOpenDelete,
-        staffElement,
         user,
         isOpen,
         isOpenDetail,
@@ -68,11 +66,7 @@ const UsersMain = () => {
                 />
             </Stack>
             {isOpen && <ModalAdd />}
-            {staffElement && <DetailModal
-                isOpen={isOpenDetail}
-                onClose={closeModalAdd}
-                item={staffElement}
-            />}
+            {isOpenDetail && <DetailModal />}
             <DeleteDialog
                 isOpen={isOpenDelete}
                 onCancel={onCloseDelete}

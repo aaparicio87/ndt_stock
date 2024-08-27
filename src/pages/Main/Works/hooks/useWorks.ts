@@ -44,9 +44,6 @@ export interface IDetailWork {
     cans: number,
     needToDeliver: string,
     distance?: number,
-    startTimeTravel?: string,
-    stopTimeTravel?: string,
-    carPlate?: string,
     travelFrom?: string,
     travelTo?: string,
     maxWorkedHours:number,
@@ -76,9 +73,6 @@ const INITIAL_STATE: Partial<TWork> = {
     needToDeliver: false,
     traveling: false,
     distance: 0,
-    startTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
-    stopTimeTravel: new Date().toTimeString().split(" ")[0].slice(0, 5),
-    carPlate: "",
     travelFrom: "",
     travelTo: ""
 }
@@ -341,9 +335,6 @@ export const useWorks = ():IWorkHook => {
                 detailWork = {
                     ...detailWork,
                     distance: Number(work.distance) ?? 0,
-                    startTimeTravel: work.startTimeTravel ?? '-',
-                    stopTimeTravel: work.stopTimeTravel ?? '-',
-                    carPlate: work.carPlate ?? '-',
                     travelFrom: work.travelFrom ?? '-',
                     travelTo: work.travelTo ?? '-',
                 }
@@ -360,29 +351,29 @@ export const useWorks = ():IWorkHook => {
     const handleChangeItemCertificates = (newValue: MultiValue<TOptions>) => {
        try {
            setItemsCertificates(newValue)
-           const dataArray = newValue
-           const typeWork = certificatesRemote.current
-               .filter(item => dataArray
+           const typeWork = certificatesRemote.current.filter(item => newValue
                    .map(data => data.value as string)
-                   .includes(item.uid ?? ''));
+                   .includes(item.uid ?? '')); 
+
            const typeWorkIds = typeWork.map((tw) => tw.uid)
+
            const workersLst = workersRemote.current
                .filter((wr) => wr.certificates?.some((cert) => typeWorkIds.includes(cert.uid)))
                .map((res) => ({
                    label: `${capitalizeFirstLetter(res.name)} ${capitalizeFirstLetter(res.lastName)}`,
                    value: `${res.uid}`
                }));
+ 
            setValue('typeWork', typeWork)
 
            if(workersLst.length === 0){
-               let lstWorkers = workersRemote.current
+               /* let lstWorkers = workersRemote.current
                    .filter((res) => res.roles.some((role) => role === 'USER'))
                    .map((res) => ({
                        label: `${res.name} ${res.lastName}`,
                        value: `${res.uid}`
-                   }));
-               setWorkersList(lstWorkers)
-
+                   })); */
+               setWorkersList([])
            }
 
            if(workersLst.length > 0){

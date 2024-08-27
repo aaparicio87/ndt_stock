@@ -1,22 +1,32 @@
-import React from "react"
+import React, { useState } from "react"
 import { useDisclosure } from "@chakra-ui/react"
 import { useNotification } from "../../../../hooks/useNotification"
-import { addCertificate, deleteCertificateElement, getAllCertificates, updateCertificateElement } from "../../../../services"
+import {
+    addCertificate,
+    deleteCertificateElement,
+    getAllCertificates,
+    updateCertificateElement
+} from "../../../../services"
 import { FieldErrors, useForm, UseFormRegister } from "react-hook-form"
 import { collection, onSnapshot } from "firebase/firestore"
 import { FB_DB } from "../../../../config/firebase.conf"
-import { CERTIFICATE } from "../../../../utils/constants"
+import { CERTIFICATE, LEVELS } from "../../../../utils/constants"
+import { MultiValue } from "react-select"
+
 
 type TInitialState = {
     name: string
     description: string
+    levels: ILevel[]
 }
-
 
 const INITIAL_STATE: TInitialState = {
     name: '',
     description: '',
+    levels: []
 }
+
+const levelsCert = LEVELS.map((label) => ({ label: label, value: label.toLowerCase().replace(" ", "_") }))
 
 export interface IUsecertificates {
     data: TCertificates[]
@@ -34,6 +44,9 @@ export interface IUsecertificates {
     onCloseEdit: () => void
     onCloseDeleteDialog: () => void
     onOpen: () => void
+    levelsCert: TOptions[]
+    onChangeLevels: (data: MultiValue<TOptions>) => void
+    itemsLevelCert: MultiValue<TOptions>
 }
 
 export const useCertificates = (): IUsecertificates => {
@@ -44,17 +57,18 @@ export const useCertificates = (): IUsecertificates => {
     const [isLoading, setIsLoading] = React.useState(false)
     const certificateRef = React.useRef<string | undefined>(undefined)
     const [certificate, setCertificate] = React.useState<TCertificates | undefined>(undefined)
+    const [itemsLevelCert, setItemsLevelCert] = useState<MultiValue<TOptions>>([])
 
     const {
         register,
         getValues,
         handleSubmit,
         reset,
+        setValue,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<TInitialState>({
         defaultValues: INITIAL_STATE
     });
-
 
     React.useEffect(() => {
         const unsubscribe = onSnapshot(collection(FB_DB, CERTIFICATE), (_) => {
@@ -67,7 +81,6 @@ export const useCertificates = (): IUsecertificates => {
     React.useEffect(() => {
         reset()
     }, [isSubmitSuccessful])
-
 
     const handleGetAllCertificates = async () => {
         setIsLoading((prev) => !prev)
@@ -86,6 +99,8 @@ export const useCertificates = (): IUsecertificates => {
     const handleEdit = (cert: TCertificates) => {
         reset(cert)
         setCertificate(cert)
+        const levels = cert.levels.map((level) => ({ label: level.name, value: level.uid }))
+        setItemsLevelCert(levels)
         onOpen()
     }
 
@@ -94,6 +109,7 @@ export const useCertificates = (): IUsecertificates => {
             setCertificate(undefined)
             reset(INITIAL_STATE)
         }
+        setItemsLevelCert([])
         onClose()
     }
 
@@ -122,14 +138,14 @@ export const useCertificates = (): IUsecertificates => {
 
     const handleSubmitCertificate = handleSubmit(async () => {
         setIsLoading((prev) => !prev)
-        const { description, name } = getValues()
+        const { description, name, levels } = getValues()
         try {
 
             if (certificate && certificate.uid) {
-                await updateCertificateElement(certificate.uid, { name, description })
+                await updateCertificateElement(certificate.uid, { name, description, levels })
                 openToast('success', "Element updated successfully", 'Success')
             } else {
-                await addCertificate({ name, description })
+                await addCertificate({ name, description, levels })
                 openToast('success', "New certificate created", 'Success')
             }
         } catch (error) {
@@ -137,12 +153,22 @@ export const useCertificates = (): IUsecertificates => {
         } finally {
             if (certificate) {
                 setCertificate(undefined)
+
             }
+            setItemsLevelCert([])
             onClose()
             setIsLoading(false)
         }
     })
 
+    const onChangeLevels = (data: MultiValue<TOptions>) => {
+        setItemsLevelCert(data)
+        const certs = data.map((d) => {
+            const levels: ILevel = { uid: d.value as TLevelKey, name: d.label as TLevel }
+            return levels
+        })
+        setValue('levels', certs)
+    }
 
     return {
         data,
@@ -159,6 +185,9 @@ export const useCertificates = (): IUsecertificates => {
         handleSubmitCertificate,
         onCloseEdit,
         onCloseDeleteDialog,
-        onOpen
+        onOpen,
+        levelsCert,
+        onChangeLevels,
+        itemsLevelCert
     }
 }

@@ -15,15 +15,12 @@ const UsersMain = () => {
     let location = useLocation();
 
     const {
-        onOpen,
-        closeModalAdd,
         data,
         handleConfirmDelete,
         handleDelete,
         handleEdit,
         handleViewDetails,
         isOpenDelete,
-        staffElement,
         user,
         isOpen,
         isOpenDetail,
@@ -48,7 +45,7 @@ const UsersMain = () => {
                         leftIcon={<FiPlus />}
                         colorScheme='teal'
                         variant='solid'
-                        onClick={onOpen}
+                        onClick={() => handleEdit()}
                         px={6}
                     >
                         Add
@@ -68,16 +65,8 @@ const UsersMain = () => {
                     visibleHours={location.pathname === "/users"}
                 />
             </Stack>
-            {isOpen && <ModalAdd
-                isOpen={isOpen}
-                onClose={closeModalAdd}
-                item={staffElement}
-            />}
-            {staffElement && <DetailModal
-                isOpen={isOpenDetail}
-                onClose={closeModalAdd}
-                item={staffElement}
-            />}
+            {isOpen && <ModalAdd />}
+            {isOpenDetail && <DetailModal />}
             <DeleteDialog
                 isOpen={isOpenDelete}
                 onCancel={onCloseDelete}

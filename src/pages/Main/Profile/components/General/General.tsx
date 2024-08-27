@@ -1,22 +1,26 @@
-import { useState } from "react";
+import React from "react";
 import { Avatar, Box, Button, Flex, HStack, Icon, SimpleGrid, Tag, TagLabel, Text, WrapItem } from "@chakra-ui/react";
 import { FiInbox } from "react-icons/fi";
 import { useSelector } from "react-redux";
-import { selectCurrentUser } from "../../../../../state/features/auth/authSlice";
+import { selectCurrentUser, selectCurrUserCert } from "../../../../../state/features/auth/authSlice";
 import { COLORS_DEGREE } from "../../../../../utils/constants";
 import ModalEditProfile from "../ModalEditProfile/ModalEditProfile";
 import { capitalizeFirstLetter } from "../../../../../utils/functions";
 
+
 const General = () => {
 
     const user = useSelector(selectCurrentUser);
-    const [isOpen, setIsOpen] = useState(false)
+    const certificates = useSelector(selectCurrUserCert);
+
+    const [isOpen, setIsOpen] = React.useState(false)
 
     const onClose = () => setIsOpen(false)
 
     if (!user) {
         return null
     }
+
 
     return (
         <Flex direction="column">
@@ -91,12 +95,12 @@ const General = () => {
                     <Box mt={5}>
                         <HStack spacing={4}>
                             {
-                                user.certificates?.map((cert) => (
+                                certificates?.map((cert, index) => (
                                     <Tag
                                         size='md'
-                                        key={cert.uid}
+                                        key={index}
                                     >
-                                        <TagLabel fontWeight={'bold'}>{cert.name}</TagLabel>
+                                        <TagLabel fontWeight={'bold'}>{cert}</TagLabel>
                                     </Tag>
                                 ))
                             }

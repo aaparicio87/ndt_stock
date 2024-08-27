@@ -15,6 +15,9 @@ import {
     VStack
 } from "@chakra-ui/react"
 import { useCertificatesContext } from "../../../../../context/CertificatesContext"
+import { MultiSelect } from "../../../../../components"
+
+
 
 
 const ModalAdd = () => {
@@ -30,6 +33,9 @@ const ModalAdd = () => {
         errors,
         register,
         isSubmitting,
+        levelsCert,
+        onChangeLevels,
+        itemsLevelCert
     } = useCertificatesContext()
 
     return (
@@ -62,6 +68,18 @@ const ModalAdd = () => {
                                 />
                                 <FormErrorMessage>
                                     {errors.name && errors.name.message}
+                                </FormErrorMessage>
+                            </FormControl>
+
+                            <FormControl isInvalid={!!errors.levels}>
+                                <FormLabel>Levels</FormLabel>
+                                <MultiSelect
+                                    options={levelsCert}
+                                    value={itemsLevelCert}
+                                    onChange={onChangeLevels}
+                                />
+                                <FormErrorMessage>
+                                    {errors.levels && errors.levels.message}
                                 </FormErrorMessage>
                             </FormControl>
 

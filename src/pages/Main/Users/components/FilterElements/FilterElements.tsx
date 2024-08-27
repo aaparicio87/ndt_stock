@@ -19,12 +19,12 @@ import { useStaffContext } from "../../../../../context/StaffContext";
 const _optionsRoles = ROLES.map((label) => ({ label, value: label.toLowerCase() }))
 const FilterElements = () => {
     const {
-        errors,
+        errorsFilter,
         isSubmitting,
         register,
-        setValue,
+        setValueFilter,
         handleFilterUsers,
-        resetField
+        resetFieldFilter
     } = useStaffContext()
 
     const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>([])
@@ -32,7 +32,7 @@ const FilterElements = () => {
     const onChangeItemRoles = (data: MultiValue<TOptions>) => {
         setItemsRoles(data)
         const roles = data.map((r) => r.label as TRole)
-        setValue('rolesFilter', roles)
+        setValueFilter('rolesFilter', roles)
     }
 
     return (
@@ -40,7 +40,7 @@ const FilterElements = () => {
             <form>
                 <VStack spacing={3}>
 
-                    <FormControl isInvalid={!!errors.name} isDisabled={isSubmitting}>
+                    <FormControl isInvalid={!!errorsFilter.name} isDisabled={isSubmitting}>
                         <FormLabel>First name</FormLabel>
                         <InputGroup mb={1}>
                             <Input
@@ -54,17 +54,17 @@ const FilterElements = () => {
                                         aria-label="Clear filter"
                                         icon={<FiXCircle />}
                                         size="sm"
-                                        onClick={() => resetField('name')}
+                                        onClick={() => resetFieldFilter('name')}
                                         variant="ghost"
                                     />
                                 </InputRightElement>
                             )}
                         </InputGroup>
                         <FormErrorMessage>
-                            {errors.name && errors.name.message}
+                            {errorsFilter.name && errorsFilter.name.message}
                         </FormErrorMessage>
                     </FormControl>
-                    <FormControl mb={2} isInvalid={!!errors.rolesFilter}>
+                    <FormControl mb={2} isInvalid={!!errorsFilter.rolesFilter}>
                         <FormLabel>Roles</FormLabel>
                         <MultiSelect
                             options={_optionsRoles}
@@ -73,7 +73,7 @@ const FilterElements = () => {
                             menuPlacement="top"
                         />
                         <FormErrorMessage>
-                            {errors.rolesFilter && errors.rolesFilter.message}
+                            {errorsFilter.rolesFilter && errorsFilter.rolesFilter.message}
                         </FormErrorMessage>
                     </FormControl>
                     <Button

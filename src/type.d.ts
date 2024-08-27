@@ -15,6 +15,8 @@ type TSignUp = {
 type TRole = 'ADMINISTRATOR' | 'DATA_MANAGER' | 'USER'
 type TToastStatus = 'success' | 'error' | 'warning' | 'info'
 type TWorkState = "Completed"| "In progress" | "Published" | "Unpublished"
+type TLevel = "Level 1" | "Level 2" | "Level 3"
+type TLevelKey = "level_1" | "level_2" | "level_3"
 
 type TStock = {
     uid?:string
@@ -44,12 +46,17 @@ type TWorkHour = {
     carPlate?:string
 }
 
+interface IUserCertificate {
+    uid: string; 
+    levels: ILevel[]; 
+}
+
 type TStaff = TSignUp & {
     uid?:string
     degree?:string
     photoUrl?:string
     roles:TRole[]
-    certificates?:TCertificates[]
+    certificates?:IUserCertificate[]
     createdAt?:string
     wHours?: TWorkHour[]
 }
@@ -57,6 +64,10 @@ type TStaff = TSignUp & {
 type UserResponse = {
     user: TStaff | undefined
     token: string | null
+    listCertificates?: string[]
+    loading?: boolean
+    error?:string
+    status?: 'idle'| 'succeeded' | 'failed' | 'loading'
 }
 
 interface ILocation {
@@ -64,10 +75,16 @@ interface ILocation {
     longitude: number
 }
 
+interface ILevel {
+    uid: TLevelKey
+    name: TLevel
+}
+
 type TCertificates = {
     uid?: string
     name: string
     description?:string
+    levels: ILevel[]
 }
 
 type TCustomer = {

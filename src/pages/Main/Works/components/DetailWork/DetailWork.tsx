@@ -35,9 +35,6 @@ const ELEMENTS_DISPLAY: { [key: string]: string } = {
     traveling: "Traveling",
     maxWorkedHours: "Max worked hours",
     distance: "Distance",
-    startTimeTravel: "Start time travel",
-    stopTimeTravel: "Stop time travel",
-    carPlate: "Plate",
     travelFrom: "From",
     travelTo: "To",
 }
@@ -109,7 +106,6 @@ const DetailWork = () => {
                                     </>
                                 );
                             }
-                            // Si traveling es "No" o no es "traveling", muestra solo ese campo
                             if (key === 'traveling' || workElementDetail.hasOwnProperty(key)) {
                                 return (
                                     <FormControl key={key} isReadOnly>

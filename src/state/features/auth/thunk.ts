@@ -24,7 +24,7 @@ export const createListCertificatesAction = createAsyncThunk<{certificates: stri
         }
 
         return {
-            result:[]
+            result
         }
       } catch (error) {
         return handleThunkError(error, rejectWithValue);

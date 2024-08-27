@@ -81,7 +81,7 @@ const getUserCertificatesEdit = (userCertifications: IUserCertificate[], certifi
         const cert = certificates.find(c => c.uid === userCert.uid);
         
         if (cert) {
-            const options:TOptions[] = userCert.levels.map(userLevel => {
+            const options = userCert.levels.map(userLevel => {
                 const levelIndex = cert.levels.findIndex(l => l.uid === userLevel.uid);
                 if(levelIndex !== -1){
                     return{

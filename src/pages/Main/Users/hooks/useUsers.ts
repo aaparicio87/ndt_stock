@@ -246,7 +246,6 @@ export interface IUseUser {
                     setItemsRoles(roles)
                     if(staff.certificates && certificatesRef.current){
                         const response = getUserCertificatesEdit(staff.certificates, certificatesRef.current)
-                        console.log(response)
                         setItemsCertificates(response)
                     }
                     setItemsCertificates

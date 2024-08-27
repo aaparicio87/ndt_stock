@@ -10,10 +10,7 @@ const MainCertificates = () => {
 
     const {
         handleConfirmDelete,
-        isOpen,
         isOpenDelete,
-        onCloseEdit,
-        certificate,
         onCloseDeleteDialog,
         onOpen
     } = useCertificatesContext()

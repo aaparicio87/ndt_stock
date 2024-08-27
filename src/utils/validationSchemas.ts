@@ -102,10 +102,8 @@ const STOCK_VALIDATION_SCHEMA = z.object({
 })
 
 const LevelCertificatesSchema = z.object({
-  name: z.string()
-          .min(1, "Name is required"),
-  uid: z.string()
-        .min(1, "UID is required" )
+  name: z.any(),
+  uid: z.any()
 })
 
 const userCertificatesSchema = z.object({

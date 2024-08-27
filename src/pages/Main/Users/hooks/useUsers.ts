@@ -163,7 +163,6 @@ export interface IUseUser {
         return () => unsubscribe();
     }, [])
 
-
     React.useEffect(() => {
         if (isSubmitSuccessfulFilter) {
             reset()

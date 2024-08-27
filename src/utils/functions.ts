@@ -76,30 +76,29 @@ const getUserCertificatesName = (userCertifications: IUserCertificate[], certifi
     return result
 }
 
-const getUserCertificatesEdit = (userCertifications: IUserCertificate[], certificates:TCertificates[] ) => {
-    const result = userCertifications.reduce((res, userCert) => {
+const getUserCertificatesEdit = (userCertifications: IUserCertificate[], certificates: TCertificates[]): TOptions[] => {
+    return userCertifications.reduce((res, userCert) => {
         const cert = certificates.find(c => c.uid === userCert.uid);
         
         if (cert) {
             const options = userCert.levels.map(userLevel => {
                 const levelIndex = cert.levels.findIndex(l => l.uid === userLevel.uid);
                 if(levelIndex !== -1){
-                    return{
-                        label:levelIndex === 0 ? cert.name :`${cert.name}${levelIndex + 1}`,
+                    return {
+                        label: levelIndex === 0 ? cert.name : `${cert.name}${levelIndex + 1}`,
                         value: `${userCert.uid}-${cert.levels[levelIndex].uid}`
-                    }
+                    };
                 }
-                return
-            }).filter((e) => e !== undefined)
-            
+                return undefined; 
+            }).filter((option) => option !== undefined) as TOptions[];
+
             return res.concat(options);
         }
         
         return res;
     }, [] as TOptions[]);
-
-    return result
 }
+
 
 const handleThunkError = (error: unknown, rejectWithValue: (value: { message: string }) => any) => {
     if (error instanceof Error) {

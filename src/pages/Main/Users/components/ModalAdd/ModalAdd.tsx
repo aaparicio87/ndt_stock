@@ -48,6 +48,8 @@ const ModalAdd = () => {
     const initialRef = React.useRef(null)
     const finalRef = React.useRef(null)
 
+    console.log(errors)
+
     return (
         <Modal
             initialFocusRef={initialRef}

@@ -1,15 +1,50 @@
 import React, { createContext, useContext } from "react";
-import { IWorkedHoursHooks, useWorkedHours } from "../pages/Main/WorkedHours/hooks/useWorkedHours.ts";
-
+import {
+  IWorkedHoursHooks,
+  useWorkedHours,
+} from "../pages/Main/WorkedHours/hooks/useWorkedHours.ts";
 
 type Props = {
-    children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-const WorkedHoursContext = createContext<IWorkedHoursHooks | null>(null)
+const WorkedHoursContext = createContext<IWorkedHoursHooks | null>(null);
 
 const WorkedHoursProvider = ({ children }: Props) => {
-    const {
+  const {
+    handleGetAllCustomers,
+    handleGetAllCertificates,
+    certificatesList,
+    customersList,
+    handleChangeCustomersSelect,
+    handleChangeItemCertificates,
+    itemsCertificates,
+    customerSelected,
+    register,
+    errors,
+    isSubmitting,
+    handleCreateWorkHour,
+    isOpen,
+    initialRef,
+    finalRef,
+    onOpen,
+    openToast,
+    handleWorkHoursSelected,
+    workHourSelected,
+    handleGetWorkHoursByUser,
+    userWorkHours,
+    handleCloseModal,
+    onViewChange,
+    visibleHours,
+    onNavigate,
+    showTraveling,
+    handleToogleTraveling,
+    clearErrors,
+  } = useWorkedHours();
+
+  return (
+    <WorkedHoursContext.Provider
+      value={{
         handleGetAllCustomers,
         handleGetAllCertificates,
         certificatesList,
@@ -37,53 +72,22 @@ const WorkedHoursProvider = ({ children }: Props) => {
         onNavigate,
         showTraveling,
         handleToogleTraveling,
-    } = useWorkedHours()
-
-    return (
-        <WorkedHoursContext.Provider
-            value={{
-                handleGetAllCustomers,
-                handleGetAllCertificates,
-                certificatesList,
-                customersList,
-                handleChangeCustomersSelect,
-                handleChangeItemCertificates,
-                itemsCertificates,
-                customerSelected,
-                register,
-                errors,
-                isSubmitting,
-                handleCreateWorkHour,
-                isOpen,
-                initialRef,
-                finalRef,
-                onOpen,
-                openToast,
-                handleWorkHoursSelected,
-                workHourSelected,
-                handleGetWorkHoursByUser,
-                userWorkHours,
-                handleCloseModal,
-                onViewChange,
-                visibleHours,
-                onNavigate,
-                showTraveling,
-                handleToogleTraveling
-            }}
-        >
-            {children}
-        </WorkedHoursContext.Provider>
-    )
-}
+        clearErrors,
+      }}
+    >
+      {children}
+    </WorkedHoursContext.Provider>
+  );
+};
 
 function useWorkedHoursContext() {
-    const context = useContext(WorkedHoursContext)
-    if (!context) {
-        throw new Error(
-            'useWorkedHoursContext must be used within a WorkedHoursContext'
-        )
-    }
-    return context
+  const context = useContext(WorkedHoursContext);
+  if (!context) {
+    throw new Error(
+      "useWorkedHoursContext must be used within a WorkedHoursContext",
+    );
+  }
+  return context;
 }
 
-export { WorkedHoursProvider, useWorkedHoursContext }
+export { WorkedHoursProvider, useWorkedHoursContext };

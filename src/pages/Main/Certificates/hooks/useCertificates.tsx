@@ -7,7 +7,7 @@ import {
     getAllCertificates,
     updateCertificateElement
 } from "../../../../services"
-import { FieldErrors, useForm, UseFormRegister } from "react-hook-form"
+import { FieldErrors, useForm, UseFormClearErrors, UseFormRegister } from "react-hook-form"
 import { collection, onSnapshot } from "firebase/firestore"
 import { FB_DB } from "../../../../config/firebase.conf"
 import { CERTIFICATE, LEVELS } from "../../../../utils/constants"
@@ -47,6 +47,8 @@ export interface IUsecertificates {
     levelsCert: TOptions[]
     onChangeLevels: (data: MultiValue<TOptions>) => void
     itemsLevelCert: MultiValue<TOptions>
+    clearErrors: UseFormClearErrors<TInitialState>
+
 }
 
 export const useCertificates = (): IUsecertificates => {
@@ -65,6 +67,7 @@ export const useCertificates = (): IUsecertificates => {
         handleSubmit,
         reset,
         setValue,
+        clearErrors,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<TInitialState>({
         defaultValues: INITIAL_STATE
@@ -188,6 +191,7 @@ export const useCertificates = (): IUsecertificates => {
         onOpen,
         levelsCert,
         onChangeLevels,
-        itemsLevelCert
+        itemsLevelCert,
+        clearErrors
     }
 }

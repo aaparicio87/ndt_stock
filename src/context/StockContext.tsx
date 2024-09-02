@@ -29,11 +29,10 @@ const StockProvider = ({ children }: Props) => {
     handleCreate,
     isSubmitting,
     register,
-    isOtherTypeSelected,
-    isOtherTradeMarkSelected,
     closeDetails,
     handleCancelDelete,
     clearErrors,
+    watch,
   } = useStock();
 
   return (
@@ -59,11 +58,10 @@ const StockProvider = ({ children }: Props) => {
         handleCreate,
         isSubmitting,
         register,
-        isOtherTypeSelected,
-        isOtherTradeMarkSelected,
         closeDetails,
         handleCancelDelete,
         clearErrors,
+        watch,
       }}
     >
       {children}

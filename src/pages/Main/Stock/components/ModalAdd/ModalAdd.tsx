@@ -21,29 +21,37 @@ import {
   TYPE_EQUIPMENTS,
 } from "../../../../../utils/constants";
 import { useStockContext } from "../../../../../context/StockContext";
+import { Loader } from "../../../../../components";
 
 const ModalAdd = () => {
   const {
     isOpen,
     handleCancelAdd,
-    stockElement,
     handleCreate,
     errors,
     register,
-    isOtherTypeSelected,
-    isOtherTradeMarkSelected,
     handleChangeTypeEquipment,
     handleChangeTrademark,
     isSubmitting,
     clearErrors,
+    watch,
+    isLoading,
   } = useStockContext();
 
   const initialRef = React.useRef(null);
   const finalRef = React.useRef(null);
 
+  const isOtherTypeEquipment = watch("typeEquipment") === "others";
+  const isOtherTrademark = watch("tradeMark") === "others";
+  const edit = !!watch("uid");
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <Modal
@@ -57,9 +65,7 @@ const ModalAdd = () => {
       <ModalOverlay />
       <form onSubmit={handleCreate}>
         <ModalContent>
-          <ModalHeader>
-            {stockElement ? "Edit product" : "Create product"}
-          </ModalHeader>
+          <ModalHeader>{edit ? "Edit product" : "Create product"}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <HStack spacing={4}>
@@ -92,7 +98,6 @@ const ModalAdd = () => {
                   placeholder="Select option"
                   {...register("typeEquipment")}
                   onChange={handleChangeTypeEquipment}
-                  defaultValue={isOtherTypeSelected ? "others" : undefined}
                 >
                   {TYPE_EQUIPMENTS.map((type, index) => (
                     <option value={type} key={index}>
@@ -113,7 +118,6 @@ const ModalAdd = () => {
                   placeholder="Select option"
                   {...register("tradeMark")}
                   onChange={handleChangeTrademark}
-                  defaultValue={isOtherTradeMarkSelected ? "others" : undefined}
                 >
                   {TRADEMARK.map((type, index) => (
                     <option value={type} key={index}>
@@ -128,41 +132,36 @@ const ModalAdd = () => {
                 </FormErrorMessage>
               </FormControl>
             </HStack>
-            {(isOtherTypeSelected || isOtherTradeMarkSelected) && (
-              <HStack spacing={4} py={2} width={"100%"} flex={1}>
-                {isOtherTypeSelected && (
-                  <FormControl
-                    w={"50%"}
-                    isInvalid={!!errors.otherTypeEquipment}
-                  >
-                    <Input
-                      placeholder="Other type of equipment"
-                      {...register("otherTypeEquipment")}
-                    />
-                    <FormErrorMessage>
-                      {errors.otherTypeEquipment &&
-                        errors.otherTypeEquipment.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                )}
+            <HStack spacing={4} py={2} width={"100%"} flex={1}>
+              {isOtherTypeEquipment && (
+                <FormControl w={"50%"} isInvalid={!!errors.otherTypeEquipment}>
+                  <Input
+                    placeholder="Other type of equipment"
+                    {...register("otherTypeEquipment")}
+                  />
+                  <FormErrorMessage>
+                    {errors.otherTypeEquipment &&
+                      errors.otherTypeEquipment.message}
+                  </FormErrorMessage>
+                </FormControl>
+              )}
 
-                {isOtherTradeMarkSelected && (
-                  <FormControl
-                    w={"50%"}
-                    ml={isOtherTradeMarkSelected ? "auto" : "0"}
-                    isInvalid={!!errors.otherTrademark}
-                  >
-                    <Input
-                      placeholder="Other trademark"
-                      {...register("otherTrademark")}
-                    />
-                    <FormErrorMessage>
-                      {errors.otherTrademark && errors.otherTrademark.message}
-                    </FormErrorMessage>
-                  </FormControl>
-                )}
-              </HStack>
-            )}
+              {isOtherTrademark && (
+                <FormControl
+                  w={"50%"}
+                  ml={isOtherTrademark ? "auto" : "0"}
+                  isInvalid={!!errors.otherTrademark}
+                >
+                  <Input
+                    placeholder="Other trademark"
+                    {...register("otherTrademark")}
+                  />
+                  <FormErrorMessage>
+                    {errors.otherTrademark && errors.otherTrademark.message}
+                  </FormErrorMessage>
+                </FormControl>
+              )}
+            </HStack>
             <HStack spacing={4} py={2}>
               <FormControl isInvalid={!!errors.store}>
                 <FormLabel>Store</FormLabel>
@@ -223,7 +222,7 @@ const ModalAdd = () => {
               type="submit"
               isLoading={isSubmitting}
             >
-              {stockElement ? "Update" : "Save"}
+              {edit ? "Update" : "Save"}
             </Button>
             <Button onClick={handleCancelAdd} isDisabled={isSubmitting}>
               Cancel

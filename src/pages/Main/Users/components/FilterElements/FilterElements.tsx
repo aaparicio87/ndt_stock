@@ -24,7 +24,8 @@ const FilterElements = () => {
         register,
         setValueFilter,
         handleFilterUsers,
-        resetFieldFilter
+        resetFieldFilter,
+        clearErrorsFilter
     } = useStaffContext()
 
     const [itemsRoles, setItemsRoles] = React.useState<MultiValue<TOptions>>([])
@@ -71,6 +72,7 @@ const FilterElements = () => {
                             value={itemsRoles}
                             onChange={onChangeItemRoles}
                             menuPlacement="top"
+                            handleFocus={() => errorsFilter.rolesFilter && clearErrorsFilter('rolesFilter')}
                         />
                         <FormErrorMessage>
                             {errorsFilter.rolesFilter && errorsFilter.rolesFilter.message}

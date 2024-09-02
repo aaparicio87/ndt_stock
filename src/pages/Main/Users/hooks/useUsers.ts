@@ -16,7 +16,7 @@ import {
   registerUser,
   updateStaffElement,
 } from "../../../../services";
-import { Event } from "react-big-calendar";
+import { Event, View, Views } from "react-big-calendar";
 import { useNavigate } from "react-router-dom";
 import { useFilterForm } from "../../../../hooks/useFilterForm";
 import {
@@ -32,14 +32,24 @@ import {
   UseFormSetValue,
 } from "react-hook-form";
 import {
+  calculateEventDuration,
   capitalizeFirstLetter,
   getUserCertificatesEdit,
   getUserCertificatesName,
   handleGetCertificates,
+  normalizeFullName,
 } from "../../../../utils/functions";
 import { MultiValue } from "react-select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  startOfDay,
+  startOfMonth,
+} from "date-fns";
+import { startOfWeek } from "date-fns/startOfWeek";
 
 export interface IStaffTable {
   fullName: string;
@@ -109,6 +119,10 @@ export interface IUseUser {
   onChangeItemRoles: (data: MultiValue<TOptions>) => void;
   certificatesDetails: string[];
   clearErrors: UseFormClearErrors<TInitialState>;
+  clearErrorsFilter: UseFormClearErrors<IFilter>;
+  onViewChange: (view: View) => void;
+  visibleHours: string;
+  onNavigate: (newDate: Date) => void;
 }
 
 export const useUser = (): IUseUser => {
@@ -137,6 +151,9 @@ export const useUser = (): IUseUser => {
     [],
   );
   const [userWorkHours, setUserWorkHours] = React.useState<Event[]>([]);
+  const [currentView, setCurrentView] = React.useState<View>(Views.MONTH);
+  const [visibleHours, setVisibleHours] = React.useState("");
+  const [currentDate, setCurrentDate] = React.useState(new Date());
   const dataRef = React.useRef<IStaffTable[]>([]);
   const certificatesRef = React.useRef<TCertificates[] | undefined>(undefined);
   const [loading, setLoading] = React.useState(true);
@@ -174,6 +191,7 @@ export const useUser = (): IUseUser => {
     setValue: setValueFilter,
     resetField: resetFieldFilter,
     isSubmitSuccessful: isSubmitSuccessfulFilter,
+    clearErrors: clearErrorsFilter,
   } = useFilterForm<IFilter>(FILTER_STAFF_VALIDATION_SCHEMA);
 
   React.useEffect(() => {
@@ -191,6 +209,10 @@ export const useUser = (): IUseUser => {
       onClose();
     }
   }, [isSubmitSuccessfulFilter]);
+
+  React.useEffect(() => {
+    calculateWorkedHours(userWorkHours, currentView, currentDate);
+  }, [currentView, userWorkHours, currentDate]);
 
   const getAllElements = async () => {
     setIsLoading((prev) => !prev);
@@ -402,8 +424,8 @@ export const useUser = (): IUseUser => {
           updatedData = {
             ...updatedData,
             photoUrl: url,
-            name: updatedData.name.toLowerCase(),
-            lastName: updatedData.lastName.toLowerCase(),
+            name: normalizeFullName(data.name).toLowerCase(),
+            lastName: normalizeFullName(data.lastName).toLowerCase(),
           };
         }
         await updateStaffElement(staffElement.uid, updatedData);
@@ -412,8 +434,8 @@ export const useUser = (): IUseUser => {
         const updatedDataCreate = {
           ...data,
           photoUrl: url,
-          name: data.name.toLowerCase(),
-          lastName: data.lastName.toLowerCase(),
+          name: normalizeFullName(data.name).toLowerCase(),
+          lastName: normalizeFullName(data.lastName).toLowerCase(),
         };
         const response = await registerUser(updatedDataCreate);
         if (response.success) {
@@ -523,6 +545,80 @@ export const useUser = (): IUseUser => {
     setValue("roles", roles);
   };
 
+  const onViewChange = (view: View) => {
+    setCurrentView(view);
+  };
+
+  const onNavigate = (newDate: Date) => {
+    setCurrentDate(newDate);
+  };
+
+  const calculateWorkedHours = (events: Event[], view: View, date: Date) => {
+    let totalMinutes = 0;
+
+    // Filter events that are in the visible range based on the current view and date
+    const visibleEvents = events.filter((event) => {
+      switch (view) {
+        case Views.DAY:
+          const startOfDayDate = startOfDay(date);
+          const endOfDayDate = endOfDay(date);
+          return isEventInRange(event, startOfDayDate, endOfDayDate);
+        case Views.WEEK:
+          const startOfWeekDate = startOfWeek(date);
+          const endOfWeekDate = endOfWeek(date);
+          return isEventInRange(event, startOfWeekDate, endOfWeekDate);
+        case Views.MONTH:
+          const startOfMonthDate = startOfMonth(date);
+          const endOfMonthDate = endOfMonth(date);
+          return isEventInRange(event, startOfMonthDate, endOfMonthDate);
+        default:
+          return false;
+      }
+    });
+
+    // Calculate the total minutes for the visible events
+    visibleEvents.forEach((event) => {
+      if (event.end && event.start) {
+        totalMinutes += calculateEventDuration(event.start, event.end);
+      }
+    });
+
+    // Convert total minutes to hours and minutes
+    if (totalMinutes < 60) {
+      setVisibleHours(`${totalMinutes} minutes`);
+    } else {
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      setVisibleHours(
+        `${hours} hour${hours > 1 ? "s" : ""}${minutes > 0 ? ` and ${minutes} minutes` : ""}`,
+      );
+    }
+  };
+
+  const isEventInRange = (event: Event, start: Date, end: Date) => {
+    if (!event.start || !event.end) {
+      return false;
+    }
+
+    // Ajuste para eventos que cruzan la medianoche
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+
+    // Si el evento cruza la medianoche
+    if (eventEnd < eventStart) {
+      return (
+        (eventStart >= start && eventStart <= end) ||
+        (eventEnd.getTime() + 86400000 >= start.getTime() &&
+          eventEnd.getTime() + 86400000 <= end.getTime())
+      );
+    }
+
+    return (
+      (eventStart >= start && eventStart <= end) ||
+      (eventEnd >= start && eventEnd <= end)
+    );
+  };
+
   return {
     handleViewDetails,
     handleEdit,
@@ -563,5 +659,9 @@ export const useUser = (): IUseUser => {
     onChangeItemRoles,
     certificatesDetails,
     clearErrors,
+    clearErrorsFilter,
+    onViewChange,
+    onNavigate,
+    visibleHours,
   };
 };

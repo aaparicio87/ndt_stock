@@ -35,7 +35,8 @@ const ModalAdd = () => {
         isSubmitting,
         levelsCert,
         onChangeLevels,
-        itemsLevelCert
+        itemsLevelCert,
+        clearErrors
     } = useCertificatesContext()
 
     return (
@@ -77,6 +78,7 @@ const ModalAdd = () => {
                                     options={levelsCert}
                                     value={itemsLevelCert}
                                     onChange={onChangeLevels}
+                                    handleFocus={() => errors.levels && clearErrors('levels')}
                                 />
                                 <FormErrorMessage>
                                     {errors.levels && errors.levels.message}

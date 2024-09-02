@@ -12,8 +12,6 @@ const WorkedHoursContext = createContext<IWorkedHoursHooks | null>(null);
 
 const WorkedHoursProvider = ({ children }: Props) => {
   const {
-    handleGetAllCustomers,
-    handleGetAllCertificates,
     certificatesList,
     customersList,
     handleChangeCustomersSelect,
@@ -40,13 +38,14 @@ const WorkedHoursProvider = ({ children }: Props) => {
     showTraveling,
     handleToogleTraveling,
     clearErrors,
+    handleOpenEditWorkHour,
+    isLoading,
+    watch,
   } = useWorkedHours();
 
   return (
     <WorkedHoursContext.Provider
       value={{
-        handleGetAllCustomers,
-        handleGetAllCertificates,
         certificatesList,
         customersList,
         handleChangeCustomersSelect,
@@ -73,6 +72,9 @@ const WorkedHoursProvider = ({ children }: Props) => {
         showTraveling,
         handleToogleTraveling,
         clearErrors,
+        handleOpenEditWorkHour,
+        isLoading,
+        watch,
       }}
     >
       {children}

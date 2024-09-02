@@ -17,6 +17,7 @@ import {
   useForm,
   UseFormClearErrors,
   UseFormRegister,
+  UseFormWatch,
 } from "react-hook-form";
 
 export interface IUseStock {
@@ -39,12 +40,11 @@ export interface IUseStock {
   handleCreate: (e?: React.BaseSyntheticEvent) => Promise<void>;
   handleChangeTypeEquipment: (event: ChangeEvent<HTMLSelectElement>) => void;
   handleChangeTrademark: (event: ChangeEvent<HTMLSelectElement>) => void;
-  isOtherTypeSelected: boolean;
-  isOtherTradeMarkSelected: boolean;
   handleCancelAdd: () => void;
   closeDetails: () => void;
   handleCancelDelete: () => void;
   clearErrors: UseFormClearErrors<TInitialState>;
+  watch: UseFormWatch<TInitialState>;
 }
 
 type TInitialState = TStock & {
@@ -67,9 +67,6 @@ const INITIAL_STATE: TInitialState = {
 
 export const useStock = (): IUseStock => {
   const { openToast } = useNotification();
-  const [isOtherTypeSelected, setIsOtherTypeSelected] = React.useState(false);
-  const [isOtherTradeMarkSelected, setIsOtherTradeMarkSelected] =
-    React.useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOpenDetail,
@@ -97,6 +94,7 @@ export const useStock = (): IUseStock => {
     setValue,
     getValues,
     clearErrors,
+    watch,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<TInitialState>({
     defaultValues: INITIAL_STATE,
@@ -128,7 +126,8 @@ export const useStock = (): IUseStock => {
 
   const handleChangeTypeEquipment = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    setIsOtherTypeSelected(selectedValue === "others");
+    setValue("typeEquipment", selectedValue);
+
     if (selectedValue !== "others") {
       setValue("otherTypeEquipment", "");
     }
@@ -136,29 +135,16 @@ export const useStock = (): IUseStock => {
 
   const handleChangeTrademark = (event: ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
-    setIsOtherTradeMarkSelected(selectedValue === "others");
+    setValue("tradeMark", selectedValue);
+
     if (selectedValue !== "others") {
       setValue("otherTrademark", "");
     }
   };
 
   const handleCancelAdd = () => {
-    if (stockElement) {
-      setStockElement(undefined);
-    }
-    if (isOtherTradeMarkSelected) {
-      setIsOtherTradeMarkSelected(false);
-    }
-    if (isOtherTypeSelected) {
-      setIsOtherTypeSelected(false);
-    }
     reset(INITIAL_STATE);
     onClose();
-  };
-
-  const closeDetails = () => {
-    setStockElement(undefined);
-    onCloseDetail();
   };
 
   const handleCancelDelete = () => {
@@ -171,26 +157,34 @@ export const useStock = (): IUseStock => {
     onOpenDetail();
   };
 
-  const handleEdit = (item: TStock) => {
-    reset(item);
-    setStockElement(item);
-    const isOtherTypeEquipment = TYPE_EQUIPMENTS.filter(
-      (type) => type === item.typeEquipment,
-    );
-    const isOtherTradeMark = TRADEMARK.filter(
-      (trademark) => trademark === item.tradeMark,
-    );
+  const closeDetails = () => {
+    setStockElement(undefined);
+    onCloseDetail();
+  };
 
-    if (isOtherTypeEquipment.length === 0) {
-      setIsOtherTypeSelected((prev) => !prev);
+  const handleEdit = (item: TStock) => {
+    setIsLoading(true);
+    reset(item);
+    const isOtherTypeEquipment = !TYPE_EQUIPMENTS.includes(item.typeEquipment);
+    const isOtherTradeMark = !TRADEMARK.includes(item.tradeMark);
+
+    if (isOtherTypeEquipment) {
+      setValue("typeEquipment", "others");
       setValue("otherTypeEquipment", item.typeEquipment);
+    } else {
+      setValue("typeEquipment", item.typeEquipment);
+      setValue("otherTypeEquipment", "");
     }
 
-    if (isOtherTradeMark.length === 0) {
-      setIsOtherTradeMarkSelected((prev) => !prev);
+    if (isOtherTradeMark) {
+      setValue("tradeMark", "others");
       setValue("otherTrademark", item.tradeMark);
+    } else {
+      setValue("tradeMark", item.tradeMark);
+      setValue("otherTrademark", "");
     }
     onOpen();
+    setIsLoading(false);
   };
 
   const handleDelete = (item: TStock) => {
@@ -214,18 +208,19 @@ export const useStock = (): IUseStock => {
 
   const handleCreate = handleSubmit(async () => {
     const create = getValues();
+    const isOtherTypeEquipment = create.typeEquipment === "others";
+    const isOtherTradeMark = create.tradeMark === "others";
+
     try {
       const dataToSubmit: TStock = {
         ...create,
-        typeEquipment: isOtherTypeSelected
+        typeEquipment: isOtherTypeEquipment
           ? create.otherTypeEquipment
           : create.typeEquipment,
-        tradeMark: isOtherTradeMarkSelected
-          ? create.otherTrademark
-          : create.otherTrademark,
+        tradeMark: isOtherTradeMark ? create.otherTrademark : create.tradeMark,
       };
-      if (stockElement?.uid) {
-        await updateStockElement(stockElement.uid, dataToSubmit);
+      if (create.uid) {
+        await updateStockElement(create.uid, dataToSubmit);
         openToast("success", "Element updated successfully", "Success");
       } else {
         await createNewStockElement(dataToSubmit);
@@ -234,11 +229,6 @@ export const useStock = (): IUseStock => {
     } catch (error) {
       openToast("error", (error as Error).message, "Error");
     } finally {
-      if (stockElement?.uid) {
-        setStockElement(undefined);
-      }
-      setIsOtherTypeSelected(false);
-      setIsOtherTradeMarkSelected(false);
       onClose();
     }
   });
@@ -263,11 +253,10 @@ export const useStock = (): IUseStock => {
     handleCreate,
     handleChangeTypeEquipment,
     handleChangeTrademark,
-    isOtherTypeSelected,
-    isOtherTradeMarkSelected,
     handleCancelAdd,
     closeDetails,
     handleCancelDelete,
     clearErrors,
+    watch,
   };
 };

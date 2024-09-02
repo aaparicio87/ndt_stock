@@ -4,6 +4,7 @@ import {
   useForm,
   UseFormClearErrors,
   UseFormRegister,
+  UseFormWatch,
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNotification } from "../../../../hooks/useNotification.ts";
@@ -34,7 +35,7 @@ const INITIAL_STATE: Partial<TWorkHour> = {
   date: new Date().toISOString().split("T")[0],
   client: undefined,
   location: "",
-  ndtMethods: undefined,
+  ndtMethods: [],
   startTime: new Date().toTimeString().split(" ")[0].slice(0, 5),
   endTime: new Date().toTimeString().split(" ")[0].slice(0, 5),
   note: "",
@@ -57,8 +58,6 @@ export interface IWorkedHoursHooks {
   ) => Promise<void>;
   isOpen: boolean;
   onOpen: () => void;
-  handleGetAllCustomers: () => Promise<void>;
-  handleGetAllCertificates: () => Promise<void>;
   openToast: (status: TToastStatus, description: string, title: string) => void;
   handleWorkHoursSelected: (workHour: TWorkHour | undefined) => void;
   workHourSelected: TWorkHour | undefined;
@@ -71,6 +70,9 @@ export interface IWorkedHoursHooks {
   showTraveling: boolean;
   handleToogleTraveling: () => void;
   clearErrors: UseFormClearErrors<TWorkHour>;
+  handleOpenEditWorkHour: () => Promise<void>;
+  isLoading: boolean;
+  watch: UseFormWatch<TWorkHour>;
 }
 
 export const useWorkedHours = (): IWorkedHoursHooks => {
@@ -84,6 +86,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     setValue,
     getValues,
     clearErrors,
+    watch,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<TWorkHour>({
     defaultValues: INITIAL_STATE,
@@ -109,6 +112,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
   const [visibleHours, setVisibleHours] = React.useState("");
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [showTraveling, setShowTraveling] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   useEffect(() => {
     handleGetWorkHoursByUser();
@@ -142,40 +146,6 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     }
   }, [isSubmitSuccessful]);
 
-  const handleGetAllCustomers = async () => {
-    try {
-      const customers = await getAllCustomers();
-      if (customers) {
-        customersRemote.current = customers;
-        const list = customers.map((res) => ({
-          label: res.name,
-          value: res.uid,
-        }));
-        setCustomersList(list);
-      }
-    } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
-    }
-  };
-
-  const handleGetAllCertificates = async () => {
-    try {
-      const certificates = await getAllCertificates();
-      if (certificates) {
-        certificatesRemote.current = certificates;
-        const list = certificates
-          .filter((ndt) => ndt)
-          .map((res) => ({
-            label: res.name,
-            value: res.uid as string,
-          }));
-        setCertificatesList(list);
-      }
-    } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
-    }
-  };
-
   const handleChangeItemCertificates = (newValue: MultiValue<TOptions>) => {
     try {
       setItemsCertificates(newValue);
@@ -200,6 +170,49 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     if (client) {
       setCustomerSelected(client?.uid);
       setValue("client", client);
+    }
+  };
+
+  const handleOpenEditWorkHour = async () => {
+    setIsLoading((prev) => !prev);
+    try {
+      const [customers, certificates] = await Promise.allSettled([
+        getAllCustomers(),
+        getAllCertificates(),
+      ]);
+
+      if (customers.status === "rejected") {
+        throw new Error(customers.reason);
+      }
+
+      if (certificates.status === "rejected") {
+        throw new Error(certificates.reason);
+      }
+
+      if (customers.status === "fulfilled" && customers.value) {
+        customersRemote.current = customers.value;
+        const list = customers.value.map((res) => ({
+          label: res.name,
+          value: res.uid,
+        }));
+        setCustomersList(list);
+      }
+
+      if (certificates.status === "fulfilled" && certificates.value) {
+        certificatesRemote.current = certificates.value;
+        const list = certificates.value
+          .filter((ndt) => ndt)
+          .map((res) => ({
+            label: res.name,
+            value: res.uid as string,
+          }));
+        setCertificatesList(list);
+      }
+      onOpen();
+    } catch (error) {
+      openToast("error", (error as Error).message, "Error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -234,7 +247,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         openToast("success", "Updated worked hour", "Success");
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     } finally {
       handleGetWorkHoursByUser();
       onClose();
@@ -357,9 +370,12 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
 
   const handleToogleTraveling = () => {
     setShowTraveling((prev) => !prev);
-
+    if (itemsCertificates.length > 0) {
+      setItemsCertificates([]);
+    }
     reset({
       ...getValues(),
+      ndtMethods: [],
       distance: 0,
       carPlate: "",
       travelFrom: "",
@@ -382,8 +398,6 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     handleCreateWorkHour,
     isOpen,
     onOpen,
-    handleGetAllCustomers,
-    handleGetAllCertificates,
     openToast,
     handleWorkHoursSelected,
     workHourSelected,
@@ -396,5 +410,8 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
     showTraveling,
     handleToogleTraveling,
     clearErrors,
+    handleOpenEditWorkHour,
+    isLoading,
+    watch,
   };
 };

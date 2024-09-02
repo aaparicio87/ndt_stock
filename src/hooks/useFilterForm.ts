@@ -13,6 +13,7 @@ export const useFilterForm = <T extends FieldValues>(
         reset,
         setValue,
         resetField,
+        clearErrors,
         formState: { errors, isSubmitting, isSubmitSuccessful },
     } = useForm<T>({
         resolver: zodResolver(validationSchema),
@@ -28,6 +29,7 @@ export const useFilterForm = <T extends FieldValues>(
         isSubmitSuccessful,
         reset,
         setValue,
-        resetField
+        resetField,
+        clearErrors
     };
 };

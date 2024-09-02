@@ -48,6 +48,10 @@ const StaffProvider = ({ children }: Props) => {
     onChangeItemRoles,
     certificatesDetails,
     clearErrors,
+    clearErrorsFilter,
+    onNavigate,
+    onViewChange,
+    visibleHours,
   } = useUser();
 
   return (
@@ -92,6 +96,10 @@ const StaffProvider = ({ children }: Props) => {
         onChangeItemRoles,
         certificatesDetails,
         clearErrors,
+        clearErrorsFilter,
+        onNavigate,
+        onViewChange,
+        visibleHours,
       }}
     >
       {children}

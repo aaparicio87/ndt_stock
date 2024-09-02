@@ -17,7 +17,10 @@ import {
 } from "@chakra-ui/react";
 import { Loader, MultiSelect } from "../../../../../components";
 import { useWorkContext } from "../../../../../context/WorkContext.tsx";
-import { handleKeyDown } from "../../../../../utils/functions.ts";
+import {
+  handleInputNumberChange,
+  handleKeyDown,
+} from "../../../../../utils/functions.ts";
 import TravelingForm from "../../../../../components/Travelign/Traveling.tsx";
 
 const WorkForm = () => {
@@ -186,7 +189,11 @@ const WorkForm = () => {
             <FormControl>
               <FormLabel>Max worked hrs</FormLabel>
               <NumberInput min={0} defaultValue={0}>
-                <NumberInputField {...register("maxWorkedHours")} />
+                <NumberInputField
+                  {...register("maxWorkedHours")}
+                  inputMode="decimal"
+                  onChange={handleInputNumberChange}
+                />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />
@@ -199,7 +206,11 @@ const WorkForm = () => {
             <FormControl>
               <FormLabel>Films</FormLabel>
               <NumberInput min={0} defaultValue={0}>
-                <NumberInputField {...register("films")} />
+                <NumberInputField
+                  {...register("films")}
+                  inputMode="decimal"
+                  onChange={handleInputNumberChange}
+                />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />
@@ -212,7 +223,11 @@ const WorkForm = () => {
             <FormControl>
               <FormLabel>Cans</FormLabel>
               <NumberInput min={0} defaultValue={0}>
-                <NumberInputField {...register("cans")} />
+                <NumberInputField
+                  {...register("cans")}
+                  inputMode="decimal"
+                  onChange={handleInputNumberChange}
+                />
                 <NumberInputStepper>
                   <NumberIncrementStepper />
                   <NumberDecrementStepper />

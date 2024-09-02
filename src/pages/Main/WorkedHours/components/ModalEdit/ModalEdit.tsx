@@ -15,7 +15,7 @@ import {
   Select,
   Textarea,
 } from "@chakra-ui/react";
-import { MultiSelect } from "../../../../../components";
+import { Loader, MultiSelect } from "../../../../../components";
 import React from "react";
 import { useWorkedHoursContext } from "../../../../../context/WorkedHoursContext.tsx";
 import TravelingForm from "../../../../../components/Travelign/Traveling.tsx";
@@ -39,26 +39,20 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
     itemsCertificates,
     handleChangeItemCertificates,
     isSubmitting,
-    handleGetAllCustomers,
-    handleGetAllCertificates,
-    openToast,
     workHourSelected,
     showTraveling,
     handleToogleTraveling,
     clearErrors,
+    isLoading,
   } = useWorkedHoursContext();
-
-  React.useEffect(() => {
-    const customers = handleGetAllCustomers();
-    const certificates = handleGetAllCertificates();
-    Promise.allSettled([customers, certificates]).catch((errors) =>
-      openToast("error", JSON.stringify(errors), "Error"),
-    );
-  }, [handleGetAllCustomers, handleGetAllCertificates]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
   };
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <Modal
@@ -176,14 +170,13 @@ const ModalEdit = ({ onClose, isOpen }: TProps) => {
               isWork={false}
             />
             <HStack pt={1}>
-              <FormControl>
+              <FormControl isInvalid={!!errors.note}>
                 <FormLabel>Note</FormLabel>
                 <Textarea
                   placeholder="Put a small description of the work"
                   {...register("note")}
                 />
                 <FormErrorMessage>
-                  note
                   {errors.note && errors.note.message}
                 </FormErrorMessage>
               </FormControl>

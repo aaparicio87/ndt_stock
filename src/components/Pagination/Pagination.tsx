@@ -60,6 +60,7 @@ const Pagination = <T,>({ table }: PaginationProps<T>) => {
                             table.setPageIndex(page);
                         }}
                         width="16"
+                        inputMode="decimal"
                     >
                         <NumberInputField />
                     </NumberInput>

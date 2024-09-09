@@ -1554,8 +1554,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "ndt_stcok"
-version = "0.0.0"
+name = "ndt_stock"
+version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",

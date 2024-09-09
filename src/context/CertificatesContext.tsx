@@ -28,7 +28,8 @@ const CertificatesProvider = ({ children }: Props) => {
         onOpen,
         levelsCert,
         onChangeLevels,
-        itemsLevelCert
+        itemsLevelCert,
+        clearErrors
     } = useCertificates()
 
     return (
@@ -51,7 +52,8 @@ const CertificatesProvider = ({ children }: Props) => {
                 onOpen,
                 levelsCert,
                 onChangeLevels,
-                itemsLevelCert
+                itemsLevelCert,
+                clearErrors
             }}
         >
             {children}

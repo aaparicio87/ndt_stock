@@ -39,8 +39,8 @@ const Security = () => {
     const [show, setShow] = React.useState(false)
     const [showNew, setShowNew] = React.useState(false)
     const [showConfirm, setShowConfirm] = React.useState(false)
-    const handleClick = () => setShow((prev)=> !prev)
-    const handleClickNew = () => setShowNew((prev)=> !prev)
+    const handleClick = () => setShow((prev) => !prev)
+    const handleClickNew = () => setShowNew((prev) => !prev)
     const handleClickConfirm = () => setShowConfirm((prev) => !prev)
 
     React.useEffect(() => {
@@ -65,7 +65,7 @@ const Security = () => {
                 openToast('error', response.error ?? 'Internal server Error', "Error")
             }
         } catch (error) {
-            openToast('error', JSON.stringify(error), "Error")
+            openToast('error', (error as Error).message, "Error")
         }
     }
 
@@ -76,16 +76,16 @@ const Security = () => {
                     <FormControl isInvalid={!!errors.currentPassword}>
                         <FormLabel>Current Password</FormLabel>
                         <InputGroup size='md'>
-                        <Input
-                            type={show ? 'text' : 'password'}
-                            placeholder='Current Password'
-                            {...register("currentPassword")}
-                        />
-                        <InputRightElement width='4.5rem'>
-                            <Button h='1.75rem' size='sm' onClick={handleClick}>
-                                {show ? 'Hide' : 'Show'}
-                            </Button>
-                        </InputRightElement>
+                            <Input
+                                type={show ? 'text' : 'password'}
+                                placeholder='Current Password'
+                                {...register("currentPassword")}
+                            />
+                            <InputRightElement width='4.5rem'>
+                                <Button h='1.75rem' size='sm' onClick={handleClick}>
+                                    {show ? 'Hide' : 'Show'}
+                                </Button>
+                            </InputRightElement>
                         </InputGroup>
                         <FormErrorMessage>
                             {errors.currentPassword && errors.currentPassword.message}
@@ -95,16 +95,16 @@ const Security = () => {
                     <FormControl isInvalid={!!errors.password}>
                         <FormLabel>New Password</FormLabel>
                         <InputGroup size='md'>
-                        <Input
-                            type={showNew ? 'text' : 'password'}
-                            placeholder='New Password'
-                            {...register("password")}
-                        />
-                        <InputRightElement width='4.5rem'>
-                            <Button h='1.75rem' size='sm' onClick={handleClickNew}>
-                                {showNew ? 'Hide' : 'Show'}
-                            </Button>
-                        </InputRightElement>
+                            <Input
+                                type={showNew ? 'text' : 'password'}
+                                placeholder='New Password'
+                                {...register("password")}
+                            />
+                            <InputRightElement width='4.5rem'>
+                                <Button h='1.75rem' size='sm' onClick={handleClickNew}>
+                                    {showNew ? 'Hide' : 'Show'}
+                                </Button>
+                            </InputRightElement>
                         </InputGroup>
                         <FormErrorMessage>
                             {errors.password && errors.password.message}

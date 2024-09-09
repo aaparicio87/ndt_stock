@@ -123,6 +123,7 @@ export interface IUseUser {
   onViewChange: (view: View) => void;
   visibleHours: string;
   onNavigate: (newDate: Date) => void;
+  handleClearImage: () => void
 }
 
 export const useUser = (): IUseUser => {
@@ -290,6 +291,7 @@ export const useUser = (): IUseUser => {
       if (uid) {
         let staff = await getStaffInformationByUserUID(uid);
         if (staff !== null) {
+          staff.photoUrl && setSelectedImage(staff.photoUrl)
           setStaffElement(staff);
           const roles = staff.roles.map((rol) => ({
             label: rol,
@@ -303,7 +305,6 @@ export const useUser = (): IUseUser => {
             );
             setItemsCertificates(response);
           }
-          setItemsCertificates;
           reset({
             ...staff,
             name: capitalizeFirstLetter(staff.name),
@@ -316,7 +317,7 @@ export const useUser = (): IUseUser => {
         setItemsRoles([]);
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     } finally {
       onOpen();
       setLoading(false);
@@ -346,7 +347,7 @@ export const useUser = (): IUseUser => {
           setIsLoading(false);
         });
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
@@ -361,17 +362,17 @@ export const useUser = (): IUseUser => {
       onCloseDelete();
       openToast("success", "Element deleted successfully", "Success");
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
   const closeModalAdd = () => {
+    setStaffElement(undefined);
+    setSelectedImage(null)
     if (isOpen) {
       onClose();
-      setStaffElement(undefined);
     } else if (isOpenDetail) {
       onCloseDetail();
-      setStaffElement(undefined);
     }
   };
 
@@ -403,14 +404,14 @@ export const useUser = (): IUseUser => {
         }
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     } finally {
       setIsLoading(false);
     }
   });
 
   const onSubmitUser = handleSubmit(async () => {
-    let url = "";
+    let url: string | undefined = undefined;
     const data = getValues();
     try {
       if (data.profileImage && data.profileImage !== null) {
@@ -419,26 +420,29 @@ export const useUser = (): IUseUser => {
         url = await getDownloadURL(result.ref);
       }
       if (staffElement?.uid) {
-        let updatedData = { ...data };
-        if (url.length > 0) {
+        let { profileImage, ...updatedData } = { ...data };
+        
           updatedData = {
             ...updatedData,
             photoUrl: url,
             name: normalizeFullName(data.name).toLowerCase(),
             lastName: normalizeFullName(data.lastName).toLowerCase(),
           };
-        }
+        
         await updateStaffElement(staffElement.uid, updatedData);
+        closeModalAdd();
         openToast("success", "User updated successfully", "Success");
       } else {
+        const { profileImage, ...restData } = data;
         const updatedDataCreate = {
-          ...data,
+          ...restData,
           photoUrl: url,
           name: normalizeFullName(data.name).toLowerCase(),
           lastName: normalizeFullName(data.lastName).toLowerCase(),
         };
         const response = await registerUser(updatedDataCreate);
         if (response.success) {
+          closeModalAdd();
           openToast("success", "New user added to the staff", "Success");
         } else {
           openToast(
@@ -449,10 +453,8 @@ export const useUser = (): IUseUser => {
         }
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
-    } finally {
-      closeModalAdd();
-    }
+      openToast("error", (error as Error).message, "Error");
+    } 
   });
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -619,6 +621,11 @@ export const useUser = (): IUseUser => {
     );
   };
 
+  const handleClearImage = () => {
+    setSelectedImage(null);
+    setValue("profileImage", null);
+  }
+
   return {
     handleViewDetails,
     handleEdit,
@@ -663,5 +670,6 @@ export const useUser = (): IUseUser => {
     onViewChange,
     onNavigate,
     visibleHours,
+    handleClearImage
   };
 };

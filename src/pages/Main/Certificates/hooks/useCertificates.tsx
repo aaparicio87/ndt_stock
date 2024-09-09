@@ -130,7 +130,7 @@ export const useCertificates = (): IUsecertificates => {
             onCloseDelete()
             openToast('success', "Element deleted successfully", 'Success')
         } catch (error) {
-            openToast('error', JSON.stringify(error), "Error")
+            openToast('error', (error as Error).message, "Error")
         }
     }
 

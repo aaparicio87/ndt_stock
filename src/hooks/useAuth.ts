@@ -59,7 +59,7 @@ export const useAuth = () => {
           }))
         }
     } catch (error) {
-      openToast('error', JSON.stringify(error), "Error")
+      openToast('error', (error as Error).message, "Error")
     }
   }
 
@@ -69,7 +69,7 @@ export const useAuth = () => {
           await logoutUser()
           dispatch(clearAuth())
         } catch (error) {
-          openToast('error', JSON.stringify(error), "Error")
+          openToast('error', (error as Error).message, "Error")
         }
     },[dispatch])
   

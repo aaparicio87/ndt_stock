@@ -52,6 +52,7 @@ const StaffProvider = ({ children }: Props) => {
     onNavigate,
     onViewChange,
     visibleHours,
+    handleClearImage,
   } = useUser();
 
   return (
@@ -100,6 +101,7 @@ const StaffProvider = ({ children }: Props) => {
         onNavigate,
         onViewChange,
         visibleHours,
+        handleClearImage,
       }}
     >
       {children}

@@ -17,7 +17,10 @@ import {
   Avatar,
   VStack,
   Text,
+  IconButton,
+  Box,
 } from "@chakra-ui/react";
+import { FiTrash2 } from 'react-icons/fi'
 import { DEGREES, ROLES } from "../../../../../utils/constants";
 import { Loader, MultiSelect } from "../../../../../components";
 import { useStaffContext } from "../../../../../context/StaffContext";
@@ -45,6 +48,7 @@ const ModalAdd = () => {
     closeModalAdd,
     staffElement,
     clearErrors,
+    handleClearImage
   } = useStaffContext();
 
   const initialRef = React.useRef(null);
@@ -70,7 +74,26 @@ const ModalAdd = () => {
             <>
               <ModalBody>
                 <HStack spacing={4} width="100%" my={4}>
-                  <Avatar size="xl" src={selectedImage as string} />
+                  {
+                    selectedImage === null ? <Avatar bg='teal.500' size={'xl'} /> :
+                      <Box position="relative" display="inline-block">
+                        <Avatar
+                          size="xl"
+                          src={selectedImage as string}
+                          name="User Name"
+                        />
+                        <IconButton
+                          aria-label="Delete image"
+                          icon={<FiTrash2 />}
+                          size="sm"
+                          position="absolute"
+                          right="0"
+                          bottom="0"
+                          zIndex="1"
+                          onClick={handleClearImage}
+                        />
+                      </Box>
+                  }
                   <VStack alignItems={"start"} gap={2}>
                     <Text fontSize={"large"} as="b">
                       Profile Image

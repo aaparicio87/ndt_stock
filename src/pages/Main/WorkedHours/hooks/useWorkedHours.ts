@@ -282,7 +282,7 @@ export const useWorkedHours = (): IWorkedHoursHooks => {
         }
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 

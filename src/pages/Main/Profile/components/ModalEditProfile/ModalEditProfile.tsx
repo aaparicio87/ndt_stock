@@ -11,7 +11,10 @@ import {
     VStack,
     Select as ChakraSelect,
     ModalFooter,
+    Box,
+    IconButton,
 } from '@chakra-ui/react'
+import { FiTrash2 } from 'react-icons/fi'
 import { useForm } from 'react-hook-form'
 import { PROFILE_VALIDATION_SCHEMA } from '../../../../../utils/validationSchemas'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,15 +22,16 @@ import { useNotification } from '../../../../../hooks/useNotification'
 import { DEGREES } from '../../../../../utils/constants'
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FB_STORAGE } from '../../../../../config/firebase.conf'
-import { updateStaffElement } from '../../../../../services'
-import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentUser, updateUserData } from '../../../../../state/features/auth/authSlice'
+import { getStaffInformationByUserUID, updateStaffElement } from '../../../../../services'
+import { useDispatch } from 'react-redux'
+import { updateUserData } from '../../../../../state/features/auth/authSlice'
 import { AppDispatch } from '../../../../../state/store'
 import { capitalizeFirstLetter } from '../../../../../utils/functions'
 
 type TProps = {
     onClose: () => void
     isOpen: boolean
+    user: TStaff
 }
 
 type TInitialState = Partial<TStaff> & {
@@ -44,18 +48,15 @@ const INITIAL_STATE: TInitialState = {
 }
 
 
-const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
+const ModalEditProfile = ({ onClose, isOpen, user }: TProps) => {
 
     const dispatch: AppDispatch = useDispatch();
-    const user = useSelector(selectCurrentUser);
 
-    if (!user) {
-        return
-    }
+    const image = user.photoUrl ?? null
 
     const initialRef = React.useRef(null)
     const finalRef = React.useRef(null)
-    const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(user.photoUrl || null);
+    const [selectedImage, setSelectedImage] = React.useState<string | ArrayBuffer | null>(image);
     const { openToast } = useNotification()
 
     const { register, handleSubmit, reset, setValue, getValues, formState: { errors, isSubmitting, isSubmitSuccessful } } = useForm<TInitialState>({
@@ -64,49 +65,56 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
     });
 
     React.useEffect(() => {
-        if (user) {
-            reset({
-                name: capitalizeFirstLetter(user.name),
-                lastName: capitalizeFirstLetter(user.lastName),
-                photoUrl: user.photoUrl,
-                degree: user.degree
-            });
-        }
-
+        reset({
+            name: capitalizeFirstLetter(user.name),
+            lastName: capitalizeFirstLetter(user.lastName),
+            photoUrl: user.photoUrl,
+            degree: user.degree
+        });
     }, [user]);
 
     React.useEffect(() => {
         if (isSubmitSuccessful) {
             reset()
-            onClose()
+            handleCloseModal()
         }
     }, [isSubmitSuccessful])
+
+    const handleCloseModal = () => {
+        onClose()
+        setSelectedImage(image)
+        reset()
+    }
 
     const onSubmit = async (data: TInitialState) => {
         try {
             const { profileImage } = getValues()
-            let url = ""
+            let url: string | undefined = undefined;
+
             if (profileImage && profileImage !== null) {
                 const storageRef = ref(FB_STORAGE, `images/${profileImage.name}`);
                 const result = await uploadBytes(storageRef, profileImage)
                 url = await getDownloadURL(result.ref);
             }
             if (user?.uid) {
-                let updatedData = { ...user, ...data }
-                if (url.length > 0) {
-                    updatedData = {
-                        ...updatedData,
-                        photoUrl: url,
-                        name: updatedData.name.toLowerCase(),
-                        lastName: updatedData.lastName.toLowerCase(),
+                const staff = await getStaffInformationByUserUID(user?.uid);
+                let { profileImage, ...updatedData } = { ...data };
+                if (staff !== null) {
+                    const staffUpdate = {
+                        ...staff,
+                        photoUrl: url ?? "",
+                        name: updatedData.name ? updatedData.name.toLowerCase() : staff.name,
+                        lastName: updatedData.lastName ? updatedData.lastName?.toLowerCase() : staff.lastName,
                     }
+                    await updateStaffElement(user.uid, staffUpdate)
+                    dispatch(updateUserData(staffUpdate))
+                    openToast('success', "User profile updated successfully", 'Success')
+                } else {
+                    openToast('error', "An error occurs when update the profile", "Error")
                 }
-                await updateStaffElement(user.uid, updatedData)
-                dispatch(updateUserData(updatedData))
-                openToast('success', "User profile updated successfully", 'Success')
             }
         } catch (error) {
-            openToast('error', JSON.stringify(error), "Error")
+            openToast('error', (error as Error).message, "Error")
         }
     }
 
@@ -135,12 +143,17 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
         }
     };
 
+    const handleClearImage = () => {
+        setSelectedImage(null);
+        setValue("profileImage", null);
+    }
+
     return (
         <Modal
             initialFocusRef={initialRef}
             finalFocusRef={finalRef}
             isOpen={isOpen}
-            onClose={onClose}
+            onClose={handleCloseModal}
             size={'xl'}
             closeOnOverlayClick={false}
         >
@@ -151,7 +164,23 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
                     <ModalCloseButton />
                     <ModalBody pb={6}>
                         <HStack spacing={4} width="100%" my={4}>
-                            <Avatar size="xl" name={`${user.name} ${user.lastName}`} src={selectedImage as string} />
+                            {
+                                selectedImage === null ?
+                                    <Avatar bg='teal.500' size={'xl'} /> :
+                                    <Box position="relative" display="inline-block">
+                                        <Avatar bg='teal.500' size={'xl'} src={selectedImage as string} />
+                                        <IconButton
+                                            aria-label="Delete image"
+                                            icon={<FiTrash2 />}
+                                            size="sm"
+                                            position="absolute"
+                                            right="0"
+                                            bottom="0"
+                                            zIndex="1"
+                                            onClick={handleClearImage}
+                                        />
+                                    </Box>
+                            }
                             <VStack alignItems={'start'} gap={2}>
                                 <Text fontSize={'large'} as='b'>Profile Image</Text>
                                 <Text fontSize={'small'}> PNG or JPEG</Text>
@@ -217,7 +246,7 @@ const ModalEditProfile = ({ onClose, isOpen }: TProps) => {
                         >
                             Update
                         </Button>
-                        <Button onClick={onClose} isDisabled={isSubmitting}>Cancel</Button>
+                        <Button onClick={handleCloseModal} isDisabled={isSubmitting}>Cancel</Button>
                     </ModalFooter>
                 </ModalContent>
             </form>

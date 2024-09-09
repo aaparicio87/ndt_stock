@@ -111,6 +111,8 @@ const General = () => {
             <ModalEditProfile
                 isOpen={isOpen}
                 onClose={onClose}
+                user={user}
+
             />
         </Flex>
     )

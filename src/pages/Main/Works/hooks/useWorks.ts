@@ -273,7 +273,7 @@ export const useWorks = (): IWorkHook => {
         setCertificatesList(list);
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
@@ -293,7 +293,7 @@ export const useWorks = (): IWorkHook => {
         }));
       setWorkersList(lstWorkers);
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
@@ -309,7 +309,7 @@ export const useWorks = (): IWorkHook => {
         setCustomersList(list);
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
@@ -326,7 +326,7 @@ export const useWorks = (): IWorkHook => {
       onCloseDelete();
       openToast("success", "Element deleted successfully", "Success");
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   };
 
@@ -358,7 +358,7 @@ export const useWorks = (): IWorkHook => {
           reportNumber: work.reportNumber,
           reportPlace: work.reportPlace ?? "-",
           workers: work.workers
-            .map((ws) => `${ws.name} ${ws.lastName}`)
+            .map((ws) => `${capitalizeFirstLetter(ws.name)} ${capitalizeFirstLetter(ws.lastName)}`)
             .join(", "),
           traveling: work.traveling ? "Yes" : "No",
           maxWorkedHours: Number(work.maxWorkedHours),
@@ -374,7 +374,7 @@ export const useWorks = (): IWorkHook => {
         setWorkElementDetail(detailWork);
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     } finally {
       setIsLoading(false);
     }
@@ -462,7 +462,7 @@ export const useWorks = (): IWorkHook => {
         openWorksTable();
       }
     } catch (error) {
-      openToast("error", JSON.stringify(error), "Error");
+      openToast("error", (error as Error).message, "Error");
     }
   });
 
